@@ -1,0 +1,38 @@
+# AltWallet Checkout Agent Python Dependencies
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# HTTP Client
+httpx==0.25.2
+requests==2.31.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Data Validation
+pydantic==2.5.0
+
+# Logging
+loguru==0.7.2
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# Development Tools
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Database (if needed)
+# sqlalchemy==2.0.23
+# alembic==1.12.1
+
+# Security
+cryptography==45.0.6
+python-jose[cryptography]==3.3.0
+
+# Utilities
+python-multipart==0.0.6
