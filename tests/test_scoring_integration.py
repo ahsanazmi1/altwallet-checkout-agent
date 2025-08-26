@@ -92,10 +92,10 @@ def test_high_risk_scenario():
         LoyaltyTier,
     )
     from altwallet_agent.policy import (
-        RISK_SCORE_LOCATION_MISMATCH,
-        RISK_SCORE_VELOCITY_FLAG,
         RISK_SCORE_CHARGEBACKS,
         RISK_SCORE_HIGH_TICKET,
+        RISK_SCORE_LOCATION_MISMATCH,
+        RISK_SCORE_VELOCITY_FLAG,
     )
 
     # Create high-risk context
