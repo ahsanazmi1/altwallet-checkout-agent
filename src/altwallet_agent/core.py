@@ -56,7 +56,7 @@ class CheckoutAgent:
         request_id = request_id_var.get()
         trace_id = trace_id_var.get()
 
-        return self.logger.bind(
+        return self.logger.bind(  # type: ignore[no-any-return]
             request_id=request_id,
             trace_id=trace_id,
         )

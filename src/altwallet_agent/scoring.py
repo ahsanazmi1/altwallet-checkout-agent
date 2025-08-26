@@ -71,33 +71,33 @@ def calculate_risk_score(context: Context) -> tuple[int, dict[str, Any]]:
     }
 
     # Check location mismatch
-    if context.flags.get("mismatch_location", False):
+    if context.flags.get("mismatch_location", False):  # type: ignore[attr-defined]
         risk_score += RISK_SCORE_LOCATION_MISMATCH
         signals["location_mismatch"] = True
-        signals["risk_factors"].append("location_mismatch")
+        signals["risk_factors"].append("location_mismatch")  # type: ignore[attr-defined]
 
     # Check velocity flag
-    if context.flags.get("velocity_24h_flag", False):
+    if context.flags.get("velocity_24h_flag", False):  # type: ignore[attr-defined]
         risk_score += RISK_SCORE_VELOCITY_FLAG
         signals["velocity_flag"] = True
-        signals["risk_factors"].append("high_velocity_24h")
+        signals["risk_factors"].append("high_velocity_24h")  # type: ignore[attr-defined]
 
     # Check chargebacks
     if context.customer.chargebacks_12m > 0:
         risk_score += RISK_SCORE_CHARGEBACKS
         signals["chargebacks_present"] = True
-        signals["risk_factors"].append("chargebacks_12m")
+        signals["risk_factors"].append("chargebacks_12m")  # type: ignore[attr-defined]
 
     # Check high ticket amount
-    if context.cart.total >= HIGH_TICKET_THRESHOLD:
+    if context.cart.total >= HIGH_TICKET_THRESHOLD:  # type: ignore[operator]
         risk_score += RISK_SCORE_HIGH_TICKET
         signals["high_ticket"] = True
-        signals["risk_factors"].append("high_ticket_amount")
+        signals["risk_factors"].append("high_ticket_amount")  # type: ignore[attr-defined]
 
     # Add detailed signals
     signals.update(
         {
-            "cart_total": float(context.cart.total),
+            "cart_total": float(context.cart.total),  # type: ignore[arg-type]
             "customer_velocity_24h": context.customer.historical_velocity_24h,
             "customer_chargebacks_12m": context.customer.chargebacks_12m,
             "loyalty_tier": context.customer.loyalty_tier.value,

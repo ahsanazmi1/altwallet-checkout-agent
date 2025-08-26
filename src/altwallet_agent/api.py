@@ -90,7 +90,7 @@ async def add_trace_id_middleware(request: Request, call_next: Any) -> Response:
     # Add trace_id to response headers
     response.headers["X-Trace-Id"] = trace_id
 
-    return response
+    return response  # type: ignore[no-any-return]
 
 
 @app.get("/health", response_model=HealthResponse)

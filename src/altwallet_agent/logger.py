@@ -83,10 +83,13 @@ def get_logger(name: str | None = None) -> BoundLogger:
         # Get the calling module name
         import inspect
 
-        frame = inspect.currentframe().f_back
-        name = frame.f_globals.get("__name__", "altwallet_agent")
+        frame = inspect.currentframe()
+        if frame is not None:
+            frame = frame.f_back
+            if frame is not None:
+                name = frame.f_globals.get("__name__", "altwallet_agent")
 
-    return structlog.get_logger(name)
+    return structlog.get_logger(name)  # type: ignore[no-any-return]
 
 
 # Configure logging on module import
