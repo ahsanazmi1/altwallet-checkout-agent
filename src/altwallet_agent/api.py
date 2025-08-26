@@ -58,9 +58,7 @@ app.add_middleware(
 
 
 @app.middleware("http")
-async def add_trace_id_middleware(
-    request: Request, call_next: Any
-) -> Response:
+async def add_trace_id_middleware(request: Request, call_next: Any) -> Response:
     """Add trace_id to request context and log request/response."""
     # Get trace_id from header or generate new one
     trace_id = request.headers.get("X-Trace-Id", str(uuid.uuid4()))
