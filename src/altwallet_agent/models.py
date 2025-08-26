@@ -153,7 +153,10 @@ class Cart(BaseModel):
     @computed_field
     def total(self) -> Decimal:
         """Calculate total cart value."""
-        return sum((item.total_price for item in self.items), start=Decimal(0))
+        total = Decimal(0)
+        for item in self.items:
+            total += item.unit_price * item.qty
+        return total
 
     @computed_field
     def item_count(self) -> int:
