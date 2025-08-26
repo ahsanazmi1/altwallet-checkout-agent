@@ -50,7 +50,7 @@ def test_cli_scoring_basic():
         
         if not last_json_line:
             print("❌ No JSON output found in stdout")
-            return False
+            assert False, "No JSON output found in stdout"
             
         output = json.loads(last_json_line)
         print(f"Trace ID: {output['trace_id']}")
@@ -110,7 +110,7 @@ def test_cli_scoring_risky():
         
         if not last_json_line:
             print("❌ No JSON output found in stdout")
-            return False
+            assert False, "No JSON output found in stdout"
             
         output = json.loads(last_json_line)
         print(f"Trace ID: {output['trace_id']}")
@@ -173,7 +173,7 @@ def test_cli_scoring_pretty():
         
         if not last_json_line:
             print("❌ No JSON output found in stdout")
-            return False
+            assert False, "No JSON output found in stdout"
             
         # Verify it's valid JSON
         output = json.loads(last_json_line)
@@ -222,7 +222,7 @@ def test_cli_scoring_stdin():
         
         if not last_json_line:
             print("❌ No JSON output found in stdout")
-            return False
+            assert False, "No JSON output found in stdout"
             
         output = json.loads(last_json_line)
         assert output["trace_id"] == "test-stdin-789"
