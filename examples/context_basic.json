@@ -1,0 +1,45 @@
+{
+    "cart": {
+        "items": [
+            {
+                "item": "Grocery Items",
+                "unit_price": "45.99",
+                "qty": 1,
+                "mcc": "5411",
+                "merchant_category": "Grocery Stores"
+            }
+        ],
+        "currency": "USD"
+    },
+    "merchant": {
+        "name": "Local Grocery Store",
+        "mcc": "5411",
+        "network_preferences": [],
+        "location": {
+            "city": "New York",
+            "country": "US"
+        }
+    },
+    "customer": {
+        "id": "customer_12345",
+        "loyalty_tier": "SILVER",
+        "historical_velocity_24h": 3,
+        "chargebacks_12m": 0
+    },
+    "device": {
+        "ip": "192.168.1.100",
+        "device_id": "device_abc123",
+        "ip_distance_km": 0.5,
+        "location": {
+            "city": "New York",
+            "country": "US"
+        }
+    },
+    "geo": {
+        "city": "New York",
+        "region": "NY",
+        "country": "US",
+        "lat": 40.7128,
+        "lon": -74.0060
+    }
+}
