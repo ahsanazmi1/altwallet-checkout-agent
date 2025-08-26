@@ -183,3 +183,14 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+
+# Ruff cache
+.ruff_cache/
+
+# OpenAPI generated files
+openapi/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

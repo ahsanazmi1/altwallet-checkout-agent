@@ -1,17 +1,16 @@
 """Data models for AltWallet Checkout Agent."""
 
+import json
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-import json
+from typing import Any
 
 from pydantic import (
     BaseModel,
-    Field,
-    field_validator,
-    computed_field,
-    ValidationError,
     ConfigDict,
+    Field,
+    computed_field,
+    field_validator,
 )
 
 
@@ -21,8 +20,8 @@ class CheckoutRequest(BaseModel):
     merchant_id: str = Field(..., description="Unique merchant identifier")
     amount: Decimal = Field(..., description="Transaction amount", ge=0)
     currency: str = Field(default="USD", description="Transaction currency")
-    user_id: Optional[str] = Field(None, description="User identifier")
-    metadata: Dict[str, Any] = Field(
+    user_id: str | None = Field(None, description="User identifier")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -45,12 +44,12 @@ class CheckoutResponse(BaseModel):
     """Response model for checkout processing."""
 
     transaction_id: str = Field(..., description="Unique transaction identifier")
-    recommendations: List[Dict[str, Any]] = Field(
+    recommendations: list[dict[str, Any]] = Field(
         default_factory=list, description="Card recommendations"
     )
     score: float = Field(..., description="Transaction score", ge=0, le=1)
     status: str = Field(..., description="Processing status")
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Response metadata"
     )
 
@@ -58,10 +57,10 @@ class CheckoutResponse(BaseModel):
 class ScoreRequest(BaseModel):
     """Request model for scoring."""
 
-    transaction_data: Dict[str, Any] = Field(
+    transaction_data: dict[str, Any] = Field(
         ..., description="Transaction data to score"
     )
-    user_context: Optional[Dict[str, Any]] = Field(
+    user_context: dict[str, Any] | None = Field(
         None, description="User context information"
     )
 
@@ -82,10 +81,10 @@ class ScoreResponse(BaseModel):
 
     score: float = Field(..., description="Calculated score", ge=0, le=1)
     confidence: float = Field(..., description="Confidence in the score", ge=0, le=1)
-    factors: List[str] = Field(
+    factors: list[str] = Field(
         default_factory=list, description="Factors influencing the score"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -108,14 +107,14 @@ class CartItem(BaseModel):
     item: str = Field(..., description="Item name or identifier")
     unit_price: Decimal = Field(..., description="Price per unit", ge=0)
     qty: int = Field(default=1, description="Quantity of items", gt=0)
-    mcc: Optional[str] = Field(None, description="Merchant Category Code")
-    merchant_category: Optional[str] = Field(
+    mcc: str | None = Field(None, description="Merchant Category Code")
+    merchant_category: str | None = Field(
         None, description="Human-readable merchant category"
     )
 
     @field_validator("unit_price")
     @classmethod
-    def validate_unit_price(cls, v):
+    def validate_unit_price(cls, v: Decimal) -> Decimal:
         """Validate unit price is non-negative."""
         if v < 0:
             raise ValueError("Unit price must be non-negative")
@@ -123,14 +122,13 @@ class CartItem(BaseModel):
 
     @field_validator("qty")
     @classmethod
-    def validate_qty(cls, v):
+    def validate_qty(cls, v: int) -> int:
         """Validate quantity is positive."""
         if v <= 0:
             raise ValueError("Quantity must be positive")
         return v
 
     @computed_field
-    @property
     def total_price(self) -> Decimal:
         """Calculate total price for this item."""
         return self.unit_price * self.qty
@@ -139,27 +137,28 @@ class CartItem(BaseModel):
 class Cart(BaseModel):
     """Shopping cart containing multiple items."""
 
-    items: List[CartItem] = Field(
+    items: list[CartItem] = Field(
         default_factory=list, description="List of cart items"
     )
     currency: str = Field(default="USD", description="Currency code for the cart")
 
     @field_validator("currency")
     @classmethod
-    def validate_currency(cls, v):
+    def validate_currency(cls, v: str) -> str:
         """Validate currency code format."""
         if not v.isalpha() or len(v) != 3:
             raise ValueError("Currency must be a 3-letter ISO code")
         return v.upper()
 
     @computed_field
-    @property
     def total(self) -> Decimal:
         """Calculate total cart value."""
-        return sum(item.total_price for item in self.items)
+        total = Decimal(0)
+        for item in self.items:
+            total += item.unit_price * item.qty
+        return total
 
     @computed_field
-    @property
     def item_count(self) -> int:
         """Get total number of items in cart."""
         return sum(item.qty for item in self.items)
@@ -169,24 +168,24 @@ class Merchant(BaseModel):
     """Merchant information."""
 
     name: str = Field(..., description="Merchant name")
-    mcc: Optional[str] = Field(None, description="Merchant Category Code")
-    network_preferences: List[str] = Field(
+    mcc: str | None = Field(None, description="Merchant Category Code")
+    network_preferences: list[str] = Field(
         default_factory=list,
         description=("Preferred payment networks " "(e.g., ['visa', 'mc'])"),
     )
-    location: Optional[Dict[str, str]] = Field(
+    location: dict[str, str] | None = Field(
         None, description="Merchant location with city and country"
     )
 
     @field_validator("network_preferences")
     @classmethod
-    def validate_network_preferences(cls, v):
+    def validate_network_preferences(cls, v: list[str]) -> list[str]:
         """Validate network preferences are lowercase."""
         return [network.lower() for network in v if network]
 
     @field_validator("location")
     @classmethod
-    def validate_location(cls, v):
+    def validate_location(cls, v: dict[str, str] | None) -> dict[str, str] | None:
         """Validate location has required fields."""
         if v is not None:
             required_fields = ["city", "country"]
@@ -212,7 +211,7 @@ class Customer(BaseModel):
 
     @field_validator("historical_velocity_24h")
     @classmethod
-    def validate_velocity(cls, v):
+    def validate_velocity(cls, v: int) -> int:
         """Validate velocity is non-negative."""
         if v < 0:
             raise ValueError("Historical velocity must be non-negative")
@@ -220,7 +219,7 @@ class Customer(BaseModel):
 
     @field_validator("chargebacks_12m")
     @classmethod
-    def validate_chargebacks(cls, v):
+    def validate_chargebacks(cls, v: int) -> int:
         """Validate chargebacks is non-negative."""
         if v < 0:
             raise ValueError("Chargebacks count must be non-negative")
@@ -231,19 +230,19 @@ class Device(BaseModel):
     """Device information for transaction."""
 
     ip: str = Field(..., description="Device IP address")
-    device_id: Optional[str] = Field(None, description="Unique device identifier")
-    ip_distance_km: Optional[float] = Field(
+    device_id: str | None = Field(None, description="Unique device identifier")
+    ip_distance_km: float | None = Field(
         None,
         description="Distance between IP location and transaction location in kilometers",
         ge=0,
     )
-    location: Optional[Dict[str, str]] = Field(
+    location: dict[str, str] | None = Field(
         None, description="Device location with city and country"
     )
 
     @field_validator("ip")
     @classmethod
-    def validate_ip(cls, v):
+    def validate_ip(cls, v: str) -> str:
         """Basic IP address validation."""
         if not v or len(v.strip()) == 0:
             raise ValueError("IP address cannot be empty")
@@ -251,7 +250,7 @@ class Device(BaseModel):
 
     @field_validator("ip_distance_km")
     @classmethod
-    def validate_ip_distance(cls, v):
+    def validate_ip_distance(cls, v: float | None) -> float | None:
         """Validate IP distance is non-negative."""
         if v is not None and v < 0:
             raise ValueError("IP distance must be non-negative")
@@ -259,7 +258,7 @@ class Device(BaseModel):
 
     @field_validator("location")
     @classmethod
-    def validate_location(cls, v):
+    def validate_location(cls, v: dict[str, str] | None) -> dict[str, str] | None:
         """Validate location has required fields."""
         if v is not None:
             required_fields = ["city", "country"]
@@ -273,14 +272,14 @@ class Geo(BaseModel):
     """Geographic location information."""
 
     city: str = Field(..., description="City name")
-    region: Optional[str] = Field(None, description="Region or state")
+    region: str | None = Field(None, description="Region or state")
     country: str = Field(..., description="Country name or code")
-    lat: Optional[float] = Field(None, description="Latitude coordinate")
-    lon: Optional[float] = Field(None, description="Longitude coordinate")
+    lat: float | None = Field(None, description="Latitude coordinate")
+    lon: float | None = Field(None, description="Longitude coordinate")
 
     @field_validator("lat")
     @classmethod
-    def validate_lat(cls, v):
+    def validate_lat(cls, v: float | None) -> float | None:
         """Validate latitude is within valid range."""
         if v is not None and (v < -90 or v > 90):
             raise ValueError("Latitude must be between -90 and 90")
@@ -288,7 +287,7 @@ class Geo(BaseModel):
 
     @field_validator("lon")
     @classmethod
-    def validate_lon(cls, v):
+    def validate_lon(cls, v: float | None) -> float | None:
         """Validate longitude is within valid range."""
         if v is not None and (v < -180 or v > 180):
             raise ValueError("Longitude must be between -180 and 180")
@@ -305,8 +304,7 @@ class Context(BaseModel):
     geo: Geo = Field(..., description="Geographic location")
 
     @computed_field
-    @property
-    def flags(self) -> Dict[str, bool]:
+    def flags(self) -> dict[str, bool]:
         """Compute risk flags based on context data."""
         flags = {}
 
@@ -336,7 +334,7 @@ class Context(BaseModel):
         return self.customer.historical_velocity_24h > 10
 
     @classmethod
-    def from_json_payload(cls, payload: Union[str, Dict[str, Any]]) -> "Context":
+    def from_json_payload(cls, payload: str | dict[str, Any]) -> "Context":
         """
         Build Context from a single JSON payload with defaults and safe coercions.
 
@@ -363,12 +361,12 @@ class Context(BaseModel):
             return cls(**data)
 
         except json.JSONDecodeError as e:
-            raise ValidationError(f"Invalid JSON payload: {e}", model=cls)
+            raise ValueError(f"Invalid JSON payload: {e}")
         except Exception as e:
-            raise ValidationError(f"Failed to create Context: {e}", model=cls)
+            raise ValueError(f"Failed to create Context: {e}")
 
     @staticmethod
-    def _apply_defaults_and_coercions(data: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_defaults_and_coercions(data: dict[str, Any]) -> dict[str, Any]:
         """Apply safe defaults and type coercions to input data."""
         # Ensure required top-level sections exist
         for section in ["cart", "merchant", "customer", "device", "geo"]:

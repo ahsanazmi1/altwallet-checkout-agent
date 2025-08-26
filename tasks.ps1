@@ -2,7 +2,7 @@
 # Usage: .\tasks.ps1 <command>
 
 param(
-    [Parameter(Position=0)]
+    [Parameter(Position = 0)]
     [string]$Command = "help"
 )
 
@@ -35,15 +35,18 @@ function Invoke-Lint {
             mypy src/
             if ($LASTEXITCODE -eq 0) {
                 Write-Host "✅ Linting passed" -ForegroundColor Green
-            } else {
+            }
+            else {
                 Write-Host "❌ MyPy failed" -ForegroundColor Red
                 exit 1
             }
-        } else {
+        }
+        else {
             Write-Host "❌ Black check failed" -ForegroundColor Red
             exit 1
         }
-    } else {
+    }
+    else {
         Write-Host "❌ Ruff check failed" -ForegroundColor Red
         exit 1
     }
@@ -61,7 +64,8 @@ function Invoke-Tests {
     python -m pytest tests/ -v --cov=src/altwallet_agent --cov-report=term-missing
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ All tests passed" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Tests failed" -ForegroundColor Red
         exit 1
     }
@@ -72,7 +76,8 @@ function Invoke-SmokeTests {
     python -m pytest tests/smoke_tests.py -v
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Smoke tests passed" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Smoke tests failed" -ForegroundColor Red
         exit 1
     }
@@ -80,7 +85,7 @@ function Invoke-SmokeTests {
 
 function Start-Server {
     Write-Host "Starting API server..." -ForegroundColor Yellow
-    uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+    uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8080 --reload
 }
 
 function Build-Docker {
@@ -88,7 +93,8 @@ function Build-Docker {
     docker build -t altwallet-agent:latest .
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Docker image built successfully" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Docker build failed" -ForegroundColor Red
         exit 1
     }
@@ -96,10 +102,11 @@ function Build-Docker {
 
 function Generate-OpenAPI {
     Write-Host "Generating OpenAPI schema..." -ForegroundColor Yellow
-    python -c "import uvicorn; from altwallet_agent.api import app; import json; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
+    python -c "import uvicorn; from altwallet_agent.api import app; import json; import os; os.makedirs('openapi', exist_ok=True); open('openapi/openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ OpenAPI schema generated successfully" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ OpenAPI generation failed" -ForegroundColor Red
         exit 1
     }
@@ -113,7 +120,7 @@ function Clean-Project {
     if (Test-Path ".pytest_cache") { Remove-Item -Recurse -Force ".pytest_cache" }
     if (Test-Path "htmlcov") { Remove-Item -Recurse -Force "htmlcov" }
     if (Test-Path ".coverage") { Remove-Item -Force ".coverage" }
-    if (Test-Path "openapi.json") { Remove-Item -Force "openapi.json" }
+    if (Test-Path "openapi") { Remove-Item -Recurse -Force "openapi" }
     Write-Host "✅ Cleanup completed" -ForegroundColor Green
 }
 

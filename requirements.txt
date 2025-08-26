@@ -12,10 +12,11 @@ requests==2.31.0
 python-dotenv==1.0.0
 
 # Data Validation
-pydantic==2.5.0
+pydantic==2.11.7
 
 # Logging
 loguru==0.7.2
+structlog==23.2.0
 
 # Testing
 pytest==7.4.3

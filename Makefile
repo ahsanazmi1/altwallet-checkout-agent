@@ -38,17 +38,32 @@ test:
 smoke:
 	pytest tests/smoke_tests.py -v
 
+# Run golden tests only
+golden:
+	pytest tests/golden/test_golden_scoring.py -v
+
 # Run the API server
 run:
-	uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+	uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8080 --reload
+
+# Read version from VERSION file
+VERSION := $(shell cat VERSION 2>/dev/null || echo "0.1.0")
 
 # Build Docker image
 build-docker:
-	docker build -t altwallet-agent:latest .
+	docker build \
+		--build-arg VERSION=$(VERSION) \
+		-t altwallet/checkout-agent:$(VERSION) \
+		-t altwallet/checkout-agent:latest \
+		.
+
+# Build Docker image (Windows PowerShell alternative)
+build-docker-ps:
+	powershell -ExecutionPolicy Bypass -File scripts/build-docker.ps1
 
 # Generate OpenAPI schema
 gen-openapi:
-	python -c "import uvicorn; from altwallet_agent.api import app; import json; open('openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
+	python -c "import uvicorn; from altwallet_agent.api import app; import json; import os; os.makedirs('openapi', exist_ok=True); open('openapi/openapi.json', 'w').write(json.dumps(app.openapi(), indent=2))"
 
 # Clean up generated files
 clean:
@@ -58,7 +73,7 @@ clean:
 	rm -rf .pytest_cache/
 	rm -rf htmlcov/
 	rm -f .coverage
-	rm -f openapi.json
+	rm -rf openapi/
 
 # Development setup
 dev-setup: install
@@ -66,7 +81,7 @@ dev-setup: install
 
 # Run with specific config
 run-dev:
-	PYTHONPATH=src uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+	PYTHONPATH=src uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8080 --reload
 
 # CLI commands
 cli-checkout:

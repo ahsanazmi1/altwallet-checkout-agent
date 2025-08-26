@@ -1,17 +1,18 @@
 """Tests for AltWallet Merchant Agent."""
 
-import pytest
-import click
+import os
+import sys
 from decimal import Decimal
 from unittest.mock import patch
-import sys
-import os
+
+import click
+import pytest
 
 # Add the package to the path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from altwallet_merchant_agent.core import CardRecommender, Purchase, Card
 from altwallet_merchant_agent.cli import get_demo_card
+from altwallet_merchant_agent.core import Card, CardRecommender, Purchase
 
 
 class TestCardRecommender:

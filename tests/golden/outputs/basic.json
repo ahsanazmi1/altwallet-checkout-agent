@@ -1,0 +1,23 @@
+{
+    "trace_id": "test-trace-id",
+    "risk_score": 0,
+    "loyalty_boost": 5,
+    "final_score": 105,
+    "routing_hint": "prefer_mc",
+    "signals": {
+        "location_mismatch": false,
+        "velocity_flag": false,
+        "chargebacks_present": false,
+        "high_ticket": false,
+        "risk_factors": [],
+        "cart_total": 45.99,
+        "customer_chargebacks_12m": 0,
+        "customer_velocity_24h": 3,
+        "loyalty_tier": "SILVER",
+        "merchant_mcc": "5411",
+        "merchant_network_preferences": [],
+        "routing_hint": "prefer_mc",
+        "loyalty_boost": 5,
+        "final_score": 105
+    }
+}

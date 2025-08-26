@@ -1,0 +1,23 @@
+{
+    "merchant_id": "amazon",
+    "amount": 150.00,
+    "currency": "USD",
+    "user_id": "user123",
+    "transaction_id": "txn_456",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "device_info": {
+        "device_type": "mobile",
+        "os": "iOS",
+        "browser": "Safari"
+    },
+    "location": {
+        "country": "US",
+        "state": "CA",
+        "city": "San Francisco"
+    },
+    "user_history": {
+        "total_transactions": 25,
+        "avg_amount": 75.50,
+        "risk_score": 0.1
+    }
+}

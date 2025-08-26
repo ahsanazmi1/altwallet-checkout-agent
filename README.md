@@ -15,6 +15,40 @@ AltWallet Checkout Agent is a production-minded Python scaffold for Phase 1 (Cor
 
 ## Quickstart
 
+### CLI Quickstart
+
+```bash
+# Install the package
+pip install -e .
+
+# Basic checkout processing
+altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+
+# Score a transaction from file
+altwallet_agent score --input examples/context_basic.json
+
+# Show help
+altwallet_agent --help
+```
+
+### API Quickstart
+
+```bash
+# Start the API server
+uvicorn src.altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+
+# Health check
+curl http://localhost:8000/health
+
+# Process checkout
+curl -X POST http://localhost:8000/checkout \
+  -H "Content-Type: application/json" \
+  -d '{"merchant_id": "amazon", "amount": 150.00, "currency": "USD"}'
+
+# Interactive API docs
+open http://localhost:8000/docs
+```
+
 ### Installation
 
 ```bash
@@ -59,6 +93,9 @@ make run
 
 # Build Docker image
 make build-docker
+
+# Run with Docker Compose
+docker-compose up -d
 ```
 
 ## Usage
@@ -149,6 +186,33 @@ python -m pytest tests/smoke_tests.py -v
 python -m pytest tests/ --cov=src/altwallet_agent --cov-report=html
 ```
 
+### Smoke Tests
+
+Quick verification that the core functionality works:
+
+```bash
+# Run basic smoke tests
+python -m pytest tests/smoke_tests.py::test_agent_initialization -v
+python -m pytest tests/smoke_tests.py::test_checkout_processing -v
+python -m pytest tests/smoke_tests.py::test_transaction_scoring -v
+
+# Test CLI functionality
+python -m pytest tests/smoke_tests.py::test_cli_with_context_basic -v
+
+# Test API endpoints
+python -m pytest tests/smoke_tests.py::test_api_health_check -v
+
+# Run all smoke tests at once
+python -m pytest tests/smoke_tests.py -v
+```
+
+**Smoke Test Checklist:**
+- [ ] Agent initializes correctly
+- [ ] Checkout processing works
+- [ ] Transaction scoring works
+- [ ] CLI commands execute successfully
+- [ ] API endpoints respond correctly
+
 ### Code Quality
 
 ```bash
@@ -164,24 +228,89 @@ mypy src/
 
 ## Docker
 
-### Build and Run
+### Quick Start
 
 ```bash
 # Build the Docker image
-docker build -t altwallet-agent:latest .
+make build-docker
 
-# Run the container
-docker run -p 8000:8000 altwallet-agent:latest
+# Run with Docker Compose (recommended)
+docker-compose up -d
 
-# Run with custom configuration
-docker run -p 8000:8000 -e ENVIRONMENT=production altwallet-agent:latest
+# Or run directly
+docker run -p 8080:8080 altwallet/checkout-agent:0.1.0
+```
+
+### Docker Usage
+
+**Build and run the API server:**
+```bash
+# Build image
+docker build -t altwallet/checkout-agent:latest .
+
+# Run API server
+docker run -p 8000:8000 altwallet/checkout-agent:latest
+
+# Run with environment variables
+docker run -p 8000:8000 \
+  -e ENVIRONMENT=production \
+  -e LOG_LEVEL=INFO \
+  altwallet/checkout-agent:latest
+```
+
+**Run CLI commands with Docker:**
+```bash
+# Score a transaction
+docker run --rm \
+  -v "$(pwd)/examples:/data:ro" \
+  altwallet/checkout-agent:latest \
+  altwallet_agent score --input /data/context_basic.json
+
+# Process checkout
+docker run --rm \
+  altwallet/checkout-agent:latest \
+  altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+```
+
+**Development with Docker Compose:**
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### CLI Usage
+
+```bash
+# Run CLI commands with Docker
+./scripts/docker-cli.sh
+
+# Or manually
+docker run --rm \
+  -v "$(pwd)/data:/data:ro" \
+  altwallet/checkout-agent:0.1.0 \
+  python -m altwallet_agent score --input /data/context.json
 ```
 
 ### Multi-stage Build
 
 The Dockerfile uses a multi-stage build to create a minimal runtime image:
-- **Builder stage**: Installs dependencies and builds the application
-- **Runtime stage**: Creates a minimal image with only runtime dependencies
+- **Build stage**: Installs dependencies in a virtual environment
+- **Runtime stage**: Creates a slim image with only runtime dependencies
+
+### Features
+
+- **OCI Labels**: Proper container labels with version information
+- **Security**: Non-root user, minimal dependencies
+- **Health Checks**: Built-in health monitoring
+- **Volume Mounts**: Read-only data directory for input files
+
+For detailed Docker usage, see [docs/DOCKER.md](docs/DOCKER.md).
 
 ## Configuration
 

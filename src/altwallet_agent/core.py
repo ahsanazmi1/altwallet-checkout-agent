@@ -2,7 +2,7 @@
 
 import contextvars
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from rich.console import Console
@@ -11,8 +11,12 @@ from rich.table import Table
 from .models import CheckoutRequest, CheckoutResponse, ScoreRequest, ScoreResponse
 
 # Context variables for request/trace IDs
-request_id_var = contextvars.ContextVar("request_id", default=None)
-trace_id_var = contextvars.ContextVar("trace_id", default=None)
+request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "request_id", default=None
+)
+trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "trace_id", default=None
+)
 
 # Configure structlog
 structlog.configure(
@@ -37,7 +41,7 @@ structlog.configure(
 class CheckoutAgent:
     """Core checkout agent for processing transactions and providing recommendations."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize the checkout agent.
 
         Args:
@@ -52,7 +56,7 @@ class CheckoutAgent:
         request_id = request_id_var.get()
         trace_id = trace_id_var.get()
 
-        return self.logger.bind(
+        return self.logger.bind(  # type: ignore[no-any-return]
             request_id=request_id,
             trace_id=trace_id,
         )
