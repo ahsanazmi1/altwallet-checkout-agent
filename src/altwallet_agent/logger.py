@@ -4,7 +4,8 @@ import contextvars
 import logging
 import os
 import sys
-from typing import Any, MutableMapping
+from collections.abc import MutableMapping
+from typing import Any
 
 import structlog
 
