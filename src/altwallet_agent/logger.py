@@ -57,7 +57,7 @@ def configure_logging() -> None:
 
 def _add_trace_id(
     logger: Any, method_name: str, event_dict: dict[str, Any]
-) -> dict[str, Any]:
+) -> dict[str, Any] | str | bytes | bytearray | tuple[Any, ...]:
     """Add trace_id to log event if available in context."""
     trace_id = trace_id_var.get()
     if trace_id:
