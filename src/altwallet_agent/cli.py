@@ -29,9 +29,7 @@ def checkout(
     amount: float = typer.Option(..., "--amount", "-a", help="Transaction amount"),
     currency: str = typer.Option("USD", "--currency", "-c", help="Currency code"),
     user_id: str | None = typer.Option(None, "--user-id", "-u", help="User ID"),
-    config_file: Path | None = typer.Option(
-        None, "--config", help="Config file path"
-    ),
+    config_file: Path | None = typer.Option(None, "--config", help="Config file path"),
 ) -> None:
     """Process a checkout request and get card recommendations."""
 
