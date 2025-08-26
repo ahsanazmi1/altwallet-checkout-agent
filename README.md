@@ -1,13 +1,10 @@
 # AltWallet Checkout Agent
 
-AltWallet Checkout Agent is a production-ready Python application for Phase 1 (Core Engine MVP) of the checkout processing system. It provides a robust foundation for processing transactions, scoring, and providing card recommendations with a clean API and CLI interface.
-
-**Current Version**: v0.1.0 — Core Engine (MVP)
+AltWallet Checkout Agent is a production-minded Python scaffold for Phase 1 (Core Engine MVP) of the checkout processing system. It provides a robust foundation for processing transactions, scoring, and providing card recommendations with a clean API and CLI interface.
 
 ## Features
 
 - **Core Engine**: Transaction processing and scoring with structured logging
-- **Deterministic Scoring v1**: Pure functions for risk assessment and loyalty boosts
 - **FastAPI Integration**: RESTful API with automatic OpenAPI schema generation
 - **CLI Interface**: Rich, user-friendly command-line interface with Typer
 - **Data Validation**: Pydantic models for request/response validation
@@ -18,23 +15,9 @@ AltWallet Checkout Agent is a production-ready Python application for Phase 1 (C
 
 ## Quickstart
 
-### Prerequisites
-
-- Python 3.11+
-- Git
-- Docker (optional, for containerized deployment)
-
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd altwallet-checkout-agent
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .\.venv\Scripts\activate
-
 # Install in development mode
 pip install -e .
 
@@ -86,22 +69,16 @@ The AltWallet Checkout Agent provides a rich CLI interface:
 
 ```bash
 # Show help
-python -m altwallet_agent --help
-
-# Show version information
-python -m altwallet_agent version
-
-# Score a transaction from file
-python -m altwallet_agent score --file examples/context_basic.json
-
-# Score with pretty output
-python -m altwallet_agent score --file examples/context_basic.json --pretty
-
-# Score with trace ID
-python -m altwallet_agent score --file examples/context_basic.json --trace-id "trace_123"
+altwallet_agent --help
 
 # Process a checkout request
-python -m altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+
+# Score a transaction from file
+altwallet_agent score --file tests/data/sample_transaction.json
+
+# Show version information
+altwallet_agent version
 ```
 
 ### API Endpoints
@@ -109,24 +86,21 @@ python -m altwallet_agent checkout --merchant-id "amazon" --amount 150.00
 The FastAPI application provides RESTful endpoints:
 
 ```bash
-# Start the API server (recommended method)
-python scripts/start_api.py
-
-# Alternative: Start with uvicorn directly (from project root)
-python -m uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+# Start the API server
+uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
 
 # Health check
 curl http://localhost:8000/health
-
-# Score transaction
-curl -X POST http://localhost:8000/score \
-  -H "Content-Type: application/json" \
-  -d @examples/context_basic.json
 
 # Process checkout
 curl -X POST http://localhost:8000/checkout \
   -H "Content-Type: application/json" \
   -d '{"merchant_id": "amazon", "amount": 150.00, "currency": "USD"}'
+
+# Score transaction
+curl -X POST http://localhost:8000/score \
+  -H "Content-Type: application/json" \
+  -d '{"transaction_data": {"amount": 150, "merchant": "amazon"}}'
 
 # Get OpenAPI schema
 curl http://localhost:8000/openapi.json
@@ -150,29 +124,15 @@ altwallet_agent/
 │   ├── api.py                   # FastAPI application
 │   ├── cli.py                   # CLI interface with Typer
 │   ├── core.py                  # Core CheckoutAgent logic
-│   ├── models.py                # Pydantic data models
-│   ├── scoring.py               # Deterministic scoring functions
-│   ├── policy.py                # Risk weights and policy constants
-│   └── __main__.py              # Module entry point
-├── examples/                    # Example context files
-│   ├── context_basic.json       # Basic transaction context
-│   └── context_risky.json       # Risky transaction context
+│   └── models.py                # Pydantic data models
 ├── tests/                       # Test suite
 │   ├── smoke_tests.py           # Basic functionality tests
 │   ├── golden/                  # Golden tests for regression
-│   │   ├── inputs/              # Test input files
-│   │   ├── outputs/             # Expected output files
-│   │   └── test_golden.py       # Golden test runner
 │   └── data/                    # Test data files
-├── docs/                        # Documentation
-│   └── phase1_acceptance.md     # Phase 1 acceptance criteria
-├── scripts/                     # Utility scripts
-│   └── verify_phase1.py         # Phase 1 verification script
 ├── pyproject.toml               # Project configuration
 ├── Makefile                     # Unix/Linux development tasks
 ├── tasks.ps1                    # Windows PowerShell tasks
 ├── setup.ps1                    # Windows setup script
-├── docker-compose.yml           # Docker Compose configuration
 └── Dockerfile                   # Multi-stage Docker build
 ```
 
@@ -184,9 +144,6 @@ python -m pytest tests/ -v
 
 # Run smoke tests only
 python -m pytest tests/smoke_tests.py -v
-
-# Run golden tests
-python -m pytest tests/golden/test_golden.py -v
 
 # Run with coverage
 python -m pytest tests/ --cov=src/altwallet_agent --cov-report=html
@@ -211,13 +168,13 @@ mypy src/
 
 ```bash
 # Build the Docker image
-docker build -t altwallet-agent:v0.1.0 .
+docker build -t altwallet-agent:latest .
 
 # Run the container
-docker run -p 8000:8000 altwallet-agent:v0.1.0
+docker run -p 8000:8000 altwallet-agent:latest
 
-# Run with docker-compose
-docker compose up --build
+# Run with custom configuration
+docker run -p 8000:8000 -e ENVIRONMENT=production altwallet-agent:latest
 ```
 
 ### Multi-stage Build
@@ -246,95 +203,43 @@ The application uses structured logging with JSON format and includes:
 - Log levels and context information
 - Exception details with stack traces
 
-## Scoring System
+## Phase 1 TODOs
 
-The deterministic scoring system includes:
+The following items are marked as TODOs for Phase 1 implementation:
 
-### Risk Factors
-- **Location Mismatch**: Device location vs transaction location
-- **High Velocity**: Multiple transactions in 24 hours
-- **Chargebacks**: Historical chargeback count
-- **High Value**: Transactions above threshold
+### Core Engine
+- [ ] Implement actual checkout processing logic in `CheckoutAgent.process_checkout()`
+- [ ] Implement actual scoring logic in `CheckoutAgent.score_transaction()`
+- [ ] Add card recommendation algorithms
+- [ ] Integrate with external payment processors
 
-### Loyalty Boosts
-- **NONE**: 0.0 boost
-- **SILVER**: 0.1 boost
-- **GOLD**: 0.2 boost
-- **PLATINUM**: 0.3 boost
+### API Enhancements
+- [ ] Add authentication and authorization
+- [ ] Implement rate limiting
+- [ ] Add request/response middleware
+- [ ] Add metrics and monitoring endpoints
 
-### Routing Hints
-- Merchant network preferences
-- MCC-based routing
-- Default to "any" network
+### Data Models
+- [ ] Add more comprehensive transaction models
+- [ ] Implement card database integration
+- [ ] Add user preference models
+- [ ] Add merchant category models
 
-## Phase 1 Status
-
-✅ **COMPLETED** - Core Engine MVP (v0.1.0)
-
-### Implemented Features
-- ✅ Context ingestion with Pydantic models
-- ✅ Deterministic scoring v1 with policy constants
-- ✅ CLI with JSON output and trace-id support
-- ✅ Structured logging with structlog
-- ✅ Golden tests and smoke tests
-- ✅ FastAPI application with OpenAPI
-- ✅ Docker multi-stage build with docker-compose
-- ✅ CI/CD with GitHub Actions
-- ✅ Comprehensive documentation
-
-### Next Phase (Phase 2)
-- 🔄 Advanced scoring algorithms
-- 🔄 Machine learning integration
-- 🔄 Real-time processing
-- 🔄 Enhanced monitoring and observability
+### Testing
+- [ ] Add integration tests
+- [ ] Add performance tests
+- [ ] Add security tests
+- [ ] Expand golden test coverage
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
 ## License
 
 MIT License - see LICENSE file for details.
-
-## Troubleshooting
-
-### Common Issues
-
-**API Server Won't Start**
-```bash
-# Make sure you're in the project root directory
-cd /path/to/altwallet-checkout-agent
-
-# Ensure the package is installed
-pip install -e .
-
-# Try the startup script
-python scripts/start_api.py
-```
-
-**Module Not Found Errors**
-```bash
-# Check if the package is properly installed
-python -c "import altwallet_agent; print('OK')"
-
-# Reinstall if needed
-pip uninstall altwallet_agent
-pip install -e .
-```
-
-**CLI Commands Not Working**
-```bash
-# Use the module syntax
-python -m altwallet_agent version
-
-# Instead of
-altwallet_agent version  # This may not work
-```
-
-### Getting Help
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the [documentation](docs/phase1_acceptance.md)
-- Review the [API documentation](http://localhost:8000/docs) when running locally
-- Run the verification script: `python scripts/verify_phase1.py`

@@ -1,0 +1,55 @@
+{
+    "cart": {
+        "items": [
+            {
+                "item": "Coffee",
+                "unit_price": "4.50",
+                "qty": 2,
+                "mcc": "5814",
+                "merchant_category": "Fast Food"
+            },
+            {
+                "item": "Sandwich",
+                "unit_price": "12.99",
+                "qty": 1,
+                "mcc": "5814",
+                "merchant_category": "Fast Food"
+            }
+        ],
+        "currency": "USD"
+    },
+    "merchant": {
+        "name": "Starbucks",
+        "mcc": "5814",
+        "network_preferences": [
+            "visa",
+            "mc"
+        ],
+        "location": {
+            "city": "San Francisco",
+            "country": "USA"
+        }
+    },
+    "customer": {
+        "id": "cust_12345",
+        "loyalty_tier": "GOLD",
+        "historical_velocity_24h": 2,
+        "chargebacks_12m": 0
+    },
+    "device": {
+        "ip": "192.168.1.100",
+        "device_id": "device_abc123",
+        "ip_distance_km": 5.2,
+        "location": {
+            "city": "San Francisco",
+            "country": "USA"
+        }
+    },
+    "geo": {
+        "city": "San Francisco",
+        "region": "CA",
+        "country": "USA",
+        "lat": 37.7749,
+        "lon": -122.4194
+    }
+}
