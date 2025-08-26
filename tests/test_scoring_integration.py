@@ -1,7 +1,7 @@
 """Integration test for AltWallet scoring system."""
 
-import sys
 import os
+import sys
 from decimal import Decimal
 
 # Add src to path for imports
@@ -12,18 +12,18 @@ def test_scoring_integration():
     """Test that the scoring system works end-to-end."""
 
     # Import the scoring components
-    from altwallet_agent.scoring import score_transaction, ScoreResult
     from altwallet_agent.models import (
-        Context,
         Cart,
         CartItem,
-        Merchant,
+        Context,
         Customer,
         Device,
         Geo,
         LoyaltyTier,
+        Merchant,
     )
     from altwallet_agent.policy import LOYALTY_BOOST_VALUES
+    from altwallet_agent.scoring import ScoreResult, score_transaction
 
     # Create a test context
     cart_item = CartItem(
@@ -80,16 +80,15 @@ def test_scoring_integration():
 def test_high_risk_scenario():
     """Test a high-risk transaction scenario."""
 
-    from altwallet_agent.scoring import score_transaction
     from altwallet_agent.models import (
-        Context,
         Cart,
         CartItem,
-        Merchant,
+        Context,
         Customer,
         Device,
         Geo,
         LoyaltyTier,
+        Merchant,
     )
     from altwallet_agent.policy import (
         RISK_SCORE_CHARGEBACKS,
@@ -97,6 +96,7 @@ def test_high_risk_scenario():
         RISK_SCORE_LOCATION_MISMATCH,
         RISK_SCORE_VELOCITY_FLAG,
     )
+    from altwallet_agent.scoring import score_transaction
 
     # Create high-risk context
     cart_item = CartItem(

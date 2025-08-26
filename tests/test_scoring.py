@@ -1,38 +1,37 @@
 """Unit tests for AltWallet scoring system."""
 
-import pytest
 from decimal import Decimal
-from unittest.mock import Mock
 
-# Import the scoring functions
-from src.altwallet_agent.scoring import (
-    ScoreResult,
-    calculate_risk_score,
-    calculate_loyalty_boost,
-    calculate_final_score,
-    determine_routing_hint,
-    score_transaction,
-    is_location_mismatch,
-    is_high_velocity,
-    is_high_ticket,
-)
+import pytest
+
 from src.altwallet_agent.models import (
-    Context,
     Cart,
     CartItem,
-    Merchant,
+    Context,
     Customer,
     Device,
     Geo,
     LoyaltyTier,
+    Merchant,
 )
 from src.altwallet_agent.policy import (
-    RISK_SCORE_LOCATION_MISMATCH,
-    RISK_SCORE_VELOCITY_FLAG,
     RISK_SCORE_CHARGEBACKS,
     RISK_SCORE_HIGH_TICKET,
-    HIGH_TICKET_THRESHOLD,
-    LOYALTY_BOOST_VALUES,
+    RISK_SCORE_LOCATION_MISMATCH,
+    RISK_SCORE_VELOCITY_FLAG,
+)
+
+# Import the scoring functions
+from src.altwallet_agent.scoring import (
+    ScoreResult,
+    calculate_final_score,
+    calculate_loyalty_boost,
+    calculate_risk_score,
+    determine_routing_hint,
+    is_high_ticket,
+    is_high_velocity,
+    is_location_mismatch,
+    score_transaction,
 )
 
 

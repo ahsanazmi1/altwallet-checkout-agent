@@ -4,7 +4,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 import pytest
 
@@ -15,7 +15,7 @@ INPUTS_DIR = GOLDEN_DIR / "inputs"
 OUTPUTS_DIR = GOLDEN_DIR / "outputs"
 
 
-def normalize_json(data: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_json(data: dict[str, Any]) -> dict[str, Any]:
     """Normalize JSON for comparison by sorting keys and removing trace_id."""
     # Remove trace_id as it's dynamic
     if "trace_id" in data:
@@ -33,7 +33,7 @@ def normalize_json(data: Dict[str, Any]) -> Dict[str, Any]:
     return sort_dict(data)
 
 
-def run_scorer_on_input(input_file: Path) -> Dict[str, Any]:
+def run_scorer_on_input(input_file: Path) -> dict[str, Any]:
     """Run the scorer CLI on an input file and return the JSON result."""
     try:
         # Run the CLI command
