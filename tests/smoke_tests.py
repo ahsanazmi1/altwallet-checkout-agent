@@ -1,7 +1,12 @@
 """Smoke tests for AltWallet Checkout Agent."""
 
-import pytest
+import json
+import subprocess
+import sys
+from pathlib import Path
 from decimal import Decimal
+
+import pytest
 
 from altwallet_agent import CheckoutAgent
 from altwallet_agent.models import CheckoutRequest, ScoreRequest
@@ -66,6 +71,68 @@ def test_agent_with_config():
     config = {"test_mode": True, "debug": True}
     agent = CheckoutAgent(config=config)
     assert agent.config == config
+
+
+def test_cli_with_context_basic():
+    """Test CLI with examples/context_basic.json produces valid JSON."""
+    # Get the project root directory
+    project_root = Path(__file__).parent.parent
+    context_file = project_root / "examples" / "context_basic.json"
+
+    assert context_file.exists(), f"Context file not found: {context_file}"
+
+    try:
+        # Run the CLI command
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "altwallet_agent",
+                "score",
+                "--input",
+                str(context_file),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=project_root,
+            check=True,
+        )
+
+        # Extract the JSON output from the last line (after log messages)
+        lines = result.stdout.strip().split("\n")
+        json_line = lines[-1]  # Last line should be the JSON output
+
+        # Parse the JSON output
+        output_data = json.loads(json_line)
+
+        # Assert it has the required fields
+        assert "final_score" in output_data, "Missing final_score field"
+        assert "risk_score" in output_data, "Missing risk_score field"
+        assert "loyalty_boost" in output_data, "Missing loyalty_boost field"
+        assert "routing_hint" in output_data, "Missing routing_hint field"
+        assert "signals" in output_data, "Missing signals field"
+
+        # Assert score values are reasonable
+        assert isinstance(
+            output_data["final_score"], (int, float)
+        ), "final_score numeric"
+        assert isinstance(output_data["risk_score"], (int, float)), "risk_score numeric"
+        assert isinstance(
+            output_data["loyalty_boost"], (int, float)
+        ), "loyalty_boost numeric"
+
+        # Assert score ranges
+        assert 0 <= output_data["risk_score"] <= 100, "risk_score should be 0-100"
+        assert 0 <= output_data["loyalty_boost"] <= 20, "loyalty_boost should be 0-20"
+        assert 0 <= output_data["final_score"] <= 120, "final_score should be 0-120"
+
+        # Assert signals is a dictionary
+        assert isinstance(output_data["signals"], dict), "signals should be dict"
+
+    except subprocess.CalledProcessError as e:
+        pytest.fail(f"CLI command failed: {e.stderr}")
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Failed to parse JSON output: {e}")
 
 
 if __name__ == "__main__":
