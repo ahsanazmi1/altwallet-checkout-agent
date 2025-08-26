@@ -12,7 +12,9 @@ import structlog
 BoundLogger = structlog.stdlib.BoundLogger
 
 # Context variable to store trace_id
-trace_id_var = contextvars.ContextVar("trace_id", default=None)
+trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "trace_id", default=None
+)
 
 
 def get_log_level() -> str:

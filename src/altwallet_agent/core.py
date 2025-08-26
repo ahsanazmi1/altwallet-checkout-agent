@@ -11,8 +11,12 @@ from rich.table import Table
 from .models import CheckoutRequest, CheckoutResponse, ScoreRequest, ScoreResponse
 
 # Context variables for request/trace IDs
-request_id_var = contextvars.ContextVar("request_id", default=None)
-trace_id_var = contextvars.ContextVar("trace_id", default=None)
+request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "request_id", default=None
+)
+trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
+    "trace_id", default=None
+)
 
 # Configure structlog
 structlog.configure(

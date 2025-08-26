@@ -3,6 +3,7 @@
 import json
 import sys
 import uuid
+from decimal import Decimal
 from pathlib import Path
 
 import typer
@@ -68,7 +69,7 @@ def checkout(
     # Create request
     request = CheckoutRequest(
         merchant_id=merchant_id,
-        amount=amount,
+        amount=Decimal(str(amount)),
         currency=currency,
         user_id=user_id,
     )

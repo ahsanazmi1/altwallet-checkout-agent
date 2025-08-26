@@ -114,7 +114,7 @@ class CartItem(BaseModel):
 
     @field_validator("unit_price")
     @classmethod
-    def validate_unit_price(cls, v):
+    def validate_unit_price(cls, v: Decimal) -> Decimal:
         """Validate unit price is non-negative."""
         if v < 0:
             raise ValueError("Unit price must be non-negative")
@@ -122,14 +122,13 @@ class CartItem(BaseModel):
 
     @field_validator("qty")
     @classmethod
-    def validate_qty(cls, v):
+    def validate_qty(cls, v: int) -> int:
         """Validate quantity is positive."""
         if v <= 0:
             raise ValueError("Quantity must be positive")
         return v
 
     @computed_field
-    @property
     def total_price(self) -> Decimal:
         """Calculate total price for this item."""
         return self.unit_price * self.qty
@@ -145,20 +144,18 @@ class Cart(BaseModel):
 
     @field_validator("currency")
     @classmethod
-    def validate_currency(cls, v):
+    def validate_currency(cls, v: str) -> str:
         """Validate currency code format."""
         if not v.isalpha() or len(v) != 3:
             raise ValueError("Currency must be a 3-letter ISO code")
         return v.upper()
 
     @computed_field
-    @property
     def total(self) -> Decimal:
         """Calculate total cart value."""
         return sum(item.total_price for item in self.items)
 
     @computed_field
-    @property
     def item_count(self) -> int:
         """Get total number of items in cart."""
         return sum(item.qty for item in self.items)
@@ -179,13 +176,13 @@ class Merchant(BaseModel):
 
     @field_validator("network_preferences")
     @classmethod
-    def validate_network_preferences(cls, v):
+    def validate_network_preferences(cls, v: list[str]) -> list[str]:
         """Validate network preferences are lowercase."""
         return [network.lower() for network in v if network]
 
     @field_validator("location")
     @classmethod
-    def validate_location(cls, v):
+    def validate_location(cls, v: dict[str, str] | None) -> dict[str, str] | None:
         """Validate location has required fields."""
         if v is not None:
             required_fields = ["city", "country"]
@@ -211,7 +208,7 @@ class Customer(BaseModel):
 
     @field_validator("historical_velocity_24h")
     @classmethod
-    def validate_velocity(cls, v):
+    def validate_velocity(cls, v: int) -> int:
         """Validate velocity is non-negative."""
         if v < 0:
             raise ValueError("Historical velocity must be non-negative")
@@ -219,7 +216,7 @@ class Customer(BaseModel):
 
     @field_validator("chargebacks_12m")
     @classmethod
-    def validate_chargebacks(cls, v):
+    def validate_chargebacks(cls, v: int) -> int:
         """Validate chargebacks is non-negative."""
         if v < 0:
             raise ValueError("Chargebacks count must be non-negative")
@@ -242,7 +239,7 @@ class Device(BaseModel):
 
     @field_validator("ip")
     @classmethod
-    def validate_ip(cls, v):
+    def validate_ip(cls, v: str) -> str:
         """Basic IP address validation."""
         if not v or len(v.strip()) == 0:
             raise ValueError("IP address cannot be empty")
@@ -250,7 +247,7 @@ class Device(BaseModel):
 
     @field_validator("ip_distance_km")
     @classmethod
-    def validate_ip_distance(cls, v):
+    def validate_ip_distance(cls, v: float | None) -> float | None:
         """Validate IP distance is non-negative."""
         if v is not None and v < 0:
             raise ValueError("IP distance must be non-negative")
@@ -258,7 +255,7 @@ class Device(BaseModel):
 
     @field_validator("location")
     @classmethod
-    def validate_location(cls, v):
+    def validate_location(cls, v: dict[str, str] | None) -> dict[str, str] | None:
         """Validate location has required fields."""
         if v is not None:
             required_fields = ["city", "country"]
@@ -279,7 +276,7 @@ class Geo(BaseModel):
 
     @field_validator("lat")
     @classmethod
-    def validate_lat(cls, v):
+    def validate_lat(cls, v: float | None) -> float | None:
         """Validate latitude is within valid range."""
         if v is not None and (v < -90 or v > 90):
             raise ValueError("Latitude must be between -90 and 90")
@@ -287,7 +284,7 @@ class Geo(BaseModel):
 
     @field_validator("lon")
     @classmethod
-    def validate_lon(cls, v):
+    def validate_lon(cls, v: float | None) -> float | None:
         """Validate longitude is within valid range."""
         if v is not None and (v < -180 or v > 180):
             raise ValueError("Longitude must be between -180 and 180")
@@ -304,7 +301,6 @@ class Context(BaseModel):
     geo: Geo = Field(..., description="Geographic location")
 
     @computed_field
-    @property
     def flags(self) -> dict[str, bool]:
         """Compute risk flags based on context data."""
         flags = {}
