@@ -10,7 +10,6 @@ from pydantic import (
     Field,
     field_validator,
     computed_field,
-    ValidationError,
     ConfigDict,
 )
 
@@ -363,9 +362,9 @@ class Context(BaseModel):
             return cls(**data)
 
         except json.JSONDecodeError as e:
-            raise ValidationError(f"Invalid JSON payload: {e}", model=cls)
+            raise ValueError(f"Invalid JSON payload: {e}")
         except Exception as e:
-            raise ValidationError(f"Failed to create Context: {e}", model=cls)
+            raise ValueError(f"Failed to create Context: {e}")
 
     @staticmethod
     def _apply_defaults_and_coercions(data: Dict[str, Any]) -> Dict[str, Any]:
