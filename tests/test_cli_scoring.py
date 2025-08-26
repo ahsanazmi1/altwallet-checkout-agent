@@ -42,16 +42,16 @@ def test_cli_scoring_basic():
     # Parse output - extract the last JSON line (the actual result)
     if result.returncode == 0:
         # Split by lines and find the last JSON object
-        lines = result.stdout.strip().split('\n')
+        lines = result.stdout.strip().split("\n")
         last_json_line = None
         for line in lines:
-            if line.strip().startswith('{') and line.strip().endswith('}'):
+            if line.strip().startswith("{") and line.strip().endswith("}"):
                 last_json_line = line.strip()
-        
+
         if not last_json_line:
             print("❌ No JSON output found in stdout")
             assert False, "No JSON output found in stdout"
-            
+
         output = json.loads(last_json_line)
         print(f"Trace ID: {output['trace_id']}")
         print(f"Risk Score: {output['risk_score']}")
@@ -102,16 +102,16 @@ def test_cli_scoring_risky():
     # Parse output - extract the last JSON line (the actual result)
     if result.returncode == 0:
         # Split by lines and find the last JSON object
-        lines = result.stdout.strip().split('\n')
+        lines = result.stdout.strip().split("\n")
         last_json_line = None
         for line in lines:
-            if line.strip().startswith('{') and line.strip().endswith('}'):
+            if line.strip().startswith("{") and line.strip().endswith("}"):
                 last_json_line = line.strip()
-        
+
         if not last_json_line:
             print("❌ No JSON output found in stdout")
             assert False, "No JSON output found in stdout"
-            
+
         output = json.loads(last_json_line)
         print(f"Trace ID: {output['trace_id']}")
         print(f"Risk Score: {output['risk_score']}")
@@ -165,16 +165,16 @@ def test_cli_scoring_pretty():
     if result.returncode == 0:
         # For pretty output, we need to extract the last JSON object
         # Split by lines and find the last JSON object
-        lines = result.stdout.strip().split('\n')
+        lines = result.stdout.strip().split("\n")
         last_json_line = None
         for line in lines:
-            if line.strip().startswith('{') and line.strip().endswith('}'):
+            if line.strip().startswith("{") and line.strip().endswith("}"):
                 last_json_line = line.strip()
-        
+
         if not last_json_line:
             print("❌ No JSON output found in stdout")
             assert False, "No JSON output found in stdout"
-            
+
         # Verify it's valid JSON
         output = json.loads(last_json_line)
         assert "trace_id" in output
@@ -214,16 +214,16 @@ def test_cli_scoring_stdin():
 
     if result.returncode == 0:
         # Split by lines and find the last JSON object
-        lines = result.stdout.strip().split('\n')
+        lines = result.stdout.strip().split("\n")
         last_json_line = None
         for line in lines:
-            if line.strip().startswith('{') and line.strip().endswith('}'):
+            if line.strip().startswith("{") and line.strip().endswith("}"):
                 last_json_line = line.strip()
-        
+
         if not last_json_line:
             print("❌ No JSON output found in stdout")
             assert False, "No JSON output found in stdout"
-            
+
         output = json.loads(last_json_line)
         assert output["trace_id"] == "test-stdin-789"
         assert output["risk_score"] == 0
