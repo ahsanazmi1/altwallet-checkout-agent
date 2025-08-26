@@ -1,7 +1,7 @@
-# AltWallet Merchant Agent - Complete Setup Script
+# AltWallet Checkout Agent - Complete Setup Script
 # Run this script in Cursor's terminal on Windows PowerShell
 
-Write-Host "🚀 AltWallet Merchant Agent - Complete Setup" -ForegroundColor Cyan
+Write-Host "🚀 AltWallet Checkout Agent - Complete Setup" -ForegroundColor Cyan
 Write-Host "=============================================" -ForegroundColor Cyan
 
 # Check if we're in the right directory
@@ -53,25 +53,25 @@ Write-Host "   ✅ Project installed successfully" -ForegroundColor Green
 
 # Step 5: Test CLI help
 Write-Host "`n❓ Step 5: Testing CLI help..." -ForegroundColor Yellow
-altwallet-merchant-agent --help
+altwallet_agent --help
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ CLI help test failed" -ForegroundColor Red
     exit 1
 }
 Write-Host "   ✅ CLI help works correctly" -ForegroundColor Green
 
-# Step 6: Test demo command
-Write-Host "`n🎯 Step 6: Testing demo command..." -ForegroundColor Yellow
-altwallet-merchant-agent demo -m "Whole Foods" -a 180 --json
+# Step 6: Test checkout command
+Write-Host "`n🎯 Step 6: Testing checkout command..." -ForegroundColor Yellow
+altwallet_agent checkout --merchant-id "test_merchant" --amount 100.00
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Demo command test failed" -ForegroundColor Red
+    Write-Host "❌ Checkout command test failed" -ForegroundColor Red
     exit 1
 }
-Write-Host "   ✅ Demo command works correctly" -ForegroundColor Green
+Write-Host "   ✅ Checkout command works correctly" -ForegroundColor Green
 
 # Step 7: Run tests
 Write-Host "`n🧪 Step 7: Running tests..." -ForegroundColor Yellow
-python -m pytest tests/test_demo.py -v
+python -m pytest tests/smoke_tests.py -v
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Tests failed" -ForegroundColor Red
     exit 1
@@ -81,6 +81,6 @@ Write-Host "   ✅ All tests passed" -ForegroundColor Green
 Write-Host "`n🎉 Setup completed successfully!" -ForegroundColor Green
 Write-Host "`n💡 Next steps:" -ForegroundColor Cyan
 Write-Host "   - Activate the virtual environment: .\.venv\Scripts\Activate.ps1" -ForegroundColor White
-Write-Host "   - Run the CLI: altwallet-merchant-agent --help" -ForegroundColor White
-Write-Host "   - Run tests: python -m pytest tests/test_demo.py -v" -ForegroundColor White
+Write-Host "   - Run the CLI: altwallet_agent --help" -ForegroundColor White
+Write-Host "   - Run tests: python -m pytest tests/smoke_tests.py -v" -ForegroundColor White
 Write-Host "`n⚠️  Note: Remember to activate the virtual environment in new terminal sessions!" -ForegroundColor Yellow

@@ -1,415 +1,244 @@
-# AltWallet Agent for Merchant
+# AltWallet Checkout Agent
 
-AltWallet Agent for Merchant is a lightweight CLI tool that provides deterministic credit card recommendations for individual purchases. The tool analyzes your purchase amount, category, and merchant to recommend the card that will give you the maximum cashback or rewards for that specific transaction.
+AltWallet Checkout Agent is a production-minded Python scaffold for Phase 1 (Core Engine MVP) of the checkout processing system. It provides a robust foundation for processing transactions, scoring, and providing card recommendations with a clean API and CLI interface.
+
+## Features
+
+- **Core Engine**: Transaction processing and scoring with structured logging
+- **FastAPI Integration**: RESTful API with automatic OpenAPI schema generation
+- **CLI Interface**: Rich, user-friendly command-line interface with Typer
+- **Data Validation**: Pydantic models for request/response validation
+- **Structured Logging**: JSON logs with request/trace IDs via structlog
+- **Testing**: Comprehensive test suite with pytest and golden tests
+- **Docker Support**: Multi-stage build for production deployment
+- **Development Tools**: Ruff (linting), Black (formatting), MyPy (typing)
 
 ## Quickstart
 
 ### Installation
 
 ```bash
-# Install from PyPI (when published)
-pip install altwallet-merchant-agent
-
-# Or install in development mode
+# Install in development mode
 pip install -e .
-```
 
-### VS Code/Cursor Setup
-
-This repository includes pre-configured VS Code/Cursor settings in `.vscode/settings.json` that:
-
-- **Python Interpreter**: Points to `.venv\Scripts\python.exe`
-- **Pytest**: Enabled with test args set to `["tests"]`
-- **Format on Save**: Enabled with Black formatter
-- **Linting**: Flake8 enabled with Black-compatible settings
-- **Terminal**: PowerShell with auto-activation of virtual environment
-
-**To select the Python interpreter in Cursor:**
-1. Open the Command Palette (`Ctrl+Shift+P`)
-2. Type "Python: Select Interpreter"
-3. Choose `.venv\Scripts\python.exe` from the list
-4. Alternatively, click on the Python version in the status bar and select the interpreter
-
-The workspace settings will automatically configure the interpreter, but you can manually select it if needed.
-
-### Developer Runbook
-
-**Quick start for each development session:**
-
-```powershell
-# 1. Activate virtual environment
-.\.venv\Scripts\Activate.ps1
-
-# 2. Test CLI (human-readable output)
-altwallet-merchant-agent demo -m "Whole Foods" -a 180
-
-# 3. Test CLI (JSON output)
-altwallet-merchant-agent demo -m "Whole Foods" -a 180 --json
-
-# 4. Run tests
-python -m pytest tests/test_demo.py -v
-```
-
-**PowerShell Line Continuation:**
-```powershell
-# ❌ Wrong - PowerShell doesn't support multi-line flags
-altwallet-merchant-agent demo `
-  -m "Whole Foods" `
-  -a 180 `
-  --json
-
-# ✅ Correct - Keep all flags on one line
-altwallet-merchant-agent demo -m "Whole Foods" -a 180 --json
-
-# ✅ Alternative - Use backtick for line continuation
-altwallet-merchant-agent demo `
-  -m "Whole Foods" `
-  -a 180 `
-  --json
-```
-
-### Git Setup
-
-**Step-by-step instructions to initialize Git and push to GitHub:**
-
-```powershell
-# 1. Initialize Git repository
-git init
-
-# 2. Configure Git user (if not already set)
-git config user.name "Your Name"
-git config user.email "ahsanazmi@icloud.com"
-
-# 3. Add all files to staging
-git add .
-
-# 4. Make the first commit
-git commit -m "Initial commit: AltWallet Merchant Agent CLI"
-
-# 5. Create and switch to master branch (if not already on master)
-git branch -M master
-
-# 6. Add GitHub remote repository
-git remote add origin https://github.com/yourusername/altwallet-merchant-agent.git
-
-# 7. Push to GitHub and set upstream tracking
-git push -u origin master
-```
-
-**Alternative: Using GitHub CLI (if installed):**
-```powershell
-# 1. Initialize Git and make first commit (steps 1-5 above)
-git init
-git add .
-git commit -m "Initial commit: AltWallet Merchant Agent CLI"
-git branch -M master
-
-# 2. Create GitHub repository and push in one command
-gh repo create altwallet-merchant-agent --public --source=. --remote=origin --push
-```
-
-**Important Notes:**
-- Replace `yourusername` with your actual GitHub username
-- Create the GitHub repository named `altwallet-merchant-agent` before running the remote commands
-- The `.gitignore` file will automatically exclude `.venv`, `__pycache__`, and other build artifacts
-- Use `git status` to check the current state of your repository
-
-### Troubleshooting
-
-**Common Setup Issues and Fixes:**
-
-| Issue | Fix |
-|-------|-----|
-| **Execution Policy Blocks Scripts** | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` |
-| **Venv Activation Fails** | `powershell -ExecutionPolicy Bypass -Command "& .\.venv\Scripts\Activate.ps1"` |
-| **Console Script Not Found** | `pip install -e ".[dev]"` (reinstall in editable mode) |
-| **Pytest Not Discovering Tests** | `python -m pytest tests/` (use module syntax) |
-| **Import Errors (Package Names)** | Check `pyproject.toml` package name matches directory structure |
-| **PowerShell "--" Error** | Use `--help` instead of `-help` or `-h` for help flags |
-| **Python Interpreter Not Found** | `python -m venv .venv` (ensure Python is in PATH) |
-| **Pip Upgrade Fails** | `python -m pip install --upgrade pip --user` |
-| **Tests Fail with Typer Errors** | Pass explicit values to CLI functions in tests (not OptionInfo) |
-| **JSON Serialization Errors** | Ensure all values in signals dict are JSON-serializable |
-
-**Quick Diagnostic Commands:**
-```powershell
-# Check Python version and location
-python --version
-where python
-
-# Check if virtual environment is active
-echo $env:VIRTUAL_ENV
-
-# Check installed packages
-pip list
-
-# Check if console script is available
-Get-Command altwallet-merchant-agent
-
-# Test basic functionality
-altwallet-merchant-agent --help
-```
-
-### Release Hygiene
-
-This project follows [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH):
-
-- **MAJOR** version for incompatible API changes
-- **MINOR** version for backwards-compatible functionality additions  
-- **PATCH** version for backwards-compatible bug fixes
-
-#### Bumping Version
-
-Update the version in `pyproject.toml`:
-
-```toml
-[project]
-name = "altwallet-merchant-agent"
-version = "0.1.0"  # Change this to new version
-```
-
-#### Creating a Release
-
-**1. Update version in pyproject.toml and CHANGELOG.md**
-
-**2. Commit the version bump:**
-```bash
-git add pyproject.toml CHANGELOG.md
-git commit -m "Bump version to 0.1.0"
-```
-
-**3. Create and push a tag:**
-```bash
-git tag -a v0.1.0 -m "Release version 0.1.0"
-git push origin v0.1.0
-```
-
-**4. Push to main branch:**
-```bash
-git push origin master
-```
-
-#### Release Checklist
-
-- [ ] Update version in `pyproject.toml`
-- [ ] Update `CHANGELOG.md` with release notes
-- [ ] Run tests: `python -m pytest tests/ -v`
-- [ ] Test CLI functionality: `altwallet-merchant-agent --help`
-- [ ] Commit version bump
-- [ ] Create and push git tag
-- [ ] Push to main branch
-
-### Complete Setup (Windows PowerShell)
-
-**⚠️ Important PowerShell Notes:**
-- Use `.\` for relative paths (not `/`)
-- Use `&` to execute scripts: `& ".\script.ps1"`
-- PowerShell doesn't support `&&` for command chaining
-- Each command must be run separately or use `;` to separate
-
-**Option 1: Automated Setup (Recommended)**
-```powershell
-# Run the complete setup script
-powershell -ExecutionPolicy Bypass -File setup.ps1
-```
-
-**Option 2: Manual Setup**
-```powershell
-# 1. Create virtual environment
-python -m venv .venv
-
-# 2. Activate virtual environment (PowerShell-specific)
-.\.venv\Scripts\Activate.ps1
-
-# 3. Upgrade pip
-python -m pip install --upgrade pip
-
-# 4. Install project in editable mode with dev dependencies
+# Install with development dependencies
 pip install -e ".[dev]"
-
-# 5. Test CLI help
-altwallet-merchant-agent --help
-
-# 6. Test demo command
-altwallet-merchant-agent demo -m "Whole Foods" -a 180 --json
-
-# 7. Run tests
-python -m pytest tests/test_demo.py -v
 ```
 
-**Common PowerShell Mistakes to Avoid:**
+### Windows Setup
+
+For Windows users, use the provided PowerShell scripts:
+
 ```powershell
-# ❌ Wrong - PowerShell doesn't support && chaining
-python -m venv .venv && .\.venv\Scripts\Activate.ps1
-
-# ❌ Wrong - Use backslashes, not forward slashes
-./.venv/Scripts/Activate.ps1
-
-# ❌ Wrong - Missing & for script execution
+# Complete setup (creates virtual environment, installs dependencies, runs tests)
 .\setup.ps1
 
-# ✅ Correct - Separate commands
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# ✅ Correct - Use & for script execution
-& ".\setup.ps1"
+# Common development tasks
+.\tasks.ps1 help          # Show available commands
+.\tasks.ps1 install       # Install dependencies
+.\tasks.ps1 test          # Run all tests
+.\tasks.ps1 run           # Start API server
 ```
 
-### Usage
+### Unix/Linux Setup
 
-Get a card recommendation for a purchase:
-
-```bash
-# Basic usage
-altwallet-merchant-agent recommend 150.00
-
-# With category and merchant
-altwallet-merchant-agent recommend 75.50 --category groceries --merchant "Whole Foods"
-
-# Using short options
-altwallet-merchant-agent recommend 200.00 -c travel -m "Delta Airlines"
-```
-
-### Demo Command
-
-Get a deterministic demo recommendation with pretend rewards and penalties:
+For Unix/Linux users, use the Makefile:
 
 ```bash
-# Basic demo
-altwallet-merchant-agent demo -m "Whole Foods" -a 180
+# Show available commands
+make help
 
-# With custom location
-altwallet-merchant-agent demo -m "Shell Gas Station" -a 75 -l "Los Angeles"
-
-# Verbose output
-altwallet-merchant-agent demo -m "Delta Airlines" -a 500 -v
-
-# JSON output
-altwallet-merchant-agent demo -m "Amazon" -a 100 --json
-```
-
-### Examples
-
-```bash
-# Grocery shopping
-$ altwallet-merchant-agent recommend 120.00 -c groceries -m "Kroger"
-💳 AltWallet Card Recommendation
-┌─────────────────────────────────────────────────────────────────┐
-│ Recommended Card: Amex Blue Cash Preferred                     │
-│ Purchase: $120.00 at Kroger                                    │
-│ Category: Groceries                                            │
-│ Cashback Rate: 6.0% (includes 6.0x category bonus)            │
-│ Cashback Amount: $7.20                                         │
-└─────────────────────────────────────────────────────────────────┘
-
-# Travel booking
-$ altwallet-merchant-agent recommend 500.00 -c travel -m "Expedia"
-💳 AltWallet Card Recommendation
-┌─────────────────────────────────────────────────────────────────┐
-│ Recommended Card: Chase Sapphire Preferred                     │
-│ Purchase: $500.00 at Expedia                                   │
-│ Category: Travel                                               │
-│ Cashback Rate: 2.0% (includes 2.0x category bonus)            │
-│ Cashback Amount: $10.00                                        │
-└─────────────────────────────────────────────────────────────────┘
-
-# Demo recommendation
-$ altwallet-merchant-agent demo -m "Whole Foods" -a 180
-🎯 AltWallet Demo Recommendation
-┌─────────────────────────────────────────────────────────────────┐
-│ Recommended Card: Amex Blue Cash Preferred                     │
-│ Score: 5.40                                                    │
-└─────────────────────────────────────────────────────────────────┘
-               Signals
-┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┓
-┃ Signal               ┃ Value       ┃
-┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━┩
-│ Merchant             │ Whole Foods │
-│ Location             │ New York    │
-│ Rewards Value Usd    │ $5.40       │
-│ Merchant Penalty Usd │ $0.00       │
-└──────────────────────┴─────────────┘
-```
-
-### Development
-
-```bash
-# Install development dependencies
-pip install -e ".[dev]"
+# Install dependencies
+make install
 
 # Run tests
-pytest
+make test
 
+# Start API server
+make run
+
+# Build Docker image
+make build-docker
+```
+
+## Usage
+
+### CLI Commands
+
+The AltWallet Checkout Agent provides a rich CLI interface:
+
+```bash
+# Show help
+altwallet_agent --help
+
+# Process a checkout request
+altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+
+# Score a transaction from file
+altwallet_agent score --file tests/data/sample_transaction.json
+
+# Show version information
+altwallet_agent version
+```
+
+### API Endpoints
+
+The FastAPI application provides RESTful endpoints:
+
+```bash
+# Start the API server
+uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+
+# Health check
+curl http://localhost:8000/health
+
+# Process checkout
+curl -X POST http://localhost:8000/checkout \
+  -H "Content-Type: application/json" \
+  -d '{"merchant_id": "amazon", "amount": 150.00, "currency": "USD"}'
+
+# Score transaction
+curl -X POST http://localhost:8000/score \
+  -H "Content-Type: application/json" \
+  -d '{"transaction_data": {"amount": 150, "merchant": "amazon"}}'
+
+# Get OpenAPI schema
+curl http://localhost:8000/openapi.json
+```
+
+### API Documentation
+
+Once the server is running, you can access:
+- **Interactive API docs**: http://localhost:8000/docs
+- **ReDoc documentation**: http://localhost:8000/redoc
+- **OpenAPI schema**: http://localhost:8000/openapi.json
+
+## Development
+
+### Project Structure
+
+```
+altwallet_agent/
+├── src/altwallet_agent/          # Main package
+│   ├── __init__.py              # Package exports
+│   ├── api.py                   # FastAPI application
+│   ├── cli.py                   # CLI interface with Typer
+│   ├── core.py                  # Core CheckoutAgent logic
+│   └── models.py                # Pydantic data models
+├── tests/                       # Test suite
+│   ├── smoke_tests.py           # Basic functionality tests
+│   ├── golden/                  # Golden tests for regression
+│   └── data/                    # Test data files
+├── pyproject.toml               # Project configuration
+├── Makefile                     # Unix/Linux development tasks
+├── tasks.ps1                    # Windows PowerShell tasks
+├── setup.ps1                    # Windows setup script
+└── Dockerfile                   # Multi-stage Docker build
+```
+
+### Testing
+
+```bash
+# Run all tests
+python -m pytest tests/ -v
+
+# Run smoke tests only
+python -m pytest tests/smoke_tests.py -v
+
+# Run with coverage
+python -m pytest tests/ --cov=src/altwallet_agent --cov-report=html
+```
+
+### Code Quality
+
+```bash
 # Format code
-black altwallet_merchant_agent/
-isort altwallet_merchant_agent/
+black src/ tests/
 
 # Lint code
-flake8 altwallet_merchant_agent/
+ruff check src/ tests/
+
+# Type checking
+mypy src/
 ```
 
-### Running Tests in Cursor's Terminal (Windows PowerShell)
+## Docker
 
-To run the unit tests in Cursor's integrated terminal on Windows PowerShell:
+### Build and Run
 
-```powershell
-# Navigate to the project directory
-cd "C:\Users\[YourUsername]\Desktop\altwallet checkout agent"
+```bash
+# Build the Docker image
+docker build -t altwallet-agent:latest .
 
-# Activate virtual environment (if using one)
-.\.venv\Scripts\Activate.ps1
+# Run the container
+docker run -p 8000:8000 altwallet-agent:latest
 
-# Install development dependencies (if not already installed)
-pip install -e ".[dev]"
-
-# Run all tests
-python -m pytest tests/test_demo.py -v
-
-# Run specific test class
-python -m pytest tests/test_demo.py::TestDemoCommand -v
-
-# Run specific test method
-python -m pytest tests/test_demo.py::TestDemoCommand::test_demo_context_creation -v
-
-# Run tests with coverage
-python -m pytest tests/test_demo.py --cov=altwallet_merchant_agent --cov-report=term-missing
-
-# Run tests in parallel (faster)
-python -m pytest tests/test_demo.py -n auto
+# Run with custom configuration
+docker run -p 8000:8000 -e ENVIRONMENT=production altwallet-agent:latest
 ```
 
-**Test Categories**:
-- `TestCardRecommender`: Tests the core recommendation engine
-- `TestPurchase`: Tests the Purchase dataclass
-- `TestCard`: Tests the Card dataclass  
-- `TestDemoCommand`: Tests the demo command functionality
+### Multi-stage Build
 
-**Key Test Validations**:
-- ✅ Context creation with merchant="Whole Foods", amount=180.0, location="New York"
-- ✅ Recommended card is a non-empty string
-- ✅ Score is a float value
-- ✅ Signals contain all four required fields (merchant, location, rewards_value_usd, merchant_penalty_usd)
-- ✅ Scores are deterministic for the same inputs
-- ✅ Different inputs produce different scores
-- ✅ Demo calculation logic (3% base reward, 0 penalty)
+The Dockerfile uses a multi-stage build to create a minimal runtime image:
+- **Builder stage**: Installs dependencies and builds the application
+- **Runtime stage**: Creates a minimal image with only runtime dependencies
 
-## Features
+## Configuration
 
-- **Deterministic Recommendations**: Same inputs always produce the same recommendation
-- **Category Bonuses**: Considers category-specific bonus rewards
-- **Annual Fee Calculation**: Factors in monthly cost of annual fees
-- **Beautiful Output**: Rich terminal formatting with tables and panels
-- **Easy to Extend**: Simple card database that's easy to modify
-- **Demo Mode**: Deterministic demo recommendations with pretend rewards
+The agent can be configured through environment variables or configuration files:
 
-## Supported Cards
+```bash
+# Environment variables
+export ENVIRONMENT=production
+export LOG_LEVEL=INFO
+export API_HOST=0.0.0.0
+export API_PORT=8000
+```
 
-The tool currently includes these popular cards:
-- Chase Freedom Unlimited (1.5% on all purchases)
-- Chase Sapphire Preferred (2.5x on travel)
-- Citi Double Cash (2% on all purchases)
-- Amex Blue Cash Preferred (6% on groceries)
+## Logging
+
+The application uses structured logging with JSON format and includes:
+- Request/trace IDs for correlation
+- Timestamp in ISO format
+- Log levels and context information
+- Exception details with stack traces
+
+## Phase 1 TODOs
+
+The following items are marked as TODOs for Phase 1 implementation:
+
+### Core Engine
+- [ ] Implement actual checkout processing logic in `CheckoutAgent.process_checkout()`
+- [ ] Implement actual scoring logic in `CheckoutAgent.score_transaction()`
+- [ ] Add card recommendation algorithms
+- [ ] Integrate with external payment processors
+
+### API Enhancements
+- [ ] Add authentication and authorization
+- [ ] Implement rate limiting
+- [ ] Add request/response middleware
+- [ ] Add metrics and monitoring endpoints
+
+### Data Models
+- [ ] Add more comprehensive transaction models
+- [ ] Implement card database integration
+- [ ] Add user preference models
+- [ ] Add merchant category models
+
+### Testing
+- [ ] Add integration tests
+- [ ] Add performance tests
+- [ ] Add security tests
+- [ ] Expand golden test coverage
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Ensure all tests pass
+6. Submit a pull request
 
 ## License
 
