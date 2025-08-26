@@ -1,5 +1,9 @@
-# Multi-stage build for AltWallet Checkout Agent
-FROM python:3.11-slim as builder
+# Multi-stage Dockerfile for AltWallet Checkout Agent
+# Stage 1: Build stage with pinned dependencies
+FROM python:3.11-slim as build
+
+# Build arguments
+ARG VERSION=0.1.0
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -7,9 +11,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    gcc \
+    g++ \
     && rm -rf /var/lib/apt/lists/*
 
 # Create virtual environment
@@ -17,50 +22,52 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy requirements and install dependencies
-COPY pyproject.toml .
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Production stage
+# Stage 2: Runtime stage
 FROM python:3.11-slim as runtime
+
+# Build arguments
+ARG VERSION=0.1.0
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
+# Copy virtual environment from build stage
+COPY --from=build /opt/venv /opt/venv
 
 # Create non-root user
-RUN groupadd -r altwallet && useradd -r -g altwallet altwallet
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Create app directory
 WORKDIR /app
 
 # Copy application code
 COPY src/ ./src/
+COPY pyproject.toml .
 
-# Set ownership
-RUN chown -R altwallet:altwallet /app
+# Install the application in development mode
+RUN pip install -e .
+
+# Create data directory for input files
+RUN mkdir -p /data && chown -R appuser:appuser /data
 
 # Switch to non-root user
-USER altwallet
+USER appuser
 
-# Expose port
-EXPOSE 8000
+# Expose port for API
+EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+# Add labels
+LABEL org.opencontainers.image.version="${VERSION}" \
+    org.opencontainers.image.title="AltWallet Checkout Agent" \
+    org.opencontainers.image.description="Core Engine MVP for checkout processing and scoring" \
+    org.opencontainers.image.vendor="AltWallet" \
+    org.opencontainers.image.source="https://github.com/altwallet/checkout-agent"
 
-# Default command
-CMD ["python", "-m", "uvicorn", "altwallet_agent.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command (can be overridden)
+CMD ["uvicorn", "altwallet_agent.api:app", "--host", "0.0.0.0", "--port", "8080"]
