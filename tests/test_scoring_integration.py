@@ -23,13 +23,7 @@ def test_scoring_integration():
         Geo,
         LoyaltyTier,
     )
-    from altwallet_agent.policy import (
-        RISK_SCORE_LOCATION_MISMATCH,
-        RISK_SCORE_VELOCITY_FLAG,
-        RISK_SCORE_CHARGEBACKS,
-        RISK_SCORE_HIGH_TICKET,
-        LOYALTY_BOOST_VALUES,
-    )
+    from altwallet_agent.policy import LOYALTY_BOOST_VALUES
 
     # Create a test context
     cart_item = CartItem(
@@ -81,8 +75,6 @@ def test_scoring_integration():
     print(f"Loyalty Boost: {result.loyalty_boost}")
     print(f"Final Score: {result.final_score}")
     print(f"Routing Hint: {result.routing_hint}")
-
-    return True
 
 
 def test_high_risk_scenario():
@@ -158,8 +150,6 @@ def test_high_risk_scenario():
     print(f"Risk Score: {result.risk_score}")
     print(f"Final Score: {result.final_score}")
     print(f"Risk Factors: {result.signals['risk_factors']}")
-
-    return True
 
 
 if __name__ == "__main__":

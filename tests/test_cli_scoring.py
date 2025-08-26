@@ -39,9 +39,20 @@ def test_cli_scoring_basic():
     if result.stderr:
         print(f"Stderr: {result.stderr}")
 
-    # Parse output
+    # Parse output - extract the last JSON line (the actual result)
     if result.returncode == 0:
-        output = json.loads(result.stdout.strip())
+        # Split by lines and find the last JSON object
+        lines = result.stdout.strip().split('\n')
+        last_json_line = None
+        for line in lines:
+            if line.strip().startswith('{') and line.strip().endswith('}'):
+                last_json_line = line.strip()
+        
+        if not last_json_line:
+            print("❌ No JSON output found in stdout")
+            return False
+            
+        output = json.loads(last_json_line)
         print(f"Trace ID: {output['trace_id']}")
         print(f"Risk Score: {output['risk_score']}")
         print(f"Loyalty Boost: {output['loyalty_boost']}")
@@ -55,10 +66,8 @@ def test_cli_scoring_basic():
         assert output["routing_hint"] == "prefer_mc"  # MCC 5411
 
         print("✅ Basic context test passed!")
-        return True
     else:
         print("❌ Basic context test failed!")
-        return False
 
 
 def test_cli_scoring_risky():
@@ -90,9 +99,20 @@ def test_cli_scoring_risky():
     if result.stderr:
         print(f"Stderr: {result.stderr}")
 
-    # Parse output
+    # Parse output - extract the last JSON line (the actual result)
     if result.returncode == 0:
-        output = json.loads(result.stdout.strip())
+        # Split by lines and find the last JSON object
+        lines = result.stdout.strip().split('\n')
+        last_json_line = None
+        for line in lines:
+            if line.strip().startswith('{') and line.strip().endswith('}'):
+                last_json_line = line.strip()
+        
+        if not last_json_line:
+            print("❌ No JSON output found in stdout")
+            return False
+            
+        output = json.loads(last_json_line)
         print(f"Trace ID: {output['trace_id']}")
         print(f"Risk Score: {output['risk_score']}")
         print(f"Loyalty Boost: {output['loyalty_boost']}")
@@ -111,10 +131,8 @@ def test_cli_scoring_risky():
         assert len(output["signals"]["risk_factors"]) == 4
 
         print("✅ Risky context test passed!")
-        return True
     else:
         print("❌ Risky context test failed!")
-        return False
 
 
 def test_cli_scoring_pretty():
@@ -145,15 +163,25 @@ def test_cli_scoring_pretty():
     print(result.stdout)
 
     if result.returncode == 0:
+        # For pretty output, we need to extract the last JSON object
+        # Split by lines and find the last JSON object
+        lines = result.stdout.strip().split('\n')
+        last_json_line = None
+        for line in lines:
+            if line.strip().startswith('{') and line.strip().endswith('}'):
+                last_json_line = line.strip()
+        
+        if not last_json_line:
+            print("❌ No JSON output found in stdout")
+            return False
+            
         # Verify it's valid JSON
-        output = json.loads(result.stdout.strip())
+        output = json.loads(last_json_line)
         assert "trace_id" in output
         assert "risk_score" in output
         print("✅ Pretty output test passed!")
-        return True
     else:
         print("❌ Pretty output test failed!")
-        return False
 
 
 def test_cli_scoring_stdin():
@@ -185,14 +213,23 @@ def test_cli_scoring_stdin():
     print(f"Stdout: {result.stdout}")
 
     if result.returncode == 0:
-        output = json.loads(result.stdout.strip())
+        # Split by lines and find the last JSON object
+        lines = result.stdout.strip().split('\n')
+        last_json_line = None
+        for line in lines:
+            if line.strip().startswith('{') and line.strip().endswith('}'):
+                last_json_line = line.strip()
+        
+        if not last_json_line:
+            print("❌ No JSON output found in stdout")
+            return False
+            
+        output = json.loads(last_json_line)
         assert output["trace_id"] == "test-stdin-789"
         assert output["risk_score"] == 0
         print("✅ Stdin input test passed!")
-        return True
     else:
         print("❌ Stdin input test failed!")
-        return False
 
 
 def main():
