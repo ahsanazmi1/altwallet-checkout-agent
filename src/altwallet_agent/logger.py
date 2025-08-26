@@ -4,7 +4,7 @@ import contextvars
 import logging
 import os
 import sys
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -54,8 +54,8 @@ def configure_logging() -> None:
 
 
 def _add_trace_id(
-    logger: Any, method_name: str, event_dict: Dict[str, Any]
-) -> Dict[str, Any]:
+    logger: Any, method_name: str, event_dict: dict[str, Any]
+) -> dict[str, Any]:
     """Add trace_id to log event if available in context."""
     trace_id = trace_id_var.get()
     if trace_id:
@@ -68,7 +68,7 @@ def set_trace_id(trace_id: str) -> None:
     trace_id_var.set(trace_id)
 
 
-def get_logger(name: Optional[str] = None) -> BoundLogger:
+def get_logger(name: str | None = None) -> BoundLogger:
     """Get a pre-configured structured logger.
 
     Args:

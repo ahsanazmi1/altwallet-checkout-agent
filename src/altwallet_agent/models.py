@@ -1,16 +1,16 @@
 """Data models for AltWallet Checkout Agent."""
 
+import json
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-import json
+from typing import Any
 
 from pydantic import (
     BaseModel,
-    Field,
-    field_validator,
-    computed_field,
     ConfigDict,
+    Field,
+    computed_field,
+    field_validator,
 )
 
 
@@ -20,8 +20,8 @@ class CheckoutRequest(BaseModel):
     merchant_id: str = Field(..., description="Unique merchant identifier")
     amount: Decimal = Field(..., description="Transaction amount", ge=0)
     currency: str = Field(default="USD", description="Transaction currency")
-    user_id: Optional[str] = Field(None, description="User identifier")
-    metadata: Dict[str, Any] = Field(
+    user_id: str | None = Field(None, description="User identifier")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -44,12 +44,12 @@ class CheckoutResponse(BaseModel):
     """Response model for checkout processing."""
 
     transaction_id: str = Field(..., description="Unique transaction identifier")
-    recommendations: List[Dict[str, Any]] = Field(
+    recommendations: list[dict[str, Any]] = Field(
         default_factory=list, description="Card recommendations"
     )
     score: float = Field(..., description="Transaction score", ge=0, le=1)
     status: str = Field(..., description="Processing status")
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Response metadata"
     )
 
@@ -57,10 +57,10 @@ class CheckoutResponse(BaseModel):
 class ScoreRequest(BaseModel):
     """Request model for scoring."""
 
-    transaction_data: Dict[str, Any] = Field(
+    transaction_data: dict[str, Any] = Field(
         ..., description="Transaction data to score"
     )
-    user_context: Optional[Dict[str, Any]] = Field(
+    user_context: dict[str, Any] | None = Field(
         None, description="User context information"
     )
 
@@ -81,10 +81,10 @@ class ScoreResponse(BaseModel):
 
     score: float = Field(..., description="Calculated score", ge=0, le=1)
     confidence: float = Field(..., description="Confidence in the score", ge=0, le=1)
-    factors: List[str] = Field(
+    factors: list[str] = Field(
         default_factory=list, description="Factors influencing the score"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -107,8 +107,8 @@ class CartItem(BaseModel):
     item: str = Field(..., description="Item name or identifier")
     unit_price: Decimal = Field(..., description="Price per unit", ge=0)
     qty: int = Field(default=1, description="Quantity of items", gt=0)
-    mcc: Optional[str] = Field(None, description="Merchant Category Code")
-    merchant_category: Optional[str] = Field(
+    mcc: str | None = Field(None, description="Merchant Category Code")
+    merchant_category: str | None = Field(
         None, description="Human-readable merchant category"
     )
 
@@ -138,7 +138,7 @@ class CartItem(BaseModel):
 class Cart(BaseModel):
     """Shopping cart containing multiple items."""
 
-    items: List[CartItem] = Field(
+    items: list[CartItem] = Field(
         default_factory=list, description="List of cart items"
     )
     currency: str = Field(default="USD", description="Currency code for the cart")
@@ -168,12 +168,12 @@ class Merchant(BaseModel):
     """Merchant information."""
 
     name: str = Field(..., description="Merchant name")
-    mcc: Optional[str] = Field(None, description="Merchant Category Code")
-    network_preferences: List[str] = Field(
+    mcc: str | None = Field(None, description="Merchant Category Code")
+    network_preferences: list[str] = Field(
         default_factory=list,
         description=("Preferred payment networks " "(e.g., ['visa', 'mc'])"),
     )
-    location: Optional[Dict[str, str]] = Field(
+    location: dict[str, str] | None = Field(
         None, description="Merchant location with city and country"
     )
 
@@ -230,13 +230,13 @@ class Device(BaseModel):
     """Device information for transaction."""
 
     ip: str = Field(..., description="Device IP address")
-    device_id: Optional[str] = Field(None, description="Unique device identifier")
-    ip_distance_km: Optional[float] = Field(
+    device_id: str | None = Field(None, description="Unique device identifier")
+    ip_distance_km: float | None = Field(
         None,
         description="Distance between IP location and transaction location in kilometers",
         ge=0,
     )
-    location: Optional[Dict[str, str]] = Field(
+    location: dict[str, str] | None = Field(
         None, description="Device location with city and country"
     )
 
@@ -272,10 +272,10 @@ class Geo(BaseModel):
     """Geographic location information."""
 
     city: str = Field(..., description="City name")
-    region: Optional[str] = Field(None, description="Region or state")
+    region: str | None = Field(None, description="Region or state")
     country: str = Field(..., description="Country name or code")
-    lat: Optional[float] = Field(None, description="Latitude coordinate")
-    lon: Optional[float] = Field(None, description="Longitude coordinate")
+    lat: float | None = Field(None, description="Latitude coordinate")
+    lon: float | None = Field(None, description="Longitude coordinate")
 
     @field_validator("lat")
     @classmethod
@@ -305,7 +305,7 @@ class Context(BaseModel):
 
     @computed_field
     @property
-    def flags(self) -> Dict[str, bool]:
+    def flags(self) -> dict[str, bool]:
         """Compute risk flags based on context data."""
         flags = {}
 
@@ -335,7 +335,7 @@ class Context(BaseModel):
         return self.customer.historical_velocity_24h > 10
 
     @classmethod
-    def from_json_payload(cls, payload: Union[str, Dict[str, Any]]) -> "Context":
+    def from_json_payload(cls, payload: str | dict[str, Any]) -> "Context":
         """
         Build Context from a single JSON payload with defaults and safe coercions.
 
@@ -367,7 +367,7 @@ class Context(BaseModel):
             raise ValueError(f"Failed to create Context: {e}")
 
     @staticmethod
-    def _apply_defaults_and_coercions(data: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_defaults_and_coercions(data: dict[str, Any]) -> dict[str, Any]:
         """Apply safe defaults and type coercions to input data."""
         # Ensure required top-level sections exist
         for section in ["cart", "merchant", "customer", "device", "geo"]:

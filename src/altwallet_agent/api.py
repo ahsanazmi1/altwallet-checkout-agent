@@ -3,15 +3,15 @@
 import json
 import uuid
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from .logger import get_logger, set_trace_id
 from .models import Context
 from .scoring import score_transaction
-from .logger import get_logger, set_trace_id
 
 
 class HealthResponse(BaseModel):
@@ -24,7 +24,7 @@ class ScoreRequest(BaseModel):
     """Request model for scoring endpoint."""
 
     # Accept any JSON payload that can be converted to Context
-    context_data: Dict[str, Any]
+    context_data: dict[str, Any]
 
 
 class ScoreResponse(BaseModel):
@@ -35,7 +35,7 @@ class ScoreResponse(BaseModel):
     loyalty_boost: int
     final_score: int
     routing_hint: str
-    signals: Dict[str, Any]
+    signals: dict[str, Any]
 
 
 # Create FastAPI app

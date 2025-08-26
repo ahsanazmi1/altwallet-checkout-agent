@@ -4,7 +4,6 @@ import json
 import sys
 import uuid
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -12,9 +11,9 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from .core import CheckoutAgent
-from .models import CheckoutRequest, ScoreRequest, Context
-from .scoring import score_transaction
 from .logger import get_logger, set_trace_id
+from .models import CheckoutRequest, Context
+from .scoring import score_transaction
 
 app = typer.Typer(
     name="altwallet-agent",
@@ -29,8 +28,8 @@ def checkout(
     merchant_id: str = typer.Option(..., "--merchant-id", "-m", help="Merchant ID"),
     amount: float = typer.Option(..., "--amount", "-a", help="Transaction amount"),
     currency: str = typer.Option("USD", "--currency", "-c", help="Currency code"),
-    user_id: Optional[str] = typer.Option(None, "--user-id", "-u", help="User ID"),
-    config_file: Optional[Path] = typer.Option(
+    user_id: str | None = typer.Option(None, "--user-id", "-u", help="User ID"),
+    config_file: Path | None = typer.Option(
         None, "--config", help="Config file path"
     ),
 ) -> None:
@@ -101,10 +100,10 @@ def checkout(
 
 @app.command()
 def score(
-    input_file: Optional[Path] = typer.Option(
+    input_file: Path | None = typer.Option(
         None, "--input", "-i", help="Path to JSON input file"
     ),
-    trace_id: Optional[str] = typer.Option(
+    trace_id: str | None = typer.Option(
         None, "--trace-id", "-t", help="Trace ID (generates UUID v4 if omitted)"
     ),
     pretty: bool = typer.Option(

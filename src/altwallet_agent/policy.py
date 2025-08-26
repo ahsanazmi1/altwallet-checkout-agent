@@ -1,7 +1,6 @@
 """Scoring policy constants for AltWallet Checkout Agent."""
 
 from decimal import Decimal
-from typing import Dict
 
 # Risk scoring constants
 RISK_SCORE_LOCATION_MISMATCH = 30
@@ -31,7 +30,7 @@ BASE_SCORE = 100
 # MCC to network preference mapping
 # This is a simplified mapping - in production, this would be more
 # comprehensive
-MCC_TO_NETWORK_MAPPING: Dict[str, str] = {
+MCC_TO_NETWORK_MAPPING: dict[str, str] = {
     # Gas stations typically prefer Visa/MC
     "5541": "prefer_visa",
     "5542": "prefer_visa",

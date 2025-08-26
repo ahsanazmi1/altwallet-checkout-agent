@@ -2,7 +2,7 @@
 
 import contextvars
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from rich.console import Console
@@ -37,7 +37,7 @@ structlog.configure(
 class CheckoutAgent:
     """Core checkout agent for processing transactions and providing recommendations."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize the checkout agent.
 
         Args:

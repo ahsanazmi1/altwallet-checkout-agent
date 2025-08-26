@@ -1,24 +1,24 @@
 """Deterministic Scoring v1 for AltWallet Checkout Agent."""
 
 from decimal import Decimal
-from typing import Dict, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
 
+from .logger import get_logger
 from .models import Context, LoyaltyTier
 from .policy import (
-    RISK_SCORE_LOCATION_MISMATCH,
-    RISK_SCORE_VELOCITY_FLAG,
-    RISK_SCORE_CHARGEBACKS,
-    RISK_SCORE_HIGH_TICKET,
+    BASE_SCORE,
     HIGH_TICKET_THRESHOLD,
     LOYALTY_BOOST_VALUES,
-    MIN_SCORE,
     MAX_SCORE,
-    BASE_SCORE,
     MCC_TO_NETWORK_MAPPING,
+    MIN_SCORE,
+    RISK_SCORE_CHARGEBACKS,
+    RISK_SCORE_HIGH_TICKET,
+    RISK_SCORE_LOCATION_MISMATCH,
+    RISK_SCORE_VELOCITY_FLAG,
 )
-from .logger import get_logger
 
 
 class ScoreResult(BaseModel):
@@ -28,7 +28,7 @@ class ScoreResult(BaseModel):
     loyalty_boost: int = Field(..., description="Loyalty boost points")
     final_score: int = Field(..., description="Final score (0-120)")
     routing_hint: str = Field(..., description="Payment network preference")
-    signals: Dict[str, Any] = Field(
+    signals: dict[str, Any] = Field(
         default_factory=dict, description="Detailed scoring signals and components"
     )
 
@@ -39,7 +39,7 @@ class ScoreResult(BaseModel):
         loyalty_boost: int,
         final_score: int,
         routing_hint: str,
-        signals: Dict[str, Any],
+        signals: dict[str, Any],
     ) -> "ScoreResult":
         """Create a ScoreResult with validation."""
         return cls(
@@ -51,7 +51,7 @@ class ScoreResult(BaseModel):
         )
 
 
-def calculate_risk_score(context: Context) -> tuple[int, Dict[str, Any]]:
+def calculate_risk_score(context: Context) -> tuple[int, dict[str, Any]]:
     """
     Calculate risk score based on context data.
 
@@ -228,7 +228,7 @@ def score_transaction(context: Context) -> ScoreResult:
 
 # Pure functions for unit testing
 def is_location_mismatch(
-    device_location: Dict[str, str], geo_location: Dict[str, str]
+    device_location: dict[str, str], geo_location: dict[str, str]
 ) -> bool:
     """
     Pure function to check location mismatch.
