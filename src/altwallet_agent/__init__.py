@@ -6,6 +6,7 @@ __email__ = "support@altwallet.com"
 
 from .core import CheckoutAgent
 from .models import CheckoutRequest, CheckoutResponse, ScoreRequest, ScoreResponse
+from .scoring import ScoreResult, score_transaction
 
 __all__ = [
     "CheckoutAgent",
@@ -13,4 +14,6 @@ __all__ = [
     "CheckoutResponse",
     "ScoreRequest",
     "ScoreResponse",
+    "ScoreResult",
+    "score_transaction",
 ]
