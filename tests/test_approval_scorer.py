@@ -408,6 +408,249 @@ class TestApprovalScorer:
         assert result_small_mismatch.p_approval <= result_no_mismatch.p_approval
 
 
+class TestMonotonicity:
+    """Test monotonicity - more risk factors should lead to lower approval probabilities."""
+    
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.scorer = ApprovalScorer()
+    
+    def test_mcc_risk_monotonicity(self):
+        """Test that higher-risk MCCs lead to lower approval probabilities."""
+        base_context = {
+            "amount": Decimal("100.00"),
+            "issuer_family": "visa",
+            "cross_border": False,
+            "location_mismatch_distance": 0.0,
+            "velocity_24h": 1,
+            "velocity_7d": 5,
+            "chargebacks_12m": 0,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": "GOLD"
+        }
+        
+        # Test MCC risk progression: low-risk -> medium-risk -> high-risk -> extremely high-risk
+        mcc_test_cases = [
+            ("5411", "low_risk"),      # Grocery store
+            ("5541", "medium_risk"),   # Gas station
+            ("7994", "high_risk"),     # Video game arcades
+            ("7995", "extremely_high_risk")  # Gambling
+        ]
+        
+        results = []
+        for mcc, risk_level in mcc_test_cases:
+            context = base_context.copy()
+            context["mcc"] = mcc
+            result = self.scorer.score(context)
+            results.append((risk_level, result.p_approval))
+        
+        # Verify monotonicity: each higher risk level should have lower approval probability
+        for i in range(1, len(results)):
+            assert results[i][1] <= results[i-1][1], \
+                f"Risk level {results[i][0]} should have lower approval probability than {results[i-1][0]}"
+    
+    def test_amount_risk_monotonicity(self):
+        """Test that larger amounts lead to lower approval probabilities."""
+        base_context = {
+            "mcc": "5411",  # Grocery store
+            "issuer_family": "visa",
+            "cross_border": False,
+            "location_mismatch_distance": 0.0,
+            "velocity_24h": 1,
+            "velocity_7d": 5,
+            "chargebacks_12m": 0,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": "GOLD"
+        }
+        
+        # Test amount risk progression
+        amount_test_cases = [
+            (Decimal("5.00"), "very_small"),
+            (Decimal("50.00"), "small"),
+            (Decimal("500.00"), "medium"),
+            (Decimal("5000.00"), "large"),
+            (Decimal("25000.00"), "very_large")
+        ]
+        
+        results = []
+        for amount, size in amount_test_cases:
+            context = base_context.copy()
+            context["amount"] = amount
+            result = self.scorer.score(context)
+            results.append((size, result.p_approval))
+        
+        # Verify monotonicity: each larger amount should have lower approval probability
+        for i in range(1, len(results)):
+            assert results[i][1] <= results[i-1][1], \
+                f"Amount size {results[i][0]} should have lower approval probability than {results[i-1][0]}"
+    
+    def test_geo_distance_monotonicity(self):
+        """Test that larger geo distances lead to lower approval probabilities."""
+        base_context = {
+            "mcc": "5411",  # Grocery store
+            "amount": Decimal("100.00"),
+            "issuer_family": "visa",
+            "cross_border": False,
+            "velocity_24h": 1,
+            "velocity_7d": 5,
+            "chargebacks_12m": 0,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": "GOLD"
+        }
+        
+        # Test geo distance risk progression
+        distance_test_cases = [
+            (0.0, "same_city"),
+            (25.0, "same_metro"),
+            (100.0, "same_state"),
+            (500.0, "same_country"),
+            (5000.0, "different_continent")
+        ]
+        
+        results = []
+        for distance, location in distance_test_cases:
+            context = base_context.copy()
+            context["location_mismatch_distance"] = distance
+            result = self.scorer.score(context)
+            results.append((location, result.p_approval))
+        
+        # Verify monotonicity: each larger distance should have lower approval probability
+        for i in range(1, len(results)):
+            assert results[i][1] <= results[i-1][1], \
+                f"Distance {results[i][0]} should have lower approval probability than {results[i-1][0]}"
+    
+    def test_cross_border_risk_impact(self):
+        """Test that cross-border transactions have significantly lower approval probabilities."""
+        base_context = {
+            "mcc": "5411",  # Grocery store
+            "amount": Decimal("100.00"),
+            "issuer_family": "visa",
+            "location_mismatch_distance": 0.0,
+            "velocity_24h": 1,
+            "velocity_7d": 5,
+            "chargebacks_12m": 0,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": "GOLD"
+        }
+        
+        # Test domestic vs cross-border
+        context_domestic = base_context.copy()
+        context_domestic["cross_border"] = False
+        result_domestic = self.scorer.score(context_domestic)
+        
+        context_cross_border = base_context.copy()
+        context_cross_border["cross_border"] = True
+        result_cross_border = self.scorer.score(context_cross_border)
+        
+        # Cross-border should have significantly lower approval probability
+        assert result_cross_border.p_approval < result_domestic.p_approval
+        # The difference should be substantial (at least 10% lower)
+        assert result_domestic.p_approval - result_cross_border.p_approval > 0.1
+    
+    def test_combined_risk_factors_monotonicity(self):
+        """Test that adding multiple risk factors leads to monotonically decreasing approval probabilities."""
+        base_context = {
+            "mcc": "5411",  # Grocery store
+            "amount": Decimal("100.00"),
+            "issuer_family": "visa",
+            "cross_border": False,
+            "location_mismatch_distance": 0.0,
+            "velocity_24h": 1,
+            "velocity_7d": 5,
+            "chargebacks_12m": 0,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": "GOLD"
+        }
+        
+        # Start with base context
+        result_base = self.scorer.score(base_context)
+        results = [("base", result_base.p_approval)]
+        
+        # Add risk factor 1: medium-risk MCC (less extreme than gambling)
+        context_1 = base_context.copy()
+        context_1["mcc"] = "5541"  # Gas station
+        result_1 = self.scorer.score(context_1)
+        results.append(("medium_risk_mcc", result_1.p_approval))
+        
+        # Add risk factor 2: larger amount
+        context_2 = context_1.copy()
+        context_2["amount"] = Decimal("1000.00")
+        result_2 = self.scorer.score(context_2)
+        results.append(("larger_amount", result_2.p_approval))
+        
+        # Add risk factor 3: cross-border
+        context_3 = context_2.copy()
+        context_3["cross_border"] = True
+        result_3 = self.scorer.score(context_3)
+        results.append(("cross_border", result_3.p_approval))
+        
+        # Add risk factor 4: geo distance
+        context_4 = context_3.copy()
+        context_4["location_mismatch_distance"] = 1000.0
+        result_4 = self.scorer.score(context_4)
+        results.append(("geo_distance", result_4.p_approval))
+        
+        # Verify monotonicity: each additional risk factor should decrease approval probability
+        for i in range(1, len(results)):
+            assert results[i][1] <= results[i-1][1], \
+                f"Adding risk factor {results[i][0]} should not increase approval probability from {results[i-1][0]}"
+    
+    def test_extreme_risk_scenarios(self):
+        """Test extreme risk scenarios that should result in very low approval probabilities."""
+        # Extremely high-risk scenario
+        extreme_context = {
+            "mcc": "7995",  # Gambling
+            "amount": Decimal("50000.00"),  # Very large amount
+            "issuer_family": "unknown",
+            "cross_border": True,
+            "location_mismatch_distance": 15000.0,  # Extreme distance
+            "velocity_24h": 100,
+            "velocity_7d": 1000,
+            "chargebacks_12m": 10,
+            "merchant_risk_tier": "high",
+            "loyalty_tier": "NONE"
+        }
+        
+        result = self.scorer.score(extreme_context)
+        
+        # Should have very low approval probability
+        assert result.p_approval < 0.1, f"Extreme risk scenario should have very low approval probability, got {result.p_approval}"
+        assert result.raw_score < -5.0, f"Extreme risk scenario should have very negative raw score, got {result.raw_score}"
+    
+    def test_missing_fields_defaults(self):
+        """Test that missing fields use sensible defaults that maintain risk monotonicity."""
+        # Test with all fields missing (should use conservative defaults)
+        empty_context = {}
+        result_empty = self.scorer.score(empty_context)
+        
+        # Test with only amount provided (should be more favorable than empty)
+        amount_only_context = {"amount": Decimal("5.00")}  # Very small amount
+        result_amount_only = self.scorer.score(amount_only_context)
+        
+        # Test with low-risk context (should be more favorable than amount-only)
+        low_risk_context = {
+            "mcc": "5411",  # Grocery store
+            "amount": Decimal("5.00"),  # Very small amount
+            "issuer_family": "visa",
+            "cross_border": False,
+            "location_mismatch_distance": 0.0,
+            "velocity_24h": 1,
+            "velocity_7d": 5,
+            "chargebacks_12m": 0,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": "GOLD"
+        }
+        result_low_risk = self.scorer.score(low_risk_context)
+        
+        # Verify that all scenarios produce valid probabilities
+        assert 0.0 <= result_empty.p_approval <= 1.0
+        assert 0.0 <= result_amount_only.p_approval <= 1.0
+        assert 0.0 <= result_low_risk.p_approval <= 1.0
+        
+        # Verify that low-risk context has higher approval probability than amount-only
+        assert result_low_risk.p_approval >= result_amount_only.p_approval
+
+
 class TestEdgeCases:
     """Test edge cases and error handling."""
     

@@ -157,8 +157,9 @@ class ApprovalScorer:
         weights = self.config["rules_layer"]["amount_weights"]
         
         for range_str, weight in weights.items():
-            if range_str == "5000+":
-                if amount_float >= 5000:
+            if range_str.endswith("+"):
+                min_val = float(range_str[:-1])
+                if amount_float >= min_val:
                     return weight
             else:
                 min_val, max_val = map(float, range_str.split("-"))
@@ -267,17 +268,17 @@ class ApprovalScorer:
         """Calculate raw log-odds score from deterministic signals."""
         attributions = FeatureAttributions()
         
-        # MCC weight
+        # MCC weight - default to unknown (neutral) if missing
         mcc = context.get("mcc", "unknown")
         mcc_weight = self._get_mcc_weight(mcc)
         attributions.mcc_contribution = mcc_weight
         
-        # Amount weight
+        # Amount weight - default to 0 if missing (treat as very small amount)
         amount = context.get("amount", Decimal("0"))
         amount_weight = self._get_amount_weight(amount)
         attributions.amount_contribution = amount_weight
         
-        # Issuer family weight
+        # Issuer family weight - default to unknown (higher risk) if missing
         issuer_family = context.get("issuer_family", "unknown")
         issuer_weights = self.config["rules_layer"]["issuer_family_weights"]
         issuer_weight = issuer_weights.get(
@@ -285,19 +286,19 @@ class ApprovalScorer:
         )
         attributions.issuer_contribution = issuer_weight
         
-        # Cross-border weight
+        # Cross-border weight - default to False (domestic) if missing
         cross_border = context.get("cross_border", False)
         cross_border_weight = (
             self.config["rules_layer"]["cross_border_weight"] if cross_border else 0.0
         )
         attributions.cross_border_contribution = cross_border_weight
         
-        # Location mismatch weight
+        # Location mismatch weight - default to 0 (no mismatch) if missing
         location_mismatch_distance = context.get("location_mismatch_distance", 0.0)
         location_weight = self._get_location_mismatch_weight(location_mismatch_distance)
         attributions.location_mismatch_contribution = location_weight
         
-        # Velocity weights
+        # Velocity weights - default to 0 (no velocity) if missing
         velocity_24h = context.get("velocity_24h", 0)
         velocity_24h_weight = self._get_velocity_weight(velocity_24h, "24h")
         attributions.velocity_24h_contribution = velocity_24h_weight
@@ -306,12 +307,12 @@ class ApprovalScorer:
         velocity_7d_weight = self._get_velocity_weight(velocity_7d, "7d")
         attributions.velocity_7d_contribution = velocity_7d_weight
         
-        # Chargeback weight
+        # Chargeback weight - default to 0 (no chargebacks) if missing
         chargebacks = context.get("chargebacks_12m", 0)
         chargeback_weight = self._get_chargeback_weight(chargebacks)
         attributions.chargeback_contribution = chargeback_weight
         
-        # Merchant risk weight
+        # Merchant risk weight - default to unknown (higher risk) if missing
         merchant_risk = context.get("merchant_risk_tier", "unknown")
         merchant_weights = self.config["rules_layer"]["merchant_risk_weights"]
         merchant_weight = merchant_weights.get(
@@ -319,7 +320,7 @@ class ApprovalScorer:
         )
         attributions.merchant_risk_contribution = merchant_weight
         
-        # Loyalty weight
+        # Loyalty weight - default to NONE (no loyalty) if missing
         loyalty_tier = context.get("loyalty_tier", "NONE")
         loyalty_weights = self.config["rules_layer"]["loyalty_weights"]
         loyalty_weight = loyalty_weights.get(
