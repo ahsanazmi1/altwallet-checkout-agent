@@ -1,0 +1,1018 @@
+openapi: 3.0.3
+info:
+  title: AltWallet Checkout Agent API
+  description: |
+    Core Engine MVP for checkout processing and scoring with intelligent decision-making capabilities.
+    
+    This API provides:
+    - Transaction scoring and risk assessment
+    - Card recommendations with explainability
+    - Feature attributions for transparency
+    - Health monitoring and version information
+    
+    The API processes checkout requests by analyzing cart items, merchant information,
+    customer data, device context, and geographic location to provide optimal
+    payment card recommendations.
+  version: "1.0.0"
+  contact:
+    name: AltWallet Team
+    email: support@altwallet.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.altwallet.com/v1
+    description: Production server
+
+paths:
+  /v1/score:
+    post:
+      summary: Score transaction and get card recommendations
+      description: |
+        Process a checkout request and return scored card recommendations with
+        approval probabilities, expected rewards, utility scores, and explainability.
+      operationId: scoreTransaction
+      tags:
+        - Scoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Context'
+            examples:
+              basic_checkout:
+                summary: Basic checkout with cart items
+                value:
+                  cart:
+                    items:
+                      - item: "Wireless Headphones"
+                        unit_price: "199.99"
+                        qty: 1
+                        mcc: "5734"
+                        merchant_category: "Computer Software Stores"
+                    currency: "USD"
+                  merchant:
+                    name: "Best Buy"
+                    mcc: "5734"
+                    network_preferences: ["visa", "mc"]
+                    location:
+                      city: "San Francisco"
+                      country: "US"
+                  customer:
+                    id: "cust_12345"
+                    loyalty_tier: "GOLD"
+                    historical_velocity_24h: 3
+                    chargebacks_12m: 0
+                  device:
+                    ip: "192.168.1.100"
+                    device_id: "dev_abc123"
+                    ip_distance_km: 5.2
+                    location:
+                      city: "San Francisco"
+                      country: "US"
+                  geo:
+                    city: "San Francisco"
+                    region: "CA"
+                    country: "US"
+                    lat: 37.7749
+                    lon: -122.4194
+              high_risk_transaction:
+                summary: High-risk transaction example
+                value:
+                  cart:
+                    items:
+                      - item: "Gaming Console"
+                        unit_price: "499.99"
+                        qty: 1
+                        mcc: "5734"
+                    currency: "USD"
+                  merchant:
+                    name: "Online Electronics Store"
+                    mcc: "5734"
+                    network_preferences: ["visa"]
+                  customer:
+                    id: "cust_67890"
+                    loyalty_tier: "NONE"
+                    historical_velocity_24h: 15
+                    chargebacks_12m: 2
+                  device:
+                    ip: "10.0.0.1"
+                    device_id: "dev_xyz789"
+                    ip_distance_km: 1500.0
+                    location:
+                      city: "New York"
+                      country: "US"
+                  geo:
+                    city: "Los Angeles"
+                    region: "CA"
+                    country: "US"
+                    lat: 34.0522
+                    lon: -118.2437
+      responses:
+        '200':
+          description: Successful scoring response with recommendations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreResponse'
+              examples:
+                successful_scoring:
+                  summary: Successful scoring with multiple recommendations
+                  value:
+                    transaction_id: "txn_abc123def456"
+                    recommendations:
+                      - card_id: "chase_sapphire_preferred"
+                        card_name: "Chase Sapphire Preferred"
+                        rank: 1
+                        p_approval: 0.85
+                        expected_rewards: 0.025
+                        utility: 0.78
+                        explainability:
+                          baseline: 0.50
+                          contributions:
+                            - feature: "merchant_category"
+                              contribution: 0.15
+                              direction: "positive"
+                            - feature: "loyalty_tier"
+                              contribution: 0.08
+                              direction: "positive"
+                            - feature: "transaction_amount"
+                              contribution: -0.05
+                              direction: "negative"
+                          top_drivers:
+                            positive:
+                              - feature: "merchant_category"
+                                value: "5734"
+                                impact: 0.15
+                            negative:
+                              - feature: "transaction_amount"
+                                value: "199.99"
+                                impact: -0.05
+                        audit:
+                          config_versions:
+                            scoring: "v1.2.0"
+                            preferences: "v1.1.0"
+                          code_version: "abc123def456"
+                          request_id: "req_789ghi012"
+                          latency_ms: 45
+                      - card_id: "amex_gold"
+                        card_name: "American Express Gold"
+                        rank: 2
+                        p_approval: 0.72
+                        expected_rewards: 0.04
+                        utility: 0.65
+                        explainability:
+                          baseline: 0.50
+                          contributions:
+                            - feature: "merchant_category"
+                              contribution: 0.12
+                              direction: "positive"
+                          top_drivers:
+                            positive:
+                              - feature: "merchant_category"
+                                value: "5734"
+                                impact: 0.12
+                        audit:
+                          config_versions:
+                            scoring: "v1.2.0"
+                            preferences: "v1.1.0"
+                          code_version: "abc123def456"
+                          request_id: "req_789ghi012"
+                          latency_ms: 45
+                    score: 0.78
+                    status: "completed"
+                    metadata:
+                      processing_time_ms: 45
+                      intelligence_version: "1.0.0"
+                      algorithm_used: "phase2_intelligence_engine"
+        '400':
+          description: Bad request - invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Validation failed"
+                detail: "Invalid cart items: unit_price must be non-negative"
+                status_code: 400
+        '422':
+          description: Unprocessable entity - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Internal server error"
+                detail: "Scoring engine encountered an error"
+                status_code: 500
+
+  /v1/explain:
+    post:
+      summary: Get full feature attributions for transaction
+      description: |
+        Process the same input as /v1/score but return detailed feature attributions
+        without card ranking. This endpoint provides transparency into how the
+        scoring algorithm weights different features.
+      operationId: explainTransaction
+      tags:
+        - Explainability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Context'
+      responses:
+        '200':
+          description: Successful explanation with feature attributions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplainResponse'
+              examples:
+                feature_attributions:
+                  summary: Detailed feature attributions
+                  value:
+                    transaction_id: "txn_abc123def456"
+                    request_id: "req_789ghi012"
+                    attributions:
+                      risk_factors:
+                        location_mismatch:
+                          value: true
+                          contribution: 0.25
+                          description: "Device location differs from transaction location"
+                        velocity_flag:
+                          value: false
+                          contribution: 0.0
+                          description: "Customer transaction velocity within normal range"
+                        chargebacks_present:
+                          value: false
+                          contribution: 0.0
+                          description: "No recent chargebacks"
+                        high_ticket:
+                          value: false
+                          contribution: 0.0
+                          description: "Transaction amount below high-ticket threshold"
+                      feature_contributions:
+                        merchant_category:
+                          value: "5734"
+                          contribution: 0.15
+                          direction: "positive"
+                          description: "Computer Software Stores category"
+                        loyalty_tier:
+                          value: "GOLD"
+                          contribution: 0.08
+                          direction: "positive"
+                          description: "Gold tier customer"
+                        transaction_amount:
+                          value: "199.99"
+                          contribution: -0.05
+                          direction: "negative"
+                          description: "Transaction amount impact"
+                        device_ip_distance:
+                          value: 5.2
+                          contribution: 0.02
+                          direction: "positive"
+                          description: "Device IP close to transaction location"
+                      composite_scores:
+                        risk_score: 25
+                        loyalty_boost: 8
+                        final_score: 78
+                        routing_hint: "prefer_visa"
+                    metadata:
+                      processing_time_ms: 32
+                      model_version: "v1.2.0"
+                      attribution_method: "additive_feature_attributions"
+        '400':
+          description: Bad request - invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable entity - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/healthz:
+    get:
+      summary: Health check endpoint
+      description: |
+        Check the health status of the API service. Returns basic health information
+        including service status and uptime.
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "healthy"
+                uptime_seconds: 3600
+                version: "1.0.0"
+                timestamp: "2024-01-15T10:30:00Z"
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "unhealthy"
+                error: "Database connection failed"
+                uptime_seconds: 3600
+                version: "1.0.0"
+                timestamp: "2024-01-15T10:30:00Z"
+
+  /v1/version:
+    get:
+      summary: Get API version information
+      description: |
+        Retrieve detailed version information about the API, including
+        version numbers, build information, and component versions.
+      operationId: getVersion
+      tags:
+        - Version
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+              example:
+                version: "1.0.0"
+                build_date: "2024-01-15T10:00:00Z"
+                git_sha: "abc123def456"
+                components:
+                  scoring_engine: "v1.2.0"
+                  intelligence_engine: "v1.0.0"
+                  preference_weighting: "v1.1.0"
+                  merchant_penalty: "v1.0.0"
+                api_spec_version: "3.0.3"
+
+components:
+  schemas:
+    Context:
+      type: object
+      required:
+        - cart
+        - merchant
+        - customer
+        - device
+        - geo
+      properties:
+        cart:
+          $ref: '#/components/schemas/Cart'
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        device:
+          $ref: '#/components/schemas/Device'
+        geo:
+          $ref: '#/components/schemas/Geo'
+        flags:
+          type: object
+          description: Computed risk flags based on context data
+          properties:
+            mismatch_location:
+              type: boolean
+              description: True if device location differs from transaction location
+            velocity_24h_flag:
+              type: boolean
+              description: True if customer velocity exceeds threshold
+          readOnly: true
+
+    Cart:
+      type: object
+      required:
+        - items
+        - currency
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+          description: List of items in the shopping cart
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: ISO 4217 currency code
+          example: "USD"
+        total:
+          type: string
+          format: decimal
+          description: Calculated total cart value
+          readOnly: true
+        item_count:
+          type: integer
+          description: Total number of items in cart
+          readOnly: true
+
+    CartItem:
+      type: object
+      required:
+        - item
+        - unit_price
+        - qty
+      properties:
+        item:
+          type: string
+          description: Item name or identifier
+          example: "Wireless Headphones"
+        unit_price:
+          type: string
+          format: decimal
+          minimum: 0
+          description: Price per unit
+          example: "199.99"
+        qty:
+          type: integer
+          minimum: 1
+          description: Quantity of items
+          example: 1
+        mcc:
+          type: string
+          description: Merchant Category Code
+          example: "5734"
+        merchant_category:
+          type: string
+          description: Human-readable merchant category
+          example: "Computer Software Stores"
+        total_price:
+          type: string
+          format: decimal
+          description: Calculated total price for this item
+          readOnly: true
+
+    Merchant:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Merchant name
+          example: "Best Buy"
+        mcc:
+          type: string
+          description: Merchant Category Code
+          example: "5734"
+        network_preferences:
+          type: array
+          items:
+            type: string
+            enum: [visa, mc, mastercard, amex, discover]
+          description: Preferred payment networks
+          example: ["visa", "mc"]
+        location:
+          type: object
+          properties:
+            city:
+              type: string
+              example: "San Francisco"
+            country:
+              type: string
+              example: "US"
+
+    Customer:
+      type: object
+      required:
+        - id
+        - loyalty_tier
+        - historical_velocity_24h
+        - chargebacks_12m
+      properties:
+        id:
+          type: string
+          description: Unique customer identifier
+          example: "cust_12345"
+        loyalty_tier:
+          $ref: '#/components/schemas/LoyaltyTier'
+        historical_velocity_24h:
+          type: integer
+          minimum: 0
+          description: Number of transactions in last 24 hours
+          example: 3
+        chargebacks_12m:
+          type: integer
+          minimum: 0
+          description: Number of chargebacks in last 12 months
+          example: 0
+
+    LoyaltyTier:
+      type: string
+      enum: [NONE, SILVER, GOLD, PLATINUM, DIAMOND]
+      description: Customer loyalty tier
+      example: "GOLD"
+
+    Device:
+      type: object
+      required:
+        - ip
+      properties:
+        ip:
+          type: string
+          format: ipv4
+          description: Device IP address
+          example: "192.168.1.100"
+        device_id:
+          type: string
+          description: Unique device identifier
+          example: "dev_abc123"
+        ip_distance_km:
+          type: number
+          minimum: 0
+          description: Distance between IP location and transaction location
+          example: 5.2
+        location:
+          type: object
+          properties:
+            city:
+              type: string
+              example: "San Francisco"
+            country:
+              type: string
+              example: "US"
+
+    Geo:
+      type: object
+      required:
+        - city
+        - country
+      properties:
+        city:
+          type: string
+          description: City name
+          example: "San Francisco"
+        region:
+          type: string
+          description: Region or state
+          example: "CA"
+        country:
+          type: string
+          description: Country name or code
+          example: "US"
+        lat:
+          type: number
+          minimum: -90
+          maximum: 90
+          description: Latitude coordinate
+          example: 37.7749
+        lon:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: Longitude coordinate
+          example: -122.4194
+
+    ScoreResponse:
+      type: object
+      required:
+        - transaction_id
+        - recommendations
+        - score
+        - status
+      properties:
+        transaction_id:
+          type: string
+          description: Unique transaction identifier
+          example: "txn_abc123def456"
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+          description: Ranked card recommendations
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Overall transaction score
+          example: 0.78
+        status:
+          type: string
+          enum: [completed, processing, failed]
+          description: Processing status
+          example: "completed"
+        metadata:
+          type: object
+          description: Additional response metadata
+          properties:
+            processing_time_ms:
+              type: integer
+              description: Processing time in milliseconds
+            intelligence_version:
+              type: string
+              description: Version of intelligence engine used
+            algorithm_used:
+              type: string
+              description: Algorithm used for processing
+
+    Recommendation:
+      type: object
+      required:
+        - card_id
+        - card_name
+        - rank
+        - p_approval
+        - expected_rewards
+        - utility
+      properties:
+        card_id:
+          type: string
+          description: Unique card identifier
+          example: "chase_sapphire_preferred"
+        card_name:
+          type: string
+          description: Human-readable card name
+          example: "Chase Sapphire Preferred"
+        rank:
+          type: integer
+          minimum: 1
+          description: Recommendation rank (1-based)
+          example: 1
+        p_approval:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Approval probability
+          example: 0.85
+        expected_rewards:
+          type: number
+          minimum: 0
+          description: Expected rewards rate
+          example: 0.025
+        utility:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Overall utility score
+          example: 0.78
+        explainability:
+          $ref: '#/components/schemas/ExplainabilityInfo'
+        audit:
+          $ref: '#/components/schemas/AuditInfo'
+
+    ExplainabilityInfo:
+      type: object
+      required:
+        - baseline
+      properties:
+        baseline:
+          type: number
+          description: Baseline score contribution
+          example: 0.50
+        contributions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribution'
+          description: Per-feature contributions to the score
+        calibration:
+          type: object
+          description: Calibration method and parameters
+          properties:
+            method:
+              type: string
+              example: "sigmoid"
+            parameters:
+              type: object
+        top_drivers:
+          type: object
+          description: Top positive and negative feature drivers
+          properties:
+            positive:
+              type: array
+              items:
+                $ref: '#/components/schemas/Driver'
+            negative:
+              type: array
+              items:
+                $ref: '#/components/schemas/Driver'
+
+    Attribution:
+      type: object
+      required:
+        - feature
+        - contribution
+        - direction
+      properties:
+        feature:
+          type: string
+          description: Feature name
+          example: "merchant_category"
+        contribution:
+          type: number
+          description: Contribution to the score
+          example: 0.15
+        direction:
+          type: string
+          enum: [positive, negative]
+          description: Direction of contribution
+          example: "positive"
+
+    Driver:
+      type: object
+      required:
+        - feature
+        - value
+        - impact
+      properties:
+        feature:
+          type: string
+          description: Feature name
+          example: "merchant_category"
+        value:
+          type: string
+          description: Feature value
+          example: "5734"
+        impact:
+          type: number
+          description: Impact on score
+          example: 0.15
+
+    AuditInfo:
+      type: object
+      required:
+        - config_versions
+        - code_version
+        - request_id
+        - latency_ms
+      properties:
+        config_versions:
+          type: object
+          description: Configuration file versions
+          properties:
+            scoring:
+              type: string
+              example: "v1.2.0"
+            preferences:
+              type: string
+              example: "v1.1.0"
+        code_version:
+          type: string
+          description: Git SHA of the deployed code
+          example: "abc123def456"
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: "req_789ghi012"
+        latency_ms:
+          type: integer
+          description: Processing latency in milliseconds
+          example: 45
+
+    ExplainResponse:
+      type: object
+      required:
+        - transaction_id
+        - request_id
+        - attributions
+      properties:
+        transaction_id:
+          type: string
+          description: Unique transaction identifier
+          example: "txn_abc123def456"
+        request_id:
+          type: string
+          description: Unique request identifier
+          example: "req_789ghi012"
+        attributions:
+          type: object
+          required:
+            - risk_factors
+            - feature_contributions
+            - composite_scores
+          properties:
+            risk_factors:
+              type: object
+              description: Risk factor analysis
+              additionalProperties:
+                $ref: '#/components/schemas/RiskFactor'
+            feature_contributions:
+              type: object
+              description: Feature contribution analysis
+              additionalProperties:
+                $ref: '#/components/schemas/FeatureContribution'
+            composite_scores:
+              $ref: '#/components/schemas/CompositeScores'
+        metadata:
+          type: object
+          description: Additional metadata
+          properties:
+            processing_time_ms:
+              type: integer
+              description: Processing time in milliseconds
+            model_version:
+              type: string
+              description: Version of the model used
+            attribution_method:
+              type: string
+              description: Method used for attributions
+
+    RiskFactor:
+      type: object
+      required:
+        - value
+        - contribution
+        - description
+      properties:
+        value:
+          type: boolean
+          description: Whether the risk factor is present
+          example: true
+        contribution:
+          type: number
+          description: Contribution to risk score
+          example: 0.25
+        description:
+          type: string
+          description: Human-readable description
+          example: "Device location differs from transaction location"
+
+    FeatureContribution:
+      type: object
+      required:
+        - value
+        - contribution
+        - direction
+        - description
+      properties:
+        value:
+          type: string
+          description: Feature value
+          example: "5734"
+        contribution:
+          type: number
+          description: Contribution to score
+          example: 0.15
+        direction:
+          type: string
+          enum: [positive, negative]
+          description: Direction of contribution
+          example: "positive"
+        description:
+          type: string
+          description: Human-readable description
+          example: "Computer Software Stores category"
+
+    CompositeScores:
+      type: object
+      required:
+        - risk_score
+        - loyalty_boost
+        - final_score
+        - routing_hint
+      properties:
+        risk_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Risk score (0-100)
+          example: 25
+        loyalty_boost:
+          type: integer
+          minimum: 0
+          maximum: 20
+          description: Loyalty boost points
+          example: 8
+        final_score:
+          type: integer
+          minimum: 0
+          maximum: 120
+          description: Final score (0-120)
+          example: 78
+        routing_hint:
+          type: string
+          description: Payment network preference
+          example: "prefer_visa"
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Service health status
+          example: "healthy"
+        uptime_seconds:
+          type: integer
+          description: Service uptime in seconds
+          example: 3600
+        version:
+          type: string
+          description: API version
+          example: "1.0.0"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-15T10:30:00Z"
+        error:
+          type: string
+          description: Error message if unhealthy
+          example: "Database connection failed"
+
+    VersionResponse:
+      type: object
+      required:
+        - version
+      properties:
+        version:
+          type: string
+          description: API version
+          example: "1.0.0"
+        build_date:
+          type: string
+          format: date-time
+          description: Build date
+          example: "2024-01-15T10:00:00Z"
+        git_sha:
+          type: string
+          description: Git commit SHA
+          example: "abc123def456"
+        components:
+          type: object
+          description: Component versions
+          properties:
+            scoring_engine:
+              type: string
+              example: "v1.2.0"
+            intelligence_engine:
+              type: string
+              example: "v1.0.0"
+            preference_weighting:
+              type: string
+              example: "v1.1.0"
+            merchant_penalty:
+              type: string
+              example: "v1.0.0"
+        api_spec_version:
+          type: string
+          description: OpenAPI specification version
+          example: "3.0.3"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - status_code
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Validation failed"
+        detail:
+          type: string
+          description: Detailed error information
+          example: "Invalid cart items: unit_price must be non-negative"
+        status_code:
+          type: integer
+          description: HTTP status code
+          example: 400
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2024-01-15T10:30:00Z"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+tags:
+  - name: Scoring
+    description: Transaction scoring and card recommendations
+  - name: Explainability
+    description: Feature attributions and transparency
+  - name: Health
+    description: Service health monitoring
+  - name: Version
+    description: Version information and metadata
