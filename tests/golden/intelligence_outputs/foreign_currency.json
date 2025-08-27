@@ -1,0 +1,20 @@
+{
+  "score": 0.418,
+  "recommendations_count": 2,
+  "recommendations": [
+    {
+      "card_id": "chase_sapphire_preferred",
+      "cashback_rate": 0.02,
+      "confidence": 0.75,
+      "reason": "Best overall value for this transaction"
+    },
+    {
+      "card_id": "amex_gold",
+      "cashback_rate": 0.04,
+      "confidence": 0.7,
+      "reason": "High rewards for dining category"
+    }
+  ],
+  "processing_time_ms": 0.0,
+  "has_premium_cards": false
+}

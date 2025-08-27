@@ -99,6 +99,7 @@ class LoyaltyTier(str, Enum):
     SILVER = "SILVER"
     GOLD = "GOLD"
     PLATINUM = "PLATINUM"
+    DIAMOND = "DIAMOND"
 
 
 class CartItem(BaseModel):
