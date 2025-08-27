@@ -11,6 +11,8 @@ from src.altwallet_agent.approval_scorer import (
     ApprovalScorer,
     ApprovalResult,
     FeatureAttributions,
+    AdditiveAttributions,
+    FeatureContribution,
     LogisticCalibrator,
     IsotonicCalibrator,
 )
@@ -130,6 +132,20 @@ class TestApprovalScorer:
         assert isinstance(result.raw_score, float)
         assert result.calibration["method"] == "logistic"
         assert result.attributions is not None
+        assert result.additive_attributions is not None
+        
+        # Test additive attributions structure
+        additive_attribs = result.additive_attributions
+        assert hasattr(additive_attribs, 'baseline')
+        assert hasattr(additive_attribs, 'contribs')
+        assert hasattr(additive_attribs, 'sum')
+        assert isinstance(additive_attribs.contribs, list)
+        
+        # Test additivity
+        contrib_sum = sum(contrib.value for contrib in additive_attribs.contribs)
+        total_sum = contrib_sum + additive_attribs.baseline
+        assert abs(total_sum - additive_attribs.sum) <= 1e-10
+        assert abs(total_sum - result.raw_score) <= 1e-10
     
     def test_score_high_risk_case(self):
         """Test scoring with high-risk transaction data."""
@@ -267,7 +283,7 @@ class TestApprovalScorer:
         assert result1.raw_score == result2.raw_score
     
     def test_explain_method(self):
-        """Test the explain method returns feature attributions."""
+        """Test the explain method returns additive attributions."""
         context = {
             "mcc": "5411",
             "amount": Decimal("100.00"),
@@ -283,18 +299,17 @@ class TestApprovalScorer:
         
         attributions = self.scorer.explain(context)
         
-        assert isinstance(attributions, FeatureAttributions)
-        assert hasattr(attributions, 'mcc_contribution')
-        assert hasattr(attributions, 'amount_contribution')
-        assert hasattr(attributions, 'issuer_contribution')
-        assert hasattr(attributions, 'cross_border_contribution')
-        assert hasattr(attributions, 'location_mismatch_contribution')
-        assert hasattr(attributions, 'velocity_24h_contribution')
-        assert hasattr(attributions, 'velocity_7d_contribution')
-        assert hasattr(attributions, 'chargeback_contribution')
-        assert hasattr(attributions, 'merchant_risk_contribution')
-        assert hasattr(attributions, 'loyalty_contribution')
-        assert hasattr(attributions, 'base_contribution')
+        assert isinstance(attributions, AdditiveAttributions)
+        assert hasattr(attributions, 'baseline')
+        assert hasattr(attributions, 'contribs')
+        assert hasattr(attributions, 'sum')
+        
+        # Check that contribs is a list of FeatureContribution objects
+        assert isinstance(attributions.contribs, list)
+        for contrib in attributions.contribs:
+            assert isinstance(contrib, FeatureContribution)
+            assert hasattr(contrib, 'feature')
+            assert hasattr(contrib, 'value')
     
     def test_amount_weight_ranges(self):
         """Test amount weight calculation for different ranges."""

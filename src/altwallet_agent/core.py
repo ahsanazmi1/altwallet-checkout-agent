@@ -3,6 +3,7 @@
 import contextvars
 import uuid
 from typing import Any
+import subprocess
 
 import structlog
 from rich.console import Console
@@ -60,6 +61,25 @@ class CheckoutAgent:
             request_id=request_id,
             trace_id=trace_id,
         )
+
+    def _get_git_sha(self) -> str:
+        """Get the current git SHA."""
+        try:
+            # Attempt to get the SHA from a git log command
+            sha = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
+            return sha
+        except subprocess.CalledProcessError:
+            return "unknown"
+    
+    def _get_approval_scorer(self):
+        """Get approval scorer instance."""
+        from .approval_scorer import ApprovalScorer
+        return ApprovalScorer()
+    
+    def _get_card_database(self) -> list[dict[str, Any]]:
+        """Get card database for recommendations."""
+        from .data.card_database import get_card_database
+        return get_card_database()
 
     def process_checkout(self, request: CheckoutRequest) -> CheckoutResponse:
         """Process a checkout request and return recommendations.

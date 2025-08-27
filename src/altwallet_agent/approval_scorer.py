@@ -3,13 +3,34 @@
 import math
 import random
 from decimal import Decimal
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
 from pydantic import BaseModel, Field
 
 from .logger import get_logger
 from .models import Context
+
+
+class FeatureContribution(BaseModel):
+    """Individual feature contribution to the raw score."""
+    
+    feature: str = Field(..., description="Feature name")
+    value: float = Field(
+        ..., description="Contribution value (can be positive or negative)"
+    )
+
+
+class AdditiveAttributions(BaseModel):
+    """Additive feature attributions on pre-calibration scale."""
+    
+    baseline: float = Field(..., description="Baseline score contribution")
+    contribs: List[FeatureContribution] = Field(
+        ..., description="List of feature contributions"
+    )
+    sum: float = Field(
+        ..., description="Total raw score (baseline + sum of contributions)"
+    )
 
 
 class FeatureAttributions(BaseModel):
@@ -37,6 +58,9 @@ class ApprovalResult(BaseModel):
     raw_score: float = Field(..., description="Raw log-odds score")
     calibration: Dict[str, Any] = Field(..., description="Calibration method and parameters")
     attributions: Optional[FeatureAttributions] = Field(None, description="Feature attributions")
+    additive_attributions: Optional[AdditiveAttributions] = Field(
+        None, description="Additive feature attributions on pre-calibration scale"
+    )
 
 
 class Calibrator:
@@ -239,7 +263,7 @@ class ApprovalScorer:
             ApprovalResult with p_approval, raw_score, and calibration info
         """
         # Stage 1: Rules Layer - Calculate raw log-odds score
-        raw_score, attributions = self._calculate_raw_score(context)
+        raw_score, attributions, additive_attribs = self._calculate_raw_score(context)
         
         # Stage 2: Calibration Layer - Convert to probability
         p_approval = self.calibrator.calibrate(raw_score)
@@ -261,10 +285,13 @@ class ApprovalScorer:
             p_approval=p_approval,
             raw_score=raw_score,
             calibration=calibration_info,
-            attributions=attributions
+            attributions=attributions,
+            additive_attributions=additive_attribs
         )
     
-    def _calculate_raw_score(self, context: Dict[str, Any]) -> tuple[float, FeatureAttributions]:
+    def _calculate_raw_score(
+        self, context: Dict[str, Any]
+    ) -> tuple[float, FeatureAttributions, AdditiveAttributions]:
         """Calculate raw log-odds score from deterministic signals."""
         attributions = FeatureAttributions()
         
@@ -339,17 +366,97 @@ class ApprovalScorer:
             chargeback_weight + merchant_weight + loyalty_weight + base_score
         )
         
-        return raw_score, attributions
+        # Create additive attributions
+        additive_attribs = self._create_additive_attributions(
+            mcc_weight, amount_weight, issuer_weight, cross_border_weight,
+            location_weight, velocity_24h_weight, velocity_7d_weight,
+            chargeback_weight, merchant_weight, loyalty_weight, base_score
+        )
+        
+        return raw_score, attributions, additive_attribs
     
-    def explain(self, context: Dict[str, Any]) -> FeatureAttributions:
+    def _create_additive_attributions(
+        self,
+        mcc_weight: float,
+        amount_weight: float,
+        issuer_weight: float,
+        cross_border_weight: float,
+        location_weight: float,
+        velocity_24h_weight: float,
+        velocity_7d_weight: float,
+        chargeback_weight: float,
+        merchant_weight: float,
+        loyalty_weight: float,
+        base_score: float,
+    ) -> AdditiveAttributions:
+        """Create additive attributions from individual feature weights."""
+        # Define feature names for better readability
+        feature_mapping = {
+            "mcc": mcc_weight,
+            "amount": amount_weight,
+            "issuer_family": issuer_weight,
+            "cross_border": cross_border_weight,
+            "location_mismatch": location_weight,
+            "velocity_24h": velocity_24h_weight,
+            "velocity_7d": velocity_7d_weight,
+            "chargebacks_12m": chargeback_weight,
+            "merchant_risk": merchant_weight,
+            "loyalty_tier": loyalty_weight,
+        }
+        
+        # Create contributions list, excluding zero contributions
+        contribs = []
+        for feature, value in feature_mapping.items():
+            if abs(value) > 1e-10:  # Small epsilon to avoid floating point issues
+                contribs.append(FeatureContribution(feature=feature, value=value))
+        
+        # Calculate total raw score
+        raw_score = sum(feature_mapping.values()) + base_score
+        
+        # Validate additivity within epsilon
+        contrib_sum = sum(contrib.value for contrib in contribs) + base_score
+        epsilon = 1e-10
+        if abs(contrib_sum - raw_score) > epsilon:
+            self.logger.warning(
+                "Additivity validation failed: contrib_sum=%.10f, raw_score=%.10f",
+                contrib_sum, raw_score
+            )
+        
+        return AdditiveAttributions(
+            baseline=base_score,
+            contribs=contribs,
+            sum=raw_score
+        )
+    
+    def _extract_top_drivers(
+        self, additive_attribs: AdditiveAttributions, top_k: int = 3
+    ) -> Dict[str, List[FeatureContribution]]:
+        """Extract top positive and negative feature drivers."""
+        # Sort contributions by absolute value
+        sorted_contribs = sorted(
+            additive_attribs.contribs,
+            key=lambda x: abs(x.value),
+            reverse=True
+        )
+        
+        # Separate positive and negative contributions
+        positive_contribs = [c for c in sorted_contribs if c.value > 0]
+        negative_contribs = [c for c in sorted_contribs if c.value < 0]
+        
+        return {
+            "top_positive": positive_contribs[:top_k],
+            "top_negative": negative_contribs[:top_k],
+        }
+    
+    def explain(self, context: Dict[str, Any]) -> AdditiveAttributions:
         """
-        Explain the approval decision by returning feature attributions.
+        Explain the approval decision by returning additive feature attributions.
         
         Args:
             context: Transaction context dictionary
             
         Returns:
-            FeatureAttributions showing contribution of each feature
+            AdditiveAttributions with baseline, contributions list, and sum
         """
-        _, attributions = self._calculate_raw_score(context)
-        return attributions
+        _, _, additive_attribs = self._calculate_raw_score(context)
+        return additive_attribs
