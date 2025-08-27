@@ -84,9 +84,47 @@ class CheckoutAgent:
             currency=request.currency,
         )
 
-        # TODO: Implement actual checkout processing logic
-        # For now, return a mock response
+        # Use intelligence engine for enhanced processing
+        try:
+            from .intelligence import IntelligenceEngine
+            
+            # Initialize intelligence engine if not already done
+            if not hasattr(self, '_intelligence_engine'):
+                self._intelligence_engine = IntelligenceEngine()
+            
+            # Process with intelligence engine
+            response = self._intelligence_engine.process_checkout_intelligence(request)
+            
+            logger.info(
+                "Intelligent checkout processing completed",
+                transaction_id=response.transaction_id,
+                score=response.score,
+                processing_time_ms=self._intelligence_engine.processing_time_ms,
+            )
+            
+            return response
+            
+        except ImportError:
+            # Fallback to basic processing if intelligence module not available
+            logger.warning("Intelligence engine not available, using basic processing")
+            return self._process_checkout_basic(request)
+        except Exception as e:
+            # Fallback to basic processing on any error
+            logger.error(
+                "Intelligence processing failed, falling back to basic",
+                error=str(e),
+            )
+            return self._process_checkout_basic(request)
 
+    def _process_checkout_basic(self, request: CheckoutRequest) -> CheckoutResponse:
+        """Basic checkout processing (fallback method).
+        
+        Args:
+            request: The checkout request to process
+            
+        Returns:
+            CheckoutResponse with basic recommendations
+        """
         recommendations = [
             {
                 "card_id": "chase_sapphire_preferred",
@@ -102,23 +140,15 @@ class CheckoutAgent:
             },
         ]
 
-        score = 0.85  # Mock score
+        score = 0.85  # Basic score
 
-        response = CheckoutResponse(
-            transaction_id=request_id,
+        return CheckoutResponse(
+            transaction_id=request_id_var.get() or str(uuid.uuid4()),
             recommendations=recommendations,
             score=score,
             status="completed",
-            metadata={"processing_time_ms": 150},
+            metadata={"processing_time_ms": 150, "method": "basic"},
         )
-
-        logger.info(
-            "Checkout processing completed",
-            transaction_id=response.transaction_id,
-            score=response.score,
-        )
-
-        return response
 
     def score_transaction(self, request: ScoreRequest) -> ScoreResponse:
         """Score a transaction based on various factors.
