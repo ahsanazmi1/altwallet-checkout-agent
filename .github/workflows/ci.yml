@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, phase1-core-engine ]
+    branches: [ main, phase1-core-engine, phase2-intelligence ]
   pull_request:
-    branches: [ main, phase1-core-engine ]
+    branches: [ main, phase1-core-engine, phase2-intelligence ]
 
 jobs:
   test:
@@ -52,7 +52,9 @@ jobs:
 
     - name: Run smoke tests
       run: |
-        pytest tests/smoke_tests.py -v
+        python tests/smoke_tests.py
+      env:
+        LOG_SILENT: "1"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

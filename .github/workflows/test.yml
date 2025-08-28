@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, phase2-intelligence ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, phase2-intelligence ]
 
 jobs:
   test:
@@ -49,6 +49,7 @@ jobs:
       env:
         # Keep logs quiet in CI
         PYTHONWARNINGS: "ignore"
+        LOG_SILENT: "1"
     
     - name: Check for snapshot drift
       run: |
