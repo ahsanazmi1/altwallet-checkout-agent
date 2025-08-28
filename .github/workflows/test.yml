@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        python-version: ["3.9.18", "3.10.13", "3.11.9"]
+        python-version: ["3.11.9", "3.12.9"]
     
     steps:
     - uses: actions/checkout@v4
