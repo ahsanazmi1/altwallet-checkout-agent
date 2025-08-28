@@ -5,6 +5,7 @@ import sys
 import uuid
 from decimal import Decimal
 from pathlib import Path
+from typing import List, Dict, Any
 
 import typer
 from rich.console import Console
@@ -12,9 +13,10 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from .core import CheckoutAgent
-from .logger import get_logger, set_trace_id
+from .logger import get_logger, set_trace_id, set_request_start_time
 from .models import CheckoutRequest, Context
 from .scoring import score_transaction
+from .composite_utility import CompositeUtility
 
 app = typer.Typer(
     name="altwallet-agent",
@@ -22,6 +24,150 @@ app = typer.Typer(
     add_completion=False,
 )
 console = Console()
+
+
+def create_sample_cards() -> List[Dict[str, Any]]:
+    """Create sample cards for demonstration."""
+    return [
+        {
+            "card_id": "chase_sapphire_preferred",
+            "name": "Chase Sapphire Preferred",
+            "cashback_rate": 0.01,
+            "category_bonuses": {
+                "4511": 2.0,  # Airlines
+                "5812": 2.0,  # Restaurants
+            },
+            "issuer": "chase",
+            "annual_fee": 95,
+            "rewards_type": "points",
+        },
+        {
+            "card_id": "amex_gold",
+            "name": "American Express Gold",
+            "cashback_rate": 0.04,
+            "category_bonuses": {
+                "5812": 4.0,  # Restaurants
+                "5411": 4.0,  # Grocery stores
+            },
+            "issuer": "american_express",
+            "annual_fee": 250,
+            "rewards_type": "points",
+        },
+        {
+            "card_id": "citi_double_cash",
+            "name": "Citi Double Cash",
+            "cashback_rate": 0.02,
+            "category_bonuses": {},
+            "issuer": "citi",
+            "annual_fee": 0,
+            "rewards_type": "cashback",
+        },
+        {
+            "card_id": "chase_freedom_unlimited",
+            "name": "Chase Freedom Unlimited",
+            "cashback_rate": 0.015,
+            "category_bonuses": {
+                "5411": 3.0,  # Grocery stores
+            },
+            "issuer": "chase",
+            "annual_fee": 0,
+            "rewards_type": "cashback",
+        },
+    ]
+
+
+def get_top_drivers(
+    attributions: Dict[str, Any], max_drivers: int = 5
+) -> List[Dict[str, Any]]:
+    """Extract top positive and negative drivers from attributions."""
+    if not attributions:
+        return []
+    
+    # Extract feature contributions
+    drivers = []
+    
+    # Add scoring signals as drivers
+    if "signals" in attributions:
+        signals = attributions["signals"]
+        if signals.get("location_mismatch"):
+            drivers.append({
+                "feature": "location_mismatch", 
+                "value": -30, 
+                "impact": "negative"
+            })
+        if signals.get("velocity_flag"):
+            drivers.append({
+                "feature": "high_velocity_24h", 
+                "value": -20, 
+                "impact": "negative"
+            })
+        if signals.get("chargebacks_present"):
+            drivers.append({
+                "feature": "chargebacks_12m", 
+                "value": -25, 
+                "impact": "negative"
+            })
+        if signals.get("high_ticket"):
+            drivers.append({
+                "feature": "high_ticket_amount", 
+                "value": -10, 
+                "impact": "negative"
+            })
+    
+    # Add loyalty boost as positive driver
+    if "loyalty_boost" in attributions:
+        loyalty_boost = attributions.get("loyalty_boost", 0)
+        if loyalty_boost > 0:
+            drivers.append({
+                "feature": "loyalty_tier_boost", 
+                "value": loyalty_boost, 
+                "impact": "positive"
+            })
+    
+    # Sort by absolute value and take top drivers
+    drivers.sort(key=lambda x: abs(x["value"]), reverse=True)
+    return drivers[:max_drivers]
+
+
+def create_audit_block(
+    context: Context, score_result: Any, utility_result: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Create audit block with detailed scoring information."""
+    return {
+        "scoring_audit": {
+            "risk_score": score_result.risk_score,
+            "loyalty_boost": score_result.loyalty_boost,
+            "final_score": score_result.final_score,
+            "routing_hint": score_result.routing_hint,
+            "signals": score_result.signals,
+        },
+        "utility_audit": {
+            "components": utility_result.get("components", {}),
+            "score_result": utility_result.get("score_result", {}),
+            "context_info": utility_result.get("context_info", {}),
+        },
+        "transaction_context": {
+            "merchant": {
+                "name": (
+                    context.merchant.name if context.merchant else "Unknown"
+                ),
+                "mcc": context.merchant.mcc if context.merchant else "Unknown",
+                "network_preferences": (
+                    context.merchant.network_preferences if context.merchant else []
+                ),
+            },
+            "cart": {
+                "total": float(context.cart.total) if context.cart else 0.0,
+                "currency": context.cart.currency if context.cart else "USD",
+                "item_count": len(context.cart.items) if context.cart else 0,
+            },
+            "customer": {
+                "loyalty_tier": context.customer.loyalty_tier.value,
+                "velocity_24h": context.customer.historical_velocity_24h,
+                "chargebacks_12m": context.customer.chargebacks_12m,
+            },
+        },
+    }
 
 
 @app.command()
@@ -37,6 +183,10 @@ def checkout(
     # Generate trace ID for this checkout
     trace_id = str(uuid.uuid4())
     set_trace_id(trace_id)
+    
+    # Set request start time for latency tracking
+    set_request_start_time()
+    
     logger = get_logger(__name__)
 
     console.print(
@@ -108,12 +258,22 @@ def score(
     pretty: bool = typer.Option(
         False, "--pretty", "-p", help="Pretty-print JSON output"
     ),
+    json_output: bool = typer.Option(
+        False, "--json", "-j", help="Output machine-readable JSON with card recommendations"
+    ),
+    verbose: bool = typer.Option(
+        False, "-vv", 
+        help="Enable verbose logging (JSON logs to stdout only when set)"
+    ),
 ) -> None:
     """
     Score a transaction using deterministic scoring v1.
 
     Reads JSON from --input file or stdin, parses into Context,
     runs scoring, and outputs single-line JSON result.
+    
+    With --json flag, outputs comprehensive card recommendations including
+    p_approval, expected_rewards, utility, top drivers, and audit block.
     """
 
     # Generate trace ID if not provided
@@ -122,9 +282,18 @@ def score(
 
     # Set trace_id in context for logging
     set_trace_id(trace_id)
+    
+    # Set request start time for latency tracking
+    set_request_start_time()
 
     # Get logger for this command
     logger = get_logger(__name__)
+    
+    # Configure logging based on verbosity
+    if not verbose:
+        # Suppress info and debug logs when not verbose
+        import logging
+        logging.getLogger().setLevel(logging.WARNING)
 
     try:
         # Read JSON input
@@ -155,15 +324,56 @@ def score(
             loyalty_boost=result.loyalty_boost,
         )
 
-        # Prepare output
-        output = {
-            "trace_id": trace_id,
-            "risk_score": result.risk_score,
-            "loyalty_boost": result.loyalty_boost,
-            "final_score": result.final_score,
-            "routing_hint": result.routing_hint,
-            "signals": result.signals,
-        }
+        if json_output:
+            # Generate comprehensive card recommendations
+            utility = CompositeUtility()
+            cards = create_sample_cards()
+            
+            # Calculate utility for each card
+            card_recommendations = []
+            for card in cards:
+                card_utility = utility.calculate_card_utility(card, context)
+                
+                # Get top drivers
+                top_drivers = get_top_drivers(card_utility.get("score_result", {}))
+                
+                # Create audit block
+                audit_block = create_audit_block(context, result, card_utility)
+                
+                card_recommendation = {
+                    "card_id": card["card_id"],
+                    "card_name": card["name"],
+                    "p_approval": card_utility["components"]["p_approval"],
+                    "expected_rewards": card_utility["components"]["expected_rewards"],
+                    "utility": card_utility["utility_score"],
+                    "top_drivers": top_drivers,
+                    "audit": audit_block,
+                }
+                card_recommendations.append(card_recommendation)
+            
+            # Sort by utility (highest first)
+            card_recommendations.sort(key=lambda x: x["utility"], reverse=True)
+            
+            # Prepare comprehensive output
+            output = {
+                "trace_id": trace_id,
+                "risk_score": result.risk_score,
+                "loyalty_boost": result.loyalty_boost,
+                "final_score": result.final_score,
+                "routing_hint": result.routing_hint,
+                "signals": result.signals,
+                "card_recommendations": card_recommendations,
+            }
+        else:
+            # Prepare basic output
+            output = {
+                "trace_id": trace_id,
+                "risk_score": result.risk_score,
+                "loyalty_boost": result.loyalty_boost,
+                "final_score": result.final_score,
+                "routing_hint": result.routing_hint,
+                "signals": result.signals,
+            }
 
         # Output JSON
         if pretty:
