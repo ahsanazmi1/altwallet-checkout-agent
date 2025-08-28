@@ -82,48 +82,42 @@ def get_top_drivers(
     """Extract top positive and negative drivers from attributions."""
     if not attributions:
         return []
-    
+
     # Extract feature contributions
     drivers = []
-    
+
     # Add scoring signals as drivers
     if "signals" in attributions:
         signals = attributions["signals"]
         if signals.get("location_mismatch"):
-            drivers.append({
-                "feature": "location_mismatch", 
-                "value": -30, 
-                "impact": "negative"
-            })
+            drivers.append(
+                {"feature": "location_mismatch", "value": -30, "impact": "negative"}
+            )
         if signals.get("velocity_flag"):
-            drivers.append({
-                "feature": "high_velocity_24h", 
-                "value": -20, 
-                "impact": "negative"
-            })
+            drivers.append(
+                {"feature": "high_velocity_24h", "value": -20, "impact": "negative"}
+            )
         if signals.get("chargebacks_present"):
-            drivers.append({
-                "feature": "chargebacks_12m", 
-                "value": -25, 
-                "impact": "negative"
-            })
+            drivers.append(
+                {"feature": "chargebacks_12m", "value": -25, "impact": "negative"}
+            )
         if signals.get("high_ticket"):
-            drivers.append({
-                "feature": "high_ticket_amount", 
-                "value": -10, 
-                "impact": "negative"
-            })
-    
+            drivers.append(
+                {"feature": "high_ticket_amount", "value": -10, "impact": "negative"}
+            )
+
     # Add loyalty boost as positive driver
     if "loyalty_boost" in attributions:
         loyalty_boost = attributions.get("loyalty_boost", 0)
         if loyalty_boost > 0:
-            drivers.append({
-                "feature": "loyalty_tier_boost", 
-                "value": loyalty_boost, 
-                "impact": "positive"
-            })
-    
+            drivers.append(
+                {
+                    "feature": "loyalty_tier_boost",
+                    "value": loyalty_boost,
+                    "impact": "positive",
+                }
+            )
+
     # Sort by absolute value and take top drivers
     drivers.sort(key=lambda x: abs(x["value"]), reverse=True)
     return drivers[:max_drivers]
@@ -148,9 +142,7 @@ def create_audit_block(
         },
         "transaction_context": {
             "merchant": {
-                "name": (
-                    context.merchant.name if context.merchant else "Unknown"
-                ),
+                "name": (context.merchant.name if context.merchant else "Unknown"),
                 "mcc": context.merchant.mcc if context.merchant else "Unknown",
                 "network_preferences": (
                     context.merchant.network_preferences if context.merchant else []
@@ -183,10 +175,10 @@ def checkout(
     # Generate trace ID for this checkout
     trace_id = str(uuid.uuid4())
     set_trace_id(trace_id)
-    
+
     # Set request start time for latency tracking
     set_request_start_time()
-    
+
     logger = get_logger(__name__)
 
     console.print(
@@ -259,11 +251,13 @@ def score(
         False, "--pretty", "-p", help="Pretty-print JSON output"
     ),
     json_output: bool = typer.Option(
-        False, "--json", "-j", help="Output machine-readable JSON with card recommendations"
+        False,
+        "--json",
+        "-j",
+        help="Output machine-readable JSON with card recommendations",
     ),
     verbose: bool = typer.Option(
-        False, "-vv", 
-        help="Enable verbose logging (JSON logs to stdout only when set)"
+        False, "-vv", help="Enable verbose logging (JSON logs to stdout only when set)"
     ),
 ) -> None:
     """
@@ -271,7 +265,7 @@ def score(
 
     Reads JSON from --input file or stdin, parses into Context,
     runs scoring, and outputs single-line JSON result.
-    
+
     With --json flag, outputs comprehensive card recommendations including
     p_approval, expected_rewards, utility, top drivers, and audit block.
     """
@@ -282,17 +276,18 @@ def score(
 
     # Set trace_id in context for logging
     set_trace_id(trace_id)
-    
+
     # Set request start time for latency tracking
     set_request_start_time()
 
     # Get logger for this command
     logger = get_logger(__name__)
-    
+
     # Configure logging based on verbosity
     if not verbose:
         # Suppress info and debug logs when not verbose
         import logging
+
         logging.getLogger().setLevel(logging.WARNING)
 
     try:
@@ -328,18 +323,18 @@ def score(
             # Generate comprehensive card recommendations
             utility = CompositeUtility()
             cards = create_sample_cards()
-            
+
             # Calculate utility for each card
             card_recommendations = []
             for card in cards:
                 card_utility = utility.calculate_card_utility(card, context)
-                
+
                 # Get top drivers
                 top_drivers = get_top_drivers(card_utility.get("score_result", {}))
-                
+
                 # Create audit block
                 audit_block = create_audit_block(context, result, card_utility)
-                
+
                 card_recommendation = {
                     "card_id": card["card_id"],
                     "card_name": card["name"],
@@ -350,10 +345,10 @@ def score(
                     "audit": audit_block,
                 }
                 card_recommendations.append(card_recommendation)
-            
+
             # Sort by utility (highest first)
             card_recommendations.sort(key=lambda x: x["utility"], reverse=True)
-            
+
             # Prepare comprehensive output
             output = {
                 "trace_id": trace_id,

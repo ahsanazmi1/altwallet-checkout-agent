@@ -25,29 +25,29 @@ class TestEnhancedRecommendations:
                         "item": "Test Item",
                         "unit_price": "100.00",
                         "qty": 1,
-                        "mcc": "5411"
+                        "mcc": "5411",
                     }
                 ],
-                "currency": "USD"
+                "currency": "USD",
             },
             merchant={
                 "name": "Test Merchant",
                 "mcc": "5411",
                 "network_preferences": ["visa"],
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
             customer={
                 "id": "test_customer",
                 "loyalty_tier": "GOLD",
                 "historical_velocity_24h": 2,
-                "chargebacks_12m": 0
+                "chargebacks_12m": 0,
             },
             device={
                 "ip": "192.168.1.1",
                 "device_id": "test_device",
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
-            geo={"city": "Test City", "country": "US"}
+            geo={"city": "Test City", "country": "US"},
         )
 
         response = self.agent.process_checkout_enhanced(request)
@@ -95,29 +95,29 @@ class TestEnhancedRecommendations:
                         "item": "Test Item",
                         "unit_price": "50.00",
                         "qty": 1,
-                        "mcc": "5411"
+                        "mcc": "5411",
                     }
                 ],
-                "currency": "USD"
+                "currency": "USD",
             },
             merchant={
                 "name": "Test Merchant",
                 "mcc": "5411",
                 "network_preferences": ["visa"],
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
             customer={
                 "id": "test_customer",
                 "loyalty_tier": "SILVER",
                 "historical_velocity_24h": 1,
-                "chargebacks_12m": 0
+                "chargebacks_12m": 0,
             },
             device={
                 "ip": "192.168.1.1",
                 "device_id": "test_device",
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
-            geo={"city": "Test City", "country": "US"}
+            geo={"city": "Test City", "country": "US"},
         )
 
         response = self.agent.process_checkout_enhanced(request)
@@ -126,7 +126,7 @@ class TestEnhancedRecommendations:
             # Check contributions structure
             contributions = rec.explainability["contributions"]
             assert isinstance(contributions, list)
-            
+
             for contrib in contributions:
                 assert "feature" in contrib
                 assert "value" in contrib
@@ -165,36 +165,36 @@ class TestEnhancedRecommendations:
                         "item": "Test Item",
                         "unit_price": "75.00",
                         "qty": 1,
-                        "mcc": "5411"
+                        "mcc": "5411",
                     }
                 ],
-                "currency": "USD"
+                "currency": "USD",
             },
             merchant={
                 "name": "Test Merchant",
                 "mcc": "5411",
                 "network_preferences": ["visa"],
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
             customer={
                 "id": "test_customer",
                 "loyalty_tier": "PLATINUM",
                 "historical_velocity_24h": 1,
-                "chargebacks_12m": 0
+                "chargebacks_12m": 0,
             },
             device={
                 "ip": "192.168.1.1",
                 "device_id": "test_device",
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
-            geo={"city": "Test City", "country": "US"}
+            geo={"city": "Test City", "country": "US"},
         )
 
         response = self.agent.process_checkout_enhanced(request)
 
         # All recommendations should have the same audit info
         first_audit = response.recommendations[0].audit
-        
+
         for rec in response.recommendations:
             assert rec.audit["request_id"] == first_audit["request_id"]
             assert rec.audit["code_version"] == first_audit["code_version"]
@@ -211,6 +211,7 @@ class TestEnhancedRecommendations:
 
         # Verify request ID is a valid UUID
         import uuid
+
         try:
             uuid.UUID(first_audit["request_id"])
         except ValueError:
@@ -228,29 +229,29 @@ class TestEnhancedRecommendations:
                         "item": "Test Item",
                         "unit_price": "200.00",
                         "qty": 1,
-                        "mcc": "5411"
+                        "mcc": "5411",
                     }
                 ],
-                "currency": "USD"
+                "currency": "USD",
             },
             merchant={
                 "name": "Test Merchant",
                 "mcc": "5411",
                 "network_preferences": ["visa"],
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
             customer={
                 "id": "test_customer",
                 "loyalty_tier": "GOLD",
                 "historical_velocity_24h": 1,
-                "chargebacks_12m": 0
+                "chargebacks_12m": 0,
             },
             device={
                 "ip": "192.168.1.1",
                 "device_id": "test_device",
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
-            geo={"city": "Test City", "country": "US"}
+            geo={"city": "Test City", "country": "US"},
         )
 
         response = self.agent.process_checkout_enhanced(request)
@@ -277,42 +278,41 @@ class TestEnhancedRecommendations:
                         "item": "Test Item",
                         "unit_price": "100.00",
                         "qty": 1,
-                        "mcc": "5411"
+                        "mcc": "5411",
                     }
                 ],
-                "currency": "USD"
+                "currency": "USD",
             },
             merchant={
                 "name": "Test Merchant",
                 "mcc": "5411",
                 "network_preferences": ["visa"],
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
             customer={
                 "id": "test_customer",
                 "loyalty_tier": "SILVER",
                 "historical_velocity_24h": 1,
-                "chargebacks_12m": 0
+                "chargebacks_12m": 0,
             },
             device={
                 "ip": "192.168.1.1",
                 "device_id": "test_device",
-                "location": {"city": "Test City", "country": "US"}
+                "location": {"city": "Test City", "country": "US"},
             },
-            geo={"city": "Test City", "country": "US"}
+            geo={"city": "Test City", "country": "US"},
         )
 
         response = self.agent.process_checkout_enhanced(request)
 
         # Test JSON serialization
         import json
+
         json_str = json.dumps(response.model_dump(), default=str)
         assert isinstance(json_str, str)
         assert len(json_str) > 0
 
         # Test that we can reconstruct the response
-        reconstructed = EnhancedCheckoutResponse(
-            **json.loads(json_str)
-        )
+        reconstructed = EnhancedCheckoutResponse(**json.loads(json_str))
         assert reconstructed.transaction_id == response.transaction_id
         assert len(reconstructed.recommendations) == len(response.recommendations)

@@ -81,7 +81,10 @@ class TestPreferenceWeighting:
         assert "loyalty_tiers" in weighting.config
         assert "category_boosts" in weighting.config
 
-    @patch("builtins.open", mock_open(read_data="""
+    @patch(
+        "builtins.open",
+        mock_open(
+            read_data="""
 user_preferences:
   cashback_vs_points_weight: 0.7
   issuer_affinity:
@@ -101,7 +104,9 @@ calculation:
   min_weight: 0.5
   max_weight: 1.5
   base_weight: 1.0
-"""))
+"""
+        ),
+    )
     def test_init_with_custom_config(self):
         """Test initialization with custom configuration file."""
         weighting = PreferenceWeighting("custom_config.yaml")
@@ -142,7 +147,9 @@ calculation:
         """Test that category boosts are applied correctly."""
         # Test with airline category (should get boost)
         airline_context = self.sample_context
-        airline_weight = self.weighting.preference_weight(self.sample_card, airline_context)
+        airline_weight = self.weighting.preference_weight(
+            self.sample_card, airline_context
+        )
 
         # Test with grocery category (should get different boost)
         grocery_context = Context(
@@ -168,7 +175,9 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        grocery_weight = self.weighting.preference_weight(self.sample_card, grocery_context)
+        grocery_weight = self.weighting.preference_weight(
+            self.sample_card, grocery_context
+        )
 
         # Weights should be different due to different category boosts
         assert airline_weight != grocery_weight
@@ -186,14 +195,22 @@ calculation:
 
         # Test with cashback preference
         self.weighting.config["user_preferences"]["cashback_vs_points_weight"] = 0.8
-        cashback_weight = self.weighting.preference_weight(cashback_card, self.sample_context)
-        points_weight = self.weighting.preference_weight(points_card, self.sample_context)
+        cashback_weight = self.weighting.preference_weight(
+            cashback_card, self.sample_context
+        )
+        points_weight = self.weighting.preference_weight(
+            points_card, self.sample_context
+        )
         assert cashback_weight > points_weight
 
         # Test with points preference
         self.weighting.config["user_preferences"]["cashback_vs_points_weight"] = 0.2
-        cashback_weight = self.weighting.preference_weight(cashback_card, self.sample_context)
-        points_weight = self.weighting.preference_weight(points_card, self.sample_context)
+        cashback_weight = self.weighting.preference_weight(
+            cashback_card, self.sample_context
+        )
+        points_weight = self.weighting.preference_weight(
+            points_card, self.sample_context
+        )
         assert points_weight > cashback_weight
 
     def test_annual_fee_tolerance(self):
@@ -209,14 +226,22 @@ calculation:
 
         # Test with fee-averse preference
         self.weighting.config["user_preferences"]["annual_fee_tolerance"] = 0.1
-        high_fee_weight = self.weighting.preference_weight(high_fee_card, self.sample_context)
-        no_fee_weight = self.weighting.preference_weight(no_fee_card, self.sample_context)
+        high_fee_weight = self.weighting.preference_weight(
+            high_fee_card, self.sample_context
+        )
+        no_fee_weight = self.weighting.preference_weight(
+            no_fee_card, self.sample_context
+        )
         assert no_fee_weight > high_fee_weight
 
         # Test with fee-agnostic preference
         self.weighting.config["user_preferences"]["annual_fee_tolerance"] = 0.9
-        high_fee_weight = self.weighting.preference_weight(high_fee_card, self.sample_context)
-        no_fee_weight = self.weighting.preference_weight(no_fee_card, self.sample_context)
+        high_fee_weight = self.weighting.preference_weight(
+            high_fee_card, self.sample_context
+        )
+        no_fee_weight = self.weighting.preference_weight(
+            no_fee_card, self.sample_context
+        )
         # Fee-agnostic users might prefer high-fee cards due to better benefits
         assert abs(high_fee_weight - no_fee_weight) < 0.2
 
@@ -239,7 +264,9 @@ calculation:
 
         # Test with Amex affinity
         self.weighting.config["user_preferences"]["issuer_affinity"]["chase"] = 0.0
-        self.weighting.config["user_preferences"]["issuer_affinity"]["american_express"] = 0.2
+        self.weighting.config["user_preferences"]["issuer_affinity"][
+            "american_express"
+        ] = 0.2
         chase_weight = self.weighting.preference_weight(chase_card, self.sample_context)
         amex_weight = self.weighting.preference_weight(amex_card, self.sample_context)
         assert amex_weight >= chase_weight  # Use >= to handle floating point precision
@@ -257,14 +284,22 @@ calculation:
 
         # Test with fee-sensitive preference
         self.weighting.config["user_preferences"]["foreign_fee_sensitivity"] = 0.1
-        foreign_fee_weight = self.weighting.preference_weight(foreign_fee_card, self.sample_context)
-        no_foreign_fee_weight = self.weighting.preference_weight(no_foreign_fee_card, self.sample_context)
+        foreign_fee_weight = self.weighting.preference_weight(
+            foreign_fee_card, self.sample_context
+        )
+        no_foreign_fee_weight = self.weighting.preference_weight(
+            no_foreign_fee_card, self.sample_context
+        )
         assert no_foreign_fee_weight > foreign_fee_weight
 
         # Test with fee-insensitive preference
         self.weighting.config["user_preferences"]["foreign_fee_sensitivity"] = 0.9
-        foreign_fee_weight = self.weighting.preference_weight(foreign_fee_card, self.sample_context)
-        no_foreign_fee_weight = self.weighting.preference_weight(no_foreign_fee_card, self.sample_context)
+        foreign_fee_weight = self.weighting.preference_weight(
+            foreign_fee_card, self.sample_context
+        )
+        no_foreign_fee_weight = self.weighting.preference_weight(
+            no_foreign_fee_card, self.sample_context
+        )
         assert abs(foreign_fee_weight - no_foreign_fee_weight) < 0.1
 
     def test_signup_bonus_weighting(self):
@@ -279,22 +314,32 @@ calculation:
         }
 
         bonus_weight = self.weighting.preference_weight(bonus_card, self.sample_context)
-        no_bonus_weight = self.weighting.preference_weight(no_bonus_card, self.sample_context)
+        no_bonus_weight = self.weighting.preference_weight(
+            no_bonus_card, self.sample_context
+        )
         assert bonus_weight > no_bonus_weight
 
     def test_travel_benefits_weighting(self):
         """Test that cards with travel benefits get weighted higher."""
         travel_card = {
             **self.sample_card,
-            "travel_benefits": ["Lounge access", "Trip insurance", "Global Entry credit"],
+            "travel_benefits": [
+                "Lounge access",
+                "Trip insurance",
+                "Global Entry credit",
+            ],
         }
         no_travel_card = {
             **self.sample_card,
             "travel_benefits": [],
         }
 
-        travel_weight = self.weighting.preference_weight(travel_card, self.sample_context)
-        no_travel_weight = self.weighting.preference_weight(no_travel_card, self.sample_context)
+        travel_weight = self.weighting.preference_weight(
+            travel_card, self.sample_context
+        )
+        no_travel_weight = self.weighting.preference_weight(
+            no_travel_card, self.sample_context
+        )
         assert travel_weight > no_travel_weight
 
     def test_weight_bounds(self):

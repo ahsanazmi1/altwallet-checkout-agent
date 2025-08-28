@@ -179,11 +179,11 @@ def test_cli_scoring_pretty():
                     json_lines.append(line)
                 if line.strip().endswith("}"):
                     break
-            
+
             if not json_lines:
                 print("❌ No JSON output found in stdout")
                 raise AssertionError("No JSON output found in stdout")
-            
+
             json_str = "\n".join(json_lines)
             output = json.loads(json_str)
         assert "trace_id" in output

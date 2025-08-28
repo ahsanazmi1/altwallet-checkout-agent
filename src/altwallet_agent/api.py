@@ -139,7 +139,7 @@ async def health_check() -> HealthResponse:
     """Health check endpoint."""
     uptime = int(time.time() - start_time)
     timestamp = datetime.utcnow().isoformat() + "Z"
-    
+
     return HealthResponse(
         status="healthy",
         uptime_seconds=uptime,
@@ -155,19 +155,22 @@ async def get_version() -> VersionResponse:
     git_sha = "unknown"
     try:
         import subprocess
-        git_sha = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"]
-        ).decode("utf-8").strip()
+
+        git_sha = (
+            subprocess.check_output(["git", "rev-parse", "HEAD"])
+            .decode("utf-8")
+            .strip()
+        )
     except Exception:
         pass
-    
+
     components = {
         "scoring_engine": "v1.2.0",
         "intelligence_engine": "v1.0.0",
         "preference_weighting": "v1.1.0",
         "merchant_penalty": "v1.0.0",
     }
-    
+
     return VersionResponse(
         version="1.0.0",
         build_date=datetime.utcnow().isoformat() + "Z",
@@ -193,12 +196,13 @@ async def score_endpoint(request: ScoreRequest) -> ScoreResponse:
 
         # Get card database
         from .data.card_database import CardDatabase
+
         card_db = CardDatabase()
         cards = list(card_db.get_all_cards().values())
 
         # Calculate recommendations using composite utility
         ranked_cards = composite_utility.rank_cards_by_utility(cards, context)
-        
+
         # Convert to response format
         recommendations = []
         for i, card in enumerate(ranked_cards[:5]):  # Top 5 recommendations
@@ -215,42 +219,43 @@ async def score_endpoint(request: ScoreRequest) -> ScoreResponse:
                         {
                             "feature": "merchant_category",
                             "contribution": 0.15,
-                            "direction": "positive"
+                            "direction": "positive",
                         },
                         {
-                            "feature": "loyalty_tier", 
+                            "feature": "loyalty_tier",
                             "contribution": 0.08,
-                            "direction": "positive"
-                        }
+                            "direction": "positive",
+                        },
                     ],
                     "top_drivers": {
                         "positive": [
                             {
                                 "feature": "merchant_category",
                                 "value": context.merchant.mcc or "unknown",
-                                "impact": 0.15
+                                "impact": 0.15,
                             }
                         ],
-                        "negative": []
-                    }
+                        "negative": [],
+                    },
                 },
                 "audit": {
-                    "config_versions": {
-                        "scoring": "v1.2.0",
-                        "preferences": "v1.1.0"
-                    },
+                    "config_versions": {"scoring": "v1.2.0", "preferences": "v1.1.0"},
                     "code_version": "abc123def456",
                     "request_id": str(uuid.uuid4()),
-                    "latency_ms": int((time.time() - start_time) * 1000)
-                }
+                    "latency_ms": int((time.time() - start_time) * 1000),
+                },
             }
             recommendations.append(recommendation)
 
         # Calculate overall score
-        overall_score = sum(card["utility_score"] for card in ranked_cards[:3]) / 3 if ranked_cards else 0.0
-        
+        overall_score = (
+            sum(card["utility_score"] for card in ranked_cards[:3]) / 3
+            if ranked_cards
+            else 0.0
+        )
+
         processing_time = int((time.time() - start_time) * 1000)
-        
+
         logger.info(
             "Scoring completed",
             recommendations_count=len(recommendations),
@@ -291,67 +296,83 @@ async def explain_endpoint(request: ExplainRequest) -> ExplainResponse:
 
         # Run scoring to get detailed signals
         score_result = score_transaction(context)
-        
+
         # Build attributions
         attributions = {
             "risk_factors": {
                 "location_mismatch": {
                     "value": context.flags.get("mismatch_location", False),
-                    "contribution": 0.25 if context.flags.get("mismatch_location", False) else 0.0,
-                    "description": "Device location differs from transaction location"
+                    "contribution": (
+                        0.25 if context.flags.get("mismatch_location", False) else 0.0
+                    ),
+                    "description": "Device location differs from transaction location",
                 },
                 "velocity_flag": {
                     "value": context.flags.get("velocity_24h_flag", False),
-                    "contribution": 0.15 if context.flags.get("velocity_24h_flag", False) else 0.0,
-                    "description": "Customer transaction velocity within normal range"
+                    "contribution": (
+                        0.15 if context.flags.get("velocity_24h_flag", False) else 0.0
+                    ),
+                    "description": "Customer transaction velocity within normal range",
                 },
                 "chargebacks_present": {
                     "value": context.customer.chargebacks_12m > 0,
-                    "contribution": 0.20 if context.customer.chargebacks_12m > 0 else 0.0,
-                    "description": "No recent chargebacks"
+                    "contribution": (
+                        0.20 if context.customer.chargebacks_12m > 0 else 0.0
+                    ),
+                    "description": "No recent chargebacks",
                 },
                 "high_ticket": {
                     "value": float(context.cart.total) >= 1000.0,
-                    "contribution": 0.10 if float(context.cart.total) >= 1000.0 else 0.0,
-                    "description": "Transaction amount below high-ticket threshold"
-                }
+                    "contribution": (
+                        0.10 if float(context.cart.total) >= 1000.0 else 0.0
+                    ),
+                    "description": "Transaction amount below high-ticket threshold",
+                },
             },
             "feature_contributions": {
                 "merchant_category": {
                     "value": context.merchant.mcc or "unknown",
                     "contribution": 0.15,
                     "direction": "positive",
-                    "description": f"Merchant category: {context.merchant.mcc}"
+                    "description": f"Merchant category: {context.merchant.mcc}",
                 },
                 "loyalty_tier": {
                     "value": context.customer.loyalty_tier.value,
                     "contribution": 0.08,
                     "direction": "positive",
-                    "description": f"Customer loyalty tier: {context.customer.loyalty_tier.value}"
+                    "description": f"Customer loyalty tier: {context.customer.loyalty_tier.value}",
                 },
                 "transaction_amount": {
                     "value": str(context.cart.total),
                     "contribution": -0.05 if float(context.cart.total) > 500 else 0.02,
-                    "direction": "negative" if float(context.cart.total) > 500 else "positive",
-                    "description": "Transaction amount impact"
+                    "direction": (
+                        "negative" if float(context.cart.total) > 500 else "positive"
+                    ),
+                    "description": "Transaction amount impact",
                 },
                 "device_ip_distance": {
                     "value": context.device.ip_distance_km or 0.0,
-                    "contribution": 0.02 if (context.device.ip_distance_km or 0.0) < 10 else -0.05,
-                    "direction": "positive" if (context.device.ip_distance_km or 0.0) < 10 else "negative",
-                    "description": "Device IP close to transaction location"
-                }
+                    "contribution": (
+                        0.02 if (context.device.ip_distance_km or 0.0) < 10 else -0.05
+                    ),
+                    "direction": (
+                        "positive"
+                        if (context.device.ip_distance_km or 0.0) < 10
+                        else "negative"
+                    ),
+                    "description": "Device IP close to transaction location",
+                },
             },
             "composite_scores": {
                 "risk_score": score_result.risk_score,
                 "loyalty_boost": score_result.loyalty_boost,
                 "final_score": score_result.final_score,
-                "routing_hint": score_result.routing_hint
-            }
+                "routing_hint": score_result.routing_hint,
+            },
         }
-        
+
         processing_time = int((time.time() - start_time) * 1000)
-        
+
         logger.info(
             "Explanation completed",
             processing_time_ms=processing_time,

@@ -1,6 +1,6 @@
 """Intelligence Layer for AltWallet Checkout Agent.
 
-This package provides intelligent decision-making capabilities for 
+This package provides intelligent decision-making capabilities for
 checkout processing, transaction scoring, and card recommendations.
 """
 

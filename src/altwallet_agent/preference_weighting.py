@@ -22,7 +22,7 @@ class PreferenceWeighting:
 
     def __init__(self, config_path: Optional[str] = None):
         """Initialize the preference weighting module.
-        
+
         Args:
             config_path: Path to preferences configuration file
         """
@@ -31,10 +31,10 @@ class PreferenceWeighting:
 
     def _load_config(self, config_path: Optional[str] = None) -> Dict[str, Any]:
         """Load preferences configuration from YAML file.
-        
+
         Args:
             config_path: Path to configuration file
-            
+
         Returns:
             Configuration dictionary
         """
@@ -42,9 +42,9 @@ class PreferenceWeighting:
             config_path = (
                 Path(__file__).parent.parent.parent / "config" / "preferences.yaml"
             )
-        
+
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             logger.info(f"Loaded preferences config from {config_path}")
             return config
@@ -97,11 +97,11 @@ class PreferenceWeighting:
 
     def preference_weight(self, card: Dict[str, Any], context: Context) -> float:
         """Calculate preference weight for a card given transaction context.
-        
+
         Args:
             card: Card metadata dictionary
             context: Transaction context
-            
+
         Returns:
             Multiplicative weight in range [0.5, 1.5]
         """
@@ -111,21 +111,21 @@ class PreferenceWeighting:
             loyalty_weight = self._calculate_loyalty_weight(context)
             category_weight = self._calculate_category_weight(card, context)
             promotion_weight = self._calculate_promotion_weight(card, context)
-            
+
             # Combine weights using weighted average
             final_weight = (
-                user_pref_weight * 0.3 +
-                loyalty_weight * 0.2 +
-                category_weight * 0.25 +
-                promotion_weight * 0.15 +
-                self.config["calculation"]["base_weight"] * 0.1
+                user_pref_weight * 0.3
+                + loyalty_weight * 0.2
+                + category_weight * 0.25
+                + promotion_weight * 0.15
+                + self.config["calculation"]["base_weight"] * 0.1
             )
-            
+
             # Apply bounds
             min_weight = self.config["calculation"]["min_weight"]
             max_weight = self.config["calculation"]["max_weight"]
             final_weight = max(min_weight, min(max_weight, final_weight))
-            
+
             logger.debug(
                 f"Card {card.get('name', 'unknown')}: "
                 f"user_pref={user_pref_weight:.3f}, "
@@ -134,9 +134,9 @@ class PreferenceWeighting:
                 f"promotion={promotion_weight:.3f}, "
                 f"final={final_weight:.3f}"
             )
-            
+
             return final_weight
-            
+
         except Exception as e:
             logger.error(f"Error calculating preference weight: {e}")
             return self.config["calculation"]["base_weight"]
@@ -146,22 +146,24 @@ class PreferenceWeighting:
     ) -> float:
         """Calculate weight based on user preferences."""
         weight = 1.0
-        
+
         # Cashback vs points preference
-        cashback_vs_points = self.config["user_preferences"]["cashback_vs_points_weight"]
+        cashback_vs_points = self.config["user_preferences"][
+            "cashback_vs_points_weight"
+        ]
         if "rewards_type" in card:
             if card["rewards_type"] == "cashback" and cashback_vs_points > 0.5:
                 weight += 0.1
             elif card["rewards_type"] == "points" and cashback_vs_points < 0.5:
                 weight += 0.1
-        
+
         # Issuer affinity
         issuer = card.get("issuer", "").lower()
         issuer_affinity = self.config["user_preferences"]["issuer_affinity"].get(
             issuer, 0.0
         )
         weight += issuer_affinity
-        
+
         # Annual fee tolerance
         annual_fee = card.get("annual_fee", 0)
         fee_tolerance = self.config["user_preferences"]["annual_fee_tolerance"]
@@ -170,13 +172,13 @@ class PreferenceWeighting:
                 weight -= 0.15
             elif fee_tolerance > 0.7:  # Fee-agnostic
                 weight += 0.05
-        
+
         # Foreign transaction fee sensitivity
         foreign_fee = card.get("foreign_transaction_fee", 0)
         fee_sensitivity = self.config["user_preferences"]["foreign_fee_sensitivity"]
         if foreign_fee > 0 and fee_sensitivity < 0.5:
             weight -= 0.1
-        
+
         return weight
 
     def _calculate_loyalty_weight(self, context: Context) -> float:
@@ -198,30 +200,30 @@ class PreferenceWeighting:
                 if item.mcc:
                     mcc = item.mcc
                     break
-        
+
         if not mcc:
             return self.config["category_boosts"].get("default", 1.0)
-        
+
         # Check if card has category bonuses that match the MCC
         category_bonuses = card.get("category_bonuses", {})
         if category_bonuses:
             # Simple MCC to category mapping
             mcc_to_category = {
-                "4511": "travel",      # Airlines
-                "4722": "travel",      # Travel agencies
-                "5812": "dining",      # Restaurants
-                "5813": "dining",      # Drinking places
-                "5814": "dining",      # Fast food
+                "4511": "travel",  # Airlines
+                "4722": "travel",  # Travel agencies
+                "5812": "dining",  # Restaurants
+                "5813": "dining",  # Drinking places
+                "5814": "dining",  # Fast food
                 "5411": "grocery_stores",  # Grocery stores
-                "5541": "gas_stations",    # Gas stations
-                "5542": "gas_stations",    # Automated fuel
+                "5541": "gas_stations",  # Gas stations
+                "5542": "gas_stations",  # Automated fuel
             }
-            
+
             category = mcc_to_category.get(mcc)
             if category and category in category_bonuses:
                 # Boost for cards with relevant category bonuses
                 return self.config["category_boosts"].get(mcc, 1.0) * 1.05
-        
+
         # Return category boost if available, otherwise default
         return self.config["category_boosts"].get(mcc, 1.0)
 
@@ -230,26 +232,26 @@ class PreferenceWeighting:
     ) -> float:
         """Calculate weight based on issuer promotions and credits."""
         weight = 1.0
-        
+
         # Check for signup bonus
         if card.get("signup_bonus_points", 0) > 0:
             weight += 0.1
-        
+
         # Check for travel benefits
         travel_benefits = card.get("travel_benefits", [])
         if travel_benefits:
             weight += 0.05
-        
+
         # Check for seasonal promotions
         current_date = datetime.now()
         seasonal_promotions = self.config.get("seasonal_promotions", {})
-        
+
         for promotion_name, promotion_data in seasonal_promotions.items():
             if self._is_promotion_active(promotion_data, current_date):
                 affected_categories = promotion_data.get("affected_categories", [])
                 if self._is_category_affected(affected_categories, context):
                     weight *= promotion_data.get("multiplier", 1.0)
-        
+
         return weight
 
     def _is_promotion_active(
@@ -259,33 +261,38 @@ class PreferenceWeighting:
         try:
             start_date_str = promotion_data.get("start_date", "")
             end_date_str = promotion_data.get("end_date", "")
-            
+
             if not start_date_str or not end_date_str:
                 return False
-            
+
             # Parse dates (assuming MM-DD format)
             start_month, start_day = map(int, start_date_str.split("-"))
             end_month, end_day = map(int, end_date_str.split("-"))
-            
+
             current_month = current_date.month
             current_day = current_date.day
-            
+
             # Handle year wrap-around (e.g., holiday season)
             if start_month > end_month:  # Crosses year boundary
-                if (current_month > start_month or 
-                    (current_month == start_month and current_day >= start_day) or
-                    current_month < end_month or
-                    (current_month == end_month and current_day <= end_day)):
+                if (
+                    current_month > start_month
+                    or (current_month == start_month and current_day >= start_day)
+                    or current_month < end_month
+                    or (current_month == end_month and current_day <= end_day)
+                ):
                     return True
             else:  # Within same year
-                if (current_month > start_month or
-                    (current_month == start_month and current_day >= start_day)) and \
-                   (current_month < end_month or
-                    (current_month == end_month and current_day <= end_day)):
+                if (
+                    current_month > start_month
+                    or (current_month == start_month and current_day >= start_day)
+                ) and (
+                    current_month < end_month
+                    or (current_month == end_month and current_day <= end_day)
+                ):
                     return True
-            
+
             return False
-            
+
         except (ValueError, KeyError) as e:
             logger.warning(f"Error parsing promotion dates: {e}")
             return False
@@ -303,5 +310,5 @@ class PreferenceWeighting:
                 if item.mcc:
                     mcc = item.mcc
                     break
-        
+
         return mcc in affected_categories if mcc else False

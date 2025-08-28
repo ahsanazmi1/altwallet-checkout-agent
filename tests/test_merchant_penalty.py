@@ -71,7 +71,10 @@ class TestMerchantPenalty:
         assert "mcc_families" in penalty.config
         assert "network_penalties" in penalty.config
 
-    @patch("builtins.open", mock_open(read_data="""
+    @patch(
+        "builtins.open",
+        mock_open(
+            read_data="""
 merchants:
   "amazon.com":
     "5999": 0.85
@@ -95,7 +98,9 @@ calculation:
     merchant_specific: 0.4
     mcc_family: 0.3
     network_preference: 0.3
-"""))
+"""
+        ),
+    )
     def test_init_with_custom_config(self):
         """Test initialization with custom configuration file."""
         penalty = MerchantPenalty("custom_config.yaml")
@@ -123,7 +128,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         # Should get the exact penalty from config (0.85)
         assert penalty_value < 1.0
@@ -143,7 +148,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         # Should get a penalty due to fuzzy match
         assert penalty_value < 1.0
@@ -163,7 +168,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         # Should get MCC family penalty (0.90 for airlines)
         assert penalty_value < 1.0
@@ -183,7 +188,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         # Should get debit preference penalty
         assert penalty_value < 1.0
@@ -213,7 +218,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         # Should get base penalty (1.0)
         assert penalty_value == 1.0
@@ -228,7 +233,7 @@ calculation:
             ("Walmart.com", "walmart"),
             ("Target Store", "target store"),
         ]
-        
+
         for input_name, expected_normalized in test_cases:
             normalized = self.penalty._normalize_merchant_name(input_name)
             assert normalized == expected_normalized
@@ -263,7 +268,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         mcc = self.penalty._get_mcc_from_context(context)
         assert mcc == "5411"
 
@@ -302,7 +307,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         assert penalty_value >= self.penalty.config["calculation"]["min_penalty"]
         assert penalty_value <= self.penalty.config["calculation"]["max_penalty"]
@@ -322,7 +327,7 @@ calculation:
             device=self.sample_context.device,
             geo=self.sample_context.geo,
         )
-        
+
         penalty_value = self.penalty.merchant_penalty(context)
         assert isinstance(penalty_value, float)
         assert 0.8 <= penalty_value <= 1.0
@@ -332,10 +337,10 @@ calculation:
         merchants_to_test = [
             ("amazon.com", "5999", 0.85),  # Online retail
             ("walmart.com", "5311", 0.88),  # Department store
-            ("delta.com", "4511", 0.88),    # Airline
-            ("costco.com", "5411", 0.82),   # Warehouse club
+            ("delta.com", "4511", 0.88),  # Airline
+            ("costco.com", "5411", 0.82),  # Warehouse club
         ]
-        
+
         for merchant_name, mcc, expected_penalty in merchants_to_test:
             context = Context(
                 customer=self.sample_context.customer,
@@ -349,7 +354,7 @@ calculation:
                 device=self.sample_context.device,
                 geo=self.sample_context.geo,
             )
-            
+
             penalty_value = self.penalty.merchant_penalty(context)
             # Should be close to expected penalty (allowing for weighted combination)
             assert abs(penalty_value - expected_penalty) < 0.15
@@ -366,7 +371,7 @@ calculation:
             (["no_visa"], "visa exclusion"),
             (["no_mastercard"], "mastercard exclusion"),
         ]
-        
+
         for network_prefs, description in test_cases:
             context = Context(
                 customer=self.sample_context.customer,
@@ -380,7 +385,7 @@ calculation:
                 device=self.sample_context.device,
                 geo=self.sample_context.geo,
             )
-            
+
             penalty_value = self.penalty.merchant_penalty(context)
             assert isinstance(penalty_value, float)
             assert 0.8 <= penalty_value <= 1.0
