@@ -99,7 +99,7 @@ class LogisticCalibrator(Calibrator):
 class IsotonicCalibrator(Calibrator):
     """Isotonic calibration (placeholder for future implementation)."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         # TODO: Implement isotonic calibration with learned parameters
         self.bias = kwargs.get("bias", 0.0)
         self.scale = kwargs.get("scale", 1.0)
@@ -264,7 +264,7 @@ class ApprovalScorer:
             device_location = device.location or {}
             device_city = device_location.get("city", "")
             device_country = device_location.get("country", "")
-            
+
             if device_city == geo.city and device_country == geo.country:
                 return 0.0
             elif device_country == geo.country:

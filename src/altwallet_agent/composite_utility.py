@@ -90,7 +90,7 @@ class CompositeUtility:
                     "merchant_mcc": (
                         context.merchant.mcc if context.merchant else "Unknown"
                     ),
-                    "cart_total": float(context.cart.total()) if context.cart else 0.0,
+                    "cart_total": float(context.cart.total) if context.cart else 0.0,  # type: ignore[arg-type]
                     "loyalty_tier": context.customer.loyalty_tier.value,
                 },
             }
@@ -210,7 +210,7 @@ class CompositeUtility:
                 base_rate = 0.01
 
             # Get transaction amount
-            cart_total = float(context.cart.total()) if context.cart else 0.0
+            cart_total = float(context.cart.total) if context.cart else 0.0  # type: ignore[arg-type]
 
             # Calculate base rewards
             base_rewards = base_rate * cart_total

@@ -119,12 +119,12 @@ def get_top_drivers(
             )
 
     # Sort by absolute value and take top drivers
-    def get_abs_value(x):
+    def get_abs_value(x: dict[str, Any]) -> float:
         value = x["value"]
         if isinstance(value, (int, float)):
             return abs(value)
         return 0.0
-    
+
     drivers.sort(key=get_abs_value, reverse=True)
     return drivers[:max_drivers]
 
@@ -155,7 +155,7 @@ def create_audit_block(
                 ),
             },
             "cart": {
-                "total": float(context.cart.total()) if context.cart else 0.0,
+                "total": float(context.cart.total) if context.cart else 0.0,  # type: ignore[arg-type]
                 "currency": context.cart.currency if context.cart else "USD",
                 "item_count": len(context.cart.items) if context.cart else 0,
             },

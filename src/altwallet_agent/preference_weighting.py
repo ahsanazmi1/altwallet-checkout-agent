@@ -48,7 +48,9 @@ class PreferenceWeighting:
             with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             logger.info(f"Loaded preferences config from {config_path}")
-            return config
+            if isinstance(config, dict):
+                return config
+            return self._get_default_config()
         except FileNotFoundError:
             logger.warning(
                 f"Preferences config not found at {config_path}, using defaults"
@@ -114,18 +116,29 @@ class PreferenceWeighting:
             promotion_weight = self._calculate_promotion_weight(card, context)
 
             # Combine weights using weighted average
+            base_weight = self.config["calculation"]["base_weight"]
+            if isinstance(base_weight, (int, float)):
+                base_weight = float(base_weight)
+            else:
+                base_weight = 1.0
+
             final_weight = (
                 user_pref_weight * 0.3
                 + loyalty_weight * 0.2
                 + category_weight * 0.25
                 + promotion_weight * 0.15
-                + self.config["calculation"]["base_weight"] * 0.1
+                + base_weight * 0.1
             )
 
             # Apply bounds
             min_weight = self.config["calculation"]["min_weight"]
             max_weight = self.config["calculation"]["max_weight"]
-            final_weight = max(min_weight, min(max_weight, final_weight))
+            if isinstance(min_weight, (int, float)) and isinstance(
+                max_weight, (int, float)
+            ):
+                final_weight = max(
+                    float(min_weight), min(float(max_weight), final_weight)
+                )
 
             logger.debug(
                 f"Card {card.get('name', 'unknown')}: "
@@ -155,6 +168,10 @@ class PreferenceWeighting:
         cashback_vs_points = self.config["user_preferences"][
             "cashback_vs_points_weight"
         ]
+        if isinstance(cashback_vs_points, (int, float)):
+            cashback_vs_points = float(cashback_vs_points)
+        else:
+            cashback_vs_points = 0.5
         if "rewards_type" in card:
             if card["rewards_type"] == "cashback" and cashback_vs_points > 0.5:
                 weight += 0.1
@@ -166,11 +183,16 @@ class PreferenceWeighting:
         issuer_affinity = self.config["user_preferences"]["issuer_affinity"].get(
             issuer, 0.0
         )
-        weight += issuer_affinity
+        if isinstance(issuer_affinity, (int, float)):
+            weight += float(issuer_affinity)
 
         # Annual fee tolerance
         annual_fee = card.get("annual_fee", 0)
         fee_tolerance = self.config["user_preferences"]["annual_fee_tolerance"]
+        if isinstance(fee_tolerance, (int, float)):
+            fee_tolerance = float(fee_tolerance)
+        else:
+            fee_tolerance = 0.5
         if annual_fee > 0:
             if fee_tolerance < 0.3:  # Fee-averse
                 weight -= 0.15
@@ -180,6 +202,10 @@ class PreferenceWeighting:
         # Foreign transaction fee sensitivity
         foreign_fee = card.get("foreign_transaction_fee", 0)
         fee_sensitivity = self.config["user_preferences"]["foreign_fee_sensitivity"]
+        if isinstance(fee_sensitivity, (int, float)):
+            fee_sensitivity = float(fee_sensitivity)
+        else:
+            fee_sensitivity = 0.7
         if foreign_fee > 0 and fee_sensitivity < 0.5:
             weight -= 0.1
 

@@ -50,7 +50,9 @@ class MerchantPenalty:
             with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             logger.info(f"Loaded merchant penalty config from {config_path}")
-            return config
+            if isinstance(config, dict):
+                return config
+            return self._get_default_config()
         except FileNotFoundError:
             logger.warning(
                 f"Merchant penalty config not found at {config_path}, using defaults"
@@ -134,16 +136,36 @@ class MerchantPenalty:
 
             # Combine penalties using weighted average
             factor_weights = self.config["calculation"]["factor_weights"]
-            final_penalty = (
-                merchant_specific_penalty * factor_weights["merchant_specific"]
-                + mcc_family_penalty * factor_weights["mcc_family"]
-                + network_penalty * factor_weights["network_preference"]
-            )
+            merchant_weight = factor_weights.get("merchant_specific", 0.4)
+            mcc_weight = factor_weights.get("mcc_family", 0.3)
+            network_weight = factor_weights.get("network_preference", 0.3)
+
+            if (
+                isinstance(merchant_weight, (int, float))
+                and isinstance(mcc_weight, (int, float))
+                and isinstance(network_weight, (int, float))
+            ):
+                final_penalty = (
+                    merchant_specific_penalty * float(merchant_weight)
+                    + mcc_family_penalty * float(mcc_weight)
+                    + network_penalty * float(network_weight)
+                )
+            else:
+                final_penalty = (
+                    merchant_specific_penalty * 0.4
+                    + mcc_family_penalty * 0.3
+                    + network_penalty * 0.3
+                )
 
             # Apply bounds
             min_penalty = self.config["calculation"]["min_penalty"]
             max_penalty = self.config["calculation"]["max_penalty"]
-            final_penalty = max(min_penalty, min(max_penalty, final_penalty))
+            if isinstance(min_penalty, (int, float)) and isinstance(
+                max_penalty, (int, float)
+            ):
+                final_penalty = max(
+                    float(min_penalty), min(float(max_penalty), final_penalty)
+                )
 
             logger.debug(
                 f"Merchant {merchant_name} (MCC: {mcc}): "
@@ -157,7 +179,10 @@ class MerchantPenalty:
 
         except Exception as e:
             logger.error(f"Error calculating merchant penalty: {e}")
-            return self.config["calculation"]["base_penalty"]
+            base_penalty = self.config["calculation"]["base_penalty"]
+            if isinstance(base_penalty, (int, float)):
+                return float(base_penalty)
+            return 1.0
 
     def _normalize_merchant_name(self, merchant_name: str) -> str:
         """Normalize merchant name for consistent matching."""
@@ -196,21 +221,36 @@ class MerchantPenalty:
         if merchant_name in merchants:
             merchant_config = merchants[merchant_name]
             if mcc in merchant_config:
-                return merchant_config[mcc]
+                penalty = merchant_config[mcc]
+                if isinstance(penalty, (int, float)):
+                    return float(penalty)
+                return 1.0
             elif "default" in merchant_config:
-                return merchant_config["default"]
+                penalty = merchant_config["default"]
+                if isinstance(penalty, (int, float)):
+                    return float(penalty)
+                return 1.0
 
         # Try fuzzy matching
         fuzzy_match = self._find_fuzzy_merchant_match(merchant_name)
         if fuzzy_match and fuzzy_match in merchants:
             merchant_config = merchants[fuzzy_match]
             if mcc in merchant_config:
-                return merchant_config[mcc]
+                penalty = merchant_config[mcc]
+                if isinstance(penalty, (int, float)):
+                    return float(penalty)
+                return 1.0
             elif "default" in merchant_config:
-                return merchant_config["default"]
+                penalty = merchant_config["default"]
+                if isinstance(penalty, (int, float)):
+                    return float(penalty)
+                return 1.0
 
         # No merchant-specific penalty found
-        return self.config["calculation"]["base_penalty"]
+        base_penalty = self.config["calculation"]["base_penalty"]
+        if isinstance(base_penalty, (int, float)):
+            return float(base_penalty)
+        return 1.0
 
     def _find_fuzzy_merchant_match(self, merchant_name: str) -> str | None:
         """Find fuzzy match for merchant name using variations."""
@@ -247,14 +287,23 @@ class MerchantPenalty:
         mcc_families = self.config.get("mcc_families", {})
 
         if mcc in mcc_families:
-            return mcc_families[mcc]
+            penalty = mcc_families[mcc]
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 1.0
 
-        return mcc_families.get("default", 1.0)
+        default_penalty = mcc_families.get("default", 1.0)
+        if isinstance(default_penalty, (int, float)):
+            return float(default_penalty)
+        return 1.0
 
     def _calculate_network_penalty(self, context: Context) -> float:
         """Calculate penalty based on network preferences."""
         if not context.merchant or not context.merchant.network_preferences:
-            return self.config["calculation"]["base_penalty"]
+            base_penalty = self.config["calculation"]["base_penalty"]
+            if isinstance(base_penalty, (int, float)):
+                return float(base_penalty)
+            return 1.0
 
         network_preferences = [
             pref.lower() for pref in context.merchant.network_preferences
@@ -263,29 +312,59 @@ class MerchantPenalty:
 
         # Check for specific network preferences
         if "debit" in network_preferences:
-            return network_penalties.get("debit_preference", 0.85)
+            penalty = network_penalties.get("debit_preference", 0.85)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.85
 
         # Check for specific card network preferences
         if "visa" in network_preferences:
-            return network_penalties.get("visa_preference", 0.90)
+            penalty = network_penalties.get("visa_preference", 0.90)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.90
         elif "mastercard" in network_preferences:
-            return network_penalties.get("mastercard_preference", 0.90)
+            penalty = network_penalties.get("mastercard_preference", 0.90)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.90
         elif "amex" in network_preferences or "american express" in network_preferences:
-            return network_penalties.get("amex_preference", 0.80)
+            penalty = network_penalties.get("amex_preference", 0.80)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.80
         elif "discover" in network_preferences:
-            return network_penalties.get("discover_preference", 0.85)
+            penalty = network_penalties.get("discover_preference", 0.85)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.85
 
         # Check for network exclusions
         if (
             "no_amex" in network_preferences
             or "no_american_express" in network_preferences
         ):
-            return network_penalties.get("no_amex", 0.75)
+            penalty = network_penalties.get("no_amex", 0.75)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.75
         elif "no_discover" in network_preferences:
-            return network_penalties.get("no_discover", 0.90)
+            penalty = network_penalties.get("no_discover", 0.90)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.90
         elif "no_visa" in network_preferences:
-            return network_penalties.get("no_visa", 0.70)
+            penalty = network_penalties.get("no_visa", 0.70)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.70
         elif "no_mastercard" in network_preferences:
-            return network_penalties.get("no_mastercard", 0.70)
+            penalty = network_penalties.get("no_mastercard", 0.70)
+            if isinstance(penalty, (int, float)):
+                return float(penalty)
+            return 0.70
 
-        return self.config["calculation"]["base_penalty"]
+        base_penalty = self.config["calculation"]["base_penalty"]
+        if isinstance(base_penalty, (int, float)):
+            return float(base_penalty)
+        return 1.0
