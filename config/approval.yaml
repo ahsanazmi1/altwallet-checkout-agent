@@ -1,0 +1,146 @@
+# Approval Odds Configuration
+# Two-stage approval-odds module configuration
+# Version: 0.2.0
+# Notes: Phase 2 Intelligence Layer - Enhanced risk assessment with MCC-based weights,
+#        amount-based scoring, velocity analysis, and location mismatch detection.
+#        Calibration layer supports logistic and isotonic methods.
+
+# Stage 1: Rules Layer - Feature Weights (raw log-odds contributions)
+rules_layer:
+  # MCC-based weights (Merchant Category Code)
+  mcc_weights:
+    # Extremely high-risk MCCs (immediate rejection candidates)
+    "7995": -5.0  # Gambling (casinos, online gambling)
+    "7996": -4.5  # Amusement parks/carnivals
+    "7997": -4.0  # Clubs (nightclubs, country clubs)
+    "7999": -3.5  # Recreation services (not elsewhere classified)
+    
+    # High-risk MCCs (adult content, entertainment)
+    "7841": -3.0  # Video tape rental stores
+    "7922": -2.8  # Theatrical producers
+    "7929": -2.5  # Bands, orchestras, entertainers
+    "7933": -2.0  # Bowling alleys
+    "7941": -2.5  # Commercial sports
+    "7991": -2.0  # Tourist attractions and exhibits
+    "7992": -2.5  # Public golf courses
+    "7993": -2.0  # Video amusement game supplies
+    "7994": -2.5  # Video game arcades
+    
+    # Medium-risk MCCs (fuel, travel, electronics)
+    "5541": -0.8  # Gas stations
+    "5542": -0.8  # Automated fuel dispensers
+    "4511": -1.0  # Airlines
+    "4722": -1.2  # Travel agencies
+    "5732": -0.5  # Electronics stores
+    "5999": -0.3  # Miscellaneous and specialty retail stores
+    
+    # Low-risk MCCs (everyday purchases)
+    "5411": 0.2   # Grocery stores
+    "5311": 0.1   # Department stores
+    "5812": 0.0   # Eating places and restaurants
+    "5813": 0.0   # Drinking places (alcoholic beverages)
+    "5814": 0.0   # Fast food restaurants
+    "5912": 0.1   # Drug stores and pharmacies
+    "5995": 0.1   # Pet shops, pet food, and supplies
+    "default": 0.0  # Default weight for unknown MCCs
+
+  # Amount-based weights (log-scale)
+  amount_weights:
+    # Very small amounts (likely legitimate)
+    "0-5": 0.4
+    "5-10": 0.3
+    "10-25": 0.2
+    "25-50": 0.1
+    "50-100": 0.0
+    "100-250": -0.1
+    "250-500": -0.3
+    "500-1000": -0.6
+    "1000-2500": -1.0
+    "2500-5000": -1.5
+    "5000-10000": -2.5
+    "10000-25000": -3.5
+    "25000+": -5.0  # Extremely large amounts
+
+  # Issuer family weights
+  issuer_family_weights:
+    "visa": 0.0
+    "mastercard": 0.0
+    "amex": -0.3
+    "discover": -0.2
+    "unknown": -0.5
+
+  # Cross-border flag weight (significant risk factor)
+  cross_border_weight: -2.5
+
+  # Device/geo mismatch distance weights
+  location_mismatch_weights:
+    "0-5": 0.0     # Same city/region (no risk)
+    "5-25": -0.2   # Same metropolitan area
+    "25-100": -0.5 # Same state/province
+    "100-500": -1.0 # Same country, different region
+    "500-1000": -2.0 # Same country, far distance
+    "1000-5000": -3.0 # Different country, same continent
+    "5000+": -4.0  # Extreme geo distance (different continent)
+
+  # Velocity weights (24h and 7d)
+  velocity_weights:
+    "24h":
+      "0-5": 0.1
+      "5-10": -0.2
+      "10-20": -0.5
+      "20-50": -1.0
+      "50+": -2.0
+    "7d":
+      "0-20": 0.0
+      "20-50": -0.3
+      "50-100": -0.8
+      "100-200": -1.5
+      "200+": -2.5
+
+  # Chargeback history weights
+  chargeback_weights:
+    "0": 0.0
+    "1": -0.5
+    "2": -1.0
+    "3+": -2.0
+
+  # Merchant risk tier weights
+  merchant_risk_weights:
+    "low": 0.2
+    "medium": 0.0
+    "high": -1.0
+    "unknown": -0.5
+
+  # Loyalty tier weights
+  loyalty_weights:
+    "NONE": 0.0
+    "SILVER": 0.3
+    "GOLD": 0.6
+    "PLATINUM": 1.0
+
+  # Base score (intercept)
+  base_score: 0.0
+
+# Stage 2: Calibration Layer
+calibration_layer:
+  # Default calibration method
+  method: "logistic"
+  
+  # Logistic (Platt) calibration parameters
+  logistic:
+    bias: 0.0      # Intercept term
+    scale: 1.0     # Scaling factor
+    
+  # Isotonic calibration (for future use)
+  isotonic:
+    # Parameters would be learned from training data
+    pass
+
+# Output constraints
+output:
+  # Clamp approval probability to [min_prob, max_prob]
+  min_probability: 0.01
+  max_probability: 0.99
+  
+  # Random seed for deterministic behavior
+  random_seed: 42

@@ -1,0 +1,135 @@
+# Merchant Penalty Configuration
+# This configuration defines penalties for merchants based on their payment preferences
+# Penalties are applied when merchant preferences don't align with card capabilities
+# Version: 0.2.0
+# Notes: Phase 2 Intelligence Layer - Enhanced merchant penalty system with exact merchant matching,
+#        fuzzy matching, MCC family penalties, and network preference penalties.
+#        Supports major retailers, airlines, and online merchants with specific preferences.
+
+# Merchant-specific penalties (exact merchant name + MCC combinations)
+merchants:
+  # Major retailers with specific network preferences
+  "amazon.com":
+    "5999": 0.85  # Amazon prefers debit and specific networks
+    "default": 0.90
+  
+  "walmart.com":
+    "5311": 0.88  # Walmart has strong debit preference
+    "5411": 0.88  # Grocery purchases
+    "default": 0.92
+  
+  "target.com":
+    "5311": 0.90  # Target prefers debit for large purchases
+    "default": 0.95
+  
+  "costco.com":
+    "5411": 0.82  # Costco has exclusive network agreements
+    "default": 0.85
+  
+  # Airlines with specific network requirements
+  "delta.com":
+    "4511": 0.88  # Delta prefers specific networks
+    "default": 0.92
+  
+  "united.com":
+    "4511": 0.87  # United has network preferences
+    "default": 0.91
+  
+  "americanairlines.com":
+    "4511": 0.89  # American Airlines network preferences
+    "default": 0.93
+
+# MCC family penalties (applied when no exact merchant match)
+mcc_families:
+  # Airlines (4511) - generally prefer specific networks
+  "4511": 0.90
+  
+  # Gas stations (5541, 5542) - often prefer debit
+  "5541": 0.92
+  "5542": 0.92
+  
+  # Grocery stores (5411) - some prefer debit for large purchases
+  "5411": 0.95
+  
+  # Department stores (5311) - some have network preferences
+  "5311": 0.93
+  
+  # Online retailers (5999) - often prefer specific networks
+  "5999": 0.94
+  
+  # Travel agencies (4722) - may have network requirements
+  "4722": 0.91
+  
+  # Restaurants (5812, 5813, 5814) - generally accept all cards
+  "5812": 0.98
+  "5813": 0.98
+  "5814": 0.98
+  
+  # Default penalty for unmatched MCCs
+  "default": 1.0
+
+# Network preference penalties
+network_penalties:
+  # Penalty when merchant prefers debit but card is credit-only
+  debit_preference: 0.85
+  
+  # Penalty when merchant prefers specific networks
+  visa_preference: 0.90
+  mastercard_preference: 0.90
+  amex_preference: 0.80  # Lower penalty as Amex is often preferred
+  discover_preference: 0.85
+  
+  # Penalty when merchant doesn't accept certain networks
+  no_amex: 0.75  # Higher penalty when Amex is not accepted
+  no_discover: 0.90
+  no_visa: 0.70  # Very high penalty as Visa is widely accepted
+  no_mastercard: 0.70
+
+# Fuzzy matching configuration
+fuzzy_matching:
+  # Similarity threshold for fuzzy matching (0.0 to 1.0)
+  similarity_threshold: 0.8
+  
+  # Common merchant name variations
+  variations:
+    "amazon":
+      - "amazon.com"
+      - "amzn"
+      - "amazon-"
+    "walmart":
+      - "walmart.com"
+      - "walmart-"
+      - "walmart"
+    "target":
+      - "target.com"
+      - "target-"
+    "costco":
+      - "costco.com"
+      - "costco-"
+    "delta":
+      - "delta.com"
+      - "delta-air"
+    "united":
+      - "united.com"
+      - "united-air"
+    "american":
+      - "americanairlines.com"
+      - "aa.com"
+      - "american-air"
+
+# Calculation parameters
+calculation:
+  # Minimum and maximum penalty bounds
+  min_penalty: 0.8
+  max_penalty: 1.0
+  
+  # Base penalty (no preference)
+  base_penalty: 1.0
+  
+  # Weight for different penalty factors
+  factor_weights:
+    merchant_specific: 0.4
+    mcc_family: 0.3
+    network_preference: 0.3
+
+

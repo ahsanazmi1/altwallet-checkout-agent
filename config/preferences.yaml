@@ -1,0 +1,162 @@
+# Preference & Loyalty Weighting Configuration
+# This configuration controls how user preferences and loyalty tiers affect card recommendations
+# Version: 0.2.0
+# Notes: Phase 2 Intelligence Layer - Enhanced preference weighting with loyalty tier multipliers,
+#        category boost multipliers, issuer promotions, and seasonal adjustments.
+#        Supports cashback vs points preferences and annual fee tolerance.
+
+# User Preference Weights
+# These weights adjust card scores based on user preferences
+user_preferences:
+  # Cashback vs Points preference (0.0 = strongly prefer points, 1.0 = strongly prefer cashback)
+  # Affects cards that offer cashback vs points rewards
+  cashback_vs_points_weight: 0.5
+  
+  # Issuer affinity weights (positive values favor specific issuers)
+  # Values range from -0.3 to 0.3, where 0.0 is neutral
+  issuer_affinity:
+    chase: 0.0
+    american_express: 0.0
+    citi: 0.0
+    capital_one: 0.0
+    wells_fargo: 0.0
+    bank_of_america: 0.0
+    discover: 0.0
+    us_bank: 0.0
+  
+  # Annual fee tolerance (0.0 = avoid fees, 1.0 = fee-agnostic)
+  # Affects how much annual fees impact card selection
+  annual_fee_tolerance: 0.5
+  
+  # Foreign transaction fee sensitivity (0.0 = very sensitive, 1.0 = not sensitive)
+  # Affects international travel card preferences
+  foreign_fee_sensitivity: 0.7
+
+# Loyalty Tier Multipliers
+# These multipliers boost card scores based on customer loyalty tier
+# Base multiplier is 1.0, range is 0.5 to 1.5
+loyalty_tiers:
+  NONE: 1.0      # No loyalty tier - no boost
+  SILVER: 1.05   # 5% boost for silver tier customers
+  GOLD: 1.10     # 10% boost for gold tier customers
+  PLATINUM: 1.15 # 15% boost for platinum tier customers
+  DIAMOND: 1.20  # 20% boost for diamond tier customers
+
+# Category Boost Multipliers
+# These multipliers apply when transaction matches specific merchant categories
+# MCC (Merchant Category Code) -> multiplier mapping
+category_boosts:
+  # Travel categories
+  "4511": 1.15  # Airlines
+  "4722": 1.10  # Travel agencies
+  "4723": 1.10  # TUI operations
+  "4784": 1.05  # Transportation services
+  
+  # Dining categories
+  "5812": 1.10  # Eating places and restaurants
+  "5813": 1.05  # Drinking places (alcoholic beverages)
+  "5814": 1.05  # Fast food restaurants
+  
+  # Grocery categories
+  "5411": 1.08  # Grocery stores
+  "5422": 1.05  # Meat provisioners
+  "5441": 1.05  # Candy, nut, and confectionery stores
+  
+  # Gas stations
+  "5541": 1.05  # Gas stations
+  "5542": 1.05  # Automated fuel dispensers
+  
+  # Online shopping
+  "5311": 1.03  # Department stores
+  "5999": 1.02  # Miscellaneous and specialty retail stores
+  
+  # Default multiplier for unmatched categories
+  "default": 1.0
+
+# Issuer Promotions and Credits
+# Special boosts for cards with active promotions or statement credits
+issuer_promotions:
+  # Chase promotions
+  chase:
+    freedom_flex_5x_quarterly: 1.15  # 5% back on quarterly categories
+    sapphire_travel_credit: 1.10     # Travel credit benefits
+    sapphire_dining_credit: 1.08     # Dining credit benefits
+  
+  # American Express promotions
+  american_express:
+    gold_dining_credit: 1.12         # $10/month dining credit
+    gold_uber_credit: 1.08           # $10/month Uber credit
+    platinum_airline_credit: 1.15    # $200 airline fee credit
+    platinum_hotel_credit: 1.12      # $200 hotel credit
+    platinum_uber_credit: 1.10       # $15/month Uber credit
+    platinum_saks_credit: 1.08       # $100 Saks credit
+  
+  # Citi promotions
+  citi:
+    custom_cash_5x: 1.15             # 5% back on top spending category
+    double_cash_2x: 1.05             # 2% back on all purchases
+  
+  # Capital One promotions
+  capital_one:
+    savor_dining_entertainment: 1.12 # 4% back on dining/entertainment
+    venture_travel_credit: 1.10      # Travel credit benefits
+
+# Seasonal and Limited-Time Promotions
+# Time-based boosts for special offers
+seasonal_promotions:
+  # Holiday shopping season (November-December)
+  holiday_shopping:
+    start_date: "11-01"
+    end_date: "12-31"
+    multiplier: 1.08
+    affected_categories:
+      - "5311"  # Department stores
+      - "5999"  # Miscellaneous retail
+      - "5942"  # Book stores
+  
+  # Back-to-school season (July-September)
+  back_to_school:
+    start_date: "07-01"
+    end_date: "09-30"
+    multiplier: 1.05
+    affected_categories:
+      - "5942"  # Book stores
+      - "5943"  # Stationery stores
+      - "5311"  # Department stores
+
+# Card-Specific Adjustments
+# Fine-tuned adjustments for specific cards based on user behavior
+card_adjustments:
+  # High annual fee cards get penalized for fee-sensitive users
+  high_annual_fee_penalty:
+    threshold: 250  # Annual fee threshold
+    penalty: 0.95   # 5% penalty for high fee cards
+  
+  # New cardholder bonuses
+  new_cardholder_bonus:
+    multiplier: 1.20  # 20% boost for cards with signup bonuses
+    max_months: 3     # Apply for first 3 months of card ownership
+  
+  # Foreign transaction fee penalty
+  foreign_fee_penalty:
+    penalty: 0.90     # 10% penalty for cards with foreign transaction fees
+
+# Weight Calculation Parameters
+# Parameters that control how the final weight is calculated
+calculation:
+  # Minimum and maximum bounds for final weight
+  min_weight: 0.5
+  max_weight: 1.5
+  
+  # Base weight (neutral preference)
+  base_weight: 1.0
+  
+  # How much each factor contributes to the final weight
+  factor_weights:
+    user_preferences: 0.3
+    loyalty_tier: 0.2
+    category_boost: 0.25
+    issuer_promotions: 0.15
+    seasonal_promotions: 0.1
+
+

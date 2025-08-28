@@ -1,0 +1,148 @@
+{
+  "info": {
+    "name": "AltWallet Checkout Agent v0.2.0",
+    "description": "API collection for AltWallet Checkout Agent - Phase 2 Intelligence Layer with intelligent checkout processing and card recommendations",
+    "version": "0.2.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "api_version",
+      "value": "v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check API health status"
+      },
+      "response": []
+    },
+    {
+      "name": "Score Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart\": {\n    \"items\": [\n      {\n        \"item\": \"Grocery Items\",\n        \"unit_price\": \"45.99\",\n        \"qty\": 1,\n        \"mcc\": \"5411\",\n        \"merchant_category\": \"Grocery Stores\"\n      }\n    ],\n    \"currency\": \"USD\"\n  },\n  \"merchant\": {\n    \"name\": \"Local Grocery Store\",\n    \"mcc\": \"5411\",\n    \"network_preferences\": [],\n    \"location\": {\n      \"city\": \"New York\",\n      \"country\": \"US\"\n    }\n  },\n  \"customer\": {\n    \"id\": \"customer_12345\",\n    \"loyalty_tier\": \"SILVER\",\n    \"historical_velocity_24h\": 3,\n    \"chargebacks_12m\": 0\n  },\n  \"device\": {\n    \"ip\": \"192.168.1.100\",\n    \"device_id\": \"device_abc123\",\n    \"ip_distance_km\": 0.5,\n    \"location\": {\n      \"city\": \"New York\",\n      \"country\": \"US\"\n    }\n  },\n  \"geo\": {\n    \"city\": \"New York\",\n    \"region\": \"NY\",\n    \"country\": \"US\",\n    \"lat\": 40.7128,\n    \"lon\": -74.0060\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/{{api_version}}/score",
+          "host": ["{{base_url}}"],
+          "path": ["{{api_version}}", "score"]
+        },
+        "description": "Score a transaction and get card recommendations with intelligent decision-making"
+      },
+      "response": []
+    },
+    {
+      "name": "High Risk Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart\": {\n    \"items\": [\n      {\n        \"item\": \"Gaming Console\",\n        \"unit_price\": \"499.99\",\n        \"qty\": 1,\n        \"mcc\": \"5734\"\n      }\n    ],\n    \"currency\": \"USD\"\n  },\n  \"merchant\": {\n    \"name\": \"Online Electronics Store\",\n    \"mcc\": \"5734\",\n    \"network_preferences\": [\"visa\"]\n  },\n  \"customer\": {\n    \"id\": \"customer_67890\",\n    \"loyalty_tier\": \"NONE\",\n    \"historical_velocity_24h\": 15,\n    \"chargebacks_12m\": 2\n  },\n  \"device\": {\n    \"ip\": \"192.168.1.100\",\n    \"device_id\": \"device_abc123\",\n    \"ip_distance_km\": 150.0,\n    \"location\": {\n      \"city\": \"Los Angeles\",\n      \"country\": \"US\"\n    }\n  },\n  \"geo\": {\n    \"city\": \"New York\",\n    \"region\": \"NY\",\n    \"country\": \"US\",\n    \"lat\": 40.7128,\n    \"lon\": -74.0060\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/{{api_version}}/score",
+          "host": ["{{base_url}}"],
+          "path": ["{{api_version}}", "score"]
+        },
+        "description": "Test high-risk transaction scoring with location mismatch and high velocity"
+      },
+      "response": []
+    },
+    {
+      "name": "Travel Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cart\": {\n    \"items\": [\n      {\n        \"item\": \"Airline Ticket\",\n        \"unit_price\": \"299.99\",\n        \"qty\": 1,\n        \"mcc\": \"4511\"\n      }\n    ],\n    \"currency\": \"USD\"\n  },\n  \"merchant\": {\n    \"name\": \"Delta Airlines\",\n    \"mcc\": \"4511\",\n    \"network_preferences\": [\"visa\", \"mastercard\"]\n  },\n  \"customer\": {\n    \"id\": \"customer_travel\",\n    \"loyalty_tier\": \"GOLD\",\n    \"historical_velocity_24h\": 1,\n    \"chargebacks_12m\": 0\n  },\n  \"device\": {\n    \"ip\": \"192.168.1.100\",\n    \"device_id\": \"device_abc123\",\n    \"ip_distance_km\": 5.0,\n    \"location\": {\n      \"city\": \"Atlanta\",\n      \"country\": \"US\"\n    }\n  },\n  \"geo\": {\n    \"city\": \"Atlanta\",\n    \"region\": \"GA\",\n    \"country\": \"US\",\n    \"lat\": 33.7490,\n    \"lon\": -84.3880\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/{{api_version}}/score",
+          "host": ["{{base_url}}"],
+          "path": ["{{api_version}}", "score"]
+        },
+        "description": "Test travel transaction with airline MCC and loyalty tier benefits"
+      },
+      "response": []
+    },
+    {
+      "name": "API Documentation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/docs",
+          "host": ["{{base_url}}"],
+          "path": ["docs"]
+        },
+        "description": "Access interactive API documentation (Swagger UI)"
+      },
+      "response": []
+    },
+    {
+      "name": "OpenAPI Schema",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/openapi.json",
+          "host": ["{{base_url}}"],
+          "path": ["openapi.json"]
+        },
+        "description": "Get OpenAPI schema in JSON format"
+      },
+      "response": []
+    }
+  ]
+}
