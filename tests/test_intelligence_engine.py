@@ -4,8 +4,9 @@ This module contains comprehensive tests for the intelligence engine
 including risk assessment, transaction scoring, and recommendations.
 """
 
-import pytest
 from decimal import Decimal
+
+import pytest
 
 from src.altwallet_agent.intelligence import IntelligenceEngine
 from src.altwallet_agent.models import CheckoutRequest

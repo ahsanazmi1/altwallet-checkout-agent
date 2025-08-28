@@ -4,7 +4,7 @@ This module provides intelligent merchant analysis capabilities including
 categorization, risk assessment, and behavior patterns.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -26,7 +26,7 @@ class MerchantAnalyzer:
         risk_patterns: Known risk patterns for merchants
     """
 
-    def __init__(self, card_db: Optional[CardDatabase] = None):
+    def __init__(self, card_db: CardDatabase | None = None):
         """Initialize the merchant analyzer.
 
         Args:
@@ -37,7 +37,7 @@ class MerchantAnalyzer:
         self.card_db = card_db or CardDatabase()
         self.risk_patterns = self._initialize_risk_patterns()
 
-    def _initialize_risk_patterns(self) -> Dict[str, Any]:
+    def _initialize_risk_patterns(self) -> dict[str, Any]:
         """Initialize known risk patterns for merchant analysis.
 
         Returns:
@@ -73,7 +73,7 @@ class MerchantAnalyzer:
             ],
         }
 
-    def analyze_merchant(self, merchant_id: str) -> Dict[str, Any]:
+    def analyze_merchant(self, merchant_id: str) -> dict[str, Any]:
         """Perform comprehensive merchant analysis.
 
         Args:
@@ -259,7 +259,7 @@ class MerchantAnalyzer:
         # Default to low risk for recognized categories
         return "low"
 
-    def _get_category_insights(self, category: str) -> Dict[str, Any]:
+    def _get_category_insights(self, category: str) -> dict[str, Any]:
         """Get insights specific to a merchant category.
 
         Args:
@@ -312,7 +312,7 @@ class MerchantAnalyzer:
 
         return 0.02
 
-    def _detect_behavior_patterns(self, merchant_id: str) -> List[str]:
+    def _detect_behavior_patterns(self, merchant_id: str) -> list[str]:
         """Detect behavior patterns for a merchant.
 
         Args:
@@ -404,8 +404,8 @@ class MerchantAnalyzer:
         return min(confidence, 1.0)
 
     def get_optimal_cards_for_merchant(
-        self, merchant_id: str, amount: float, max_annual_fee: Optional[int] = None
-    ) -> List[str]:
+        self, merchant_id: str, amount: float, max_annual_fee: int | None = None
+    ) -> list[str]:
         """Get optimal cards for a specific merchant and transaction.
 
         Args:

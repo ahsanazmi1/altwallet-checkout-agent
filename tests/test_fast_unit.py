@@ -7,22 +7,23 @@ This module provides fast unit tests for:
 - Attribution additivity
 """
 
-import pytest
 from decimal import Decimal
 
+import pytest
+
 from altwallet_agent.approval_scorer import ApprovalScorer, LogisticCalibrator
-from altwallet_agent.preference_weighting import PreferenceWeighting
 from altwallet_agent.merchant_penalty import MerchantPenalty
 from altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
+    Context,
+    Customer,
     Device,
     Geo,
     LoyaltyTier,
+    Merchant,
 )
+from altwallet_agent.preference_weighting import PreferenceWeighting
 
 
 class TestCalibrationMonotonicity:

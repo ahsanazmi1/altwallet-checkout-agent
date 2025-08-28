@@ -6,10 +6,11 @@ promotions. The weights are multiplicative factors in the range [0.5, 1.5]
 centered at 1.0.
 """
 
-import yaml
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
+
+import yaml
 
 from .logger import get_logger
 from .models import Context
@@ -20,7 +21,7 @@ logger = get_logger(__name__)
 class PreferenceWeighting:
     """Calculates preference-based weights for card recommendations."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         """Initialize the preference weighting module.
 
         Args:
@@ -29,7 +30,7 @@ class PreferenceWeighting:
         self.config = self._load_config(config_path)
         logger.info("Preference weighting module initialized")
 
-    def _load_config(self, config_path: Optional[str] = None) -> Dict[str, Any]:
+    def _load_config(self, config_path: str | None = None) -> dict[str, Any]:
         """Load preferences configuration from YAML file.
 
         Args:
@@ -44,7 +45,7 @@ class PreferenceWeighting:
             )
 
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             logger.info(f"Loaded preferences config from {config_path}")
             return config
@@ -57,7 +58,7 @@ class PreferenceWeighting:
             logger.error(f"Error parsing preferences config: {e}")
             return self._get_default_config()
 
-    def _get_default_config(self) -> Dict[str, Any]:
+    def _get_default_config(self) -> dict[str, Any]:
         """Get default configuration when config file is not available."""
         return {
             "user_preferences": {
@@ -95,7 +96,7 @@ class PreferenceWeighting:
             },
         }
 
-    def preference_weight(self, card: Dict[str, Any], context: Context) -> float:
+    def preference_weight(self, card: dict[str, Any], context: Context) -> float:
         """Calculate preference weight for a card given transaction context.
 
         Args:
@@ -142,7 +143,7 @@ class PreferenceWeighting:
             return self.config["calculation"]["base_weight"]
 
     def _calculate_user_preference_weight(
-        self, card: Dict[str, Any], context: Context
+        self, card: dict[str, Any], context: Context
     ) -> float:
         """Calculate weight based on user preferences."""
         weight = 1.0
@@ -187,7 +188,7 @@ class PreferenceWeighting:
         return self.config["loyalty_tiers"].get(loyalty_tier.value, 1.0)
 
     def _calculate_category_weight(
-        self, card: Dict[str, Any], context: Context
+        self, card: dict[str, Any], context: Context
     ) -> float:
         """Calculate weight based on merchant category boosts."""
         # Get MCC from context
@@ -228,7 +229,7 @@ class PreferenceWeighting:
         return self.config["category_boosts"].get(mcc, 1.0)
 
     def _calculate_promotion_weight(
-        self, card: Dict[str, Any], context: Context
+        self, card: dict[str, Any], context: Context
     ) -> float:
         """Calculate weight based on issuer promotions and credits."""
         weight = 1.0
@@ -246,7 +247,7 @@ class PreferenceWeighting:
         current_date = datetime.now()
         seasonal_promotions = self.config.get("seasonal_promotions", {})
 
-        for promotion_name, promotion_data in seasonal_promotions.items():
+        for _promotion_name, promotion_data in seasonal_promotions.items():
             if self._is_promotion_active(promotion_data, current_date):
                 affected_categories = promotion_data.get("affected_categories", [])
                 if self._is_category_affected(affected_categories, context):
@@ -255,7 +256,7 @@ class PreferenceWeighting:
         return weight
 
     def _is_promotion_active(
-        self, promotion_data: Dict[str, Any], current_date: datetime
+        self, promotion_data: dict[str, Any], current_date: datetime
     ) -> bool:
         """Check if a seasonal promotion is currently active."""
         try:

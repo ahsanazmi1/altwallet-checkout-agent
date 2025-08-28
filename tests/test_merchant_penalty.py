@@ -1,19 +1,18 @@
 """Tests for Merchant Penalty Module."""
 
-import pytest
 from decimal import Decimal
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
 from src.altwallet_agent.merchant_penalty import MerchantPenalty
 from src.altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
-    LoyaltyTier,
+    Context,
+    Customer,
     Device,
     Geo,
+    LoyaltyTier,
+    Merchant,
 )
 
 
@@ -372,7 +371,7 @@ calculation:
             (["no_mastercard"], "mastercard exclusion"),
         ]
 
-        for network_prefs, description in test_cases:
+        for network_prefs, _description in test_cases:
             context = Context(
                 customer=self.sample_context.customer,
                 merchant=Merchant(

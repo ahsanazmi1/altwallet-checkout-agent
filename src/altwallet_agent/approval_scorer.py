@@ -3,7 +3,7 @@
 import math
 import random
 from decimal import Decimal
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field
@@ -25,7 +25,7 @@ class AdditiveAttributions(BaseModel):
     """Additive feature attributions on pre-calibration scale."""
 
     baseline: float = Field(..., description="Baseline score contribution")
-    contribs: List[FeatureContribution] = Field(
+    contribs: list[FeatureContribution] = Field(
         ..., description="List of feature contributions"
     )
     sum: float = Field(
@@ -64,13 +64,13 @@ class ApprovalResult(BaseModel):
 
     p_approval: float = Field(..., description="Approval probability", ge=0.0, le=1.0)
     raw_score: float = Field(..., description="Raw log-odds score")
-    calibration: Dict[str, Any] = Field(
+    calibration: dict[str, Any] = Field(
         ..., description="Calibration method and parameters"
     )
-    attributions: Optional[FeatureAttributions] = Field(
+    attributions: FeatureAttributions | None = Field(
         None, description="Feature attributions"
     )
-    additive_attributions: Optional[AdditiveAttributions] = Field(
+    additive_attributions: AdditiveAttributions | None = Field(
         None, description="Additive feature attributions on pre-calibration scale"
     )
 
@@ -125,10 +125,10 @@ class ApprovalScorer:
 
         self.logger.info("ApprovalScorer initialized with config from %s", config_path)
 
-    def _load_config(self, config_path: str) -> Dict[str, Any]:
+    def _load_config(self, config_path: str) -> dict[str, Any]:
         """Load configuration from YAML file."""
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             self.logger.info("Loaded approval configuration from %s", config_path)
             return config
@@ -139,7 +139,7 @@ class ApprovalScorer:
             self.logger.error("Error loading config from %s: %s", config_path, e)
             return self._get_default_config()
 
-    def _get_default_config(self) -> Dict[str, Any]:
+    def _get_default_config(self) -> dict[str, Any]:
         """Get default configuration."""
         return {
             "rules_layer": {
@@ -264,7 +264,7 @@ class ApprovalScorer:
 
         return 0.0
 
-    def score(self, context: Dict[str, Any]) -> ApprovalResult:
+    def score(self, context: dict[str, Any]) -> ApprovalResult:
         """
         Calculate approval odds for a transaction context.
 
@@ -302,7 +302,7 @@ class ApprovalScorer:
         )
 
     def _calculate_raw_score(
-        self, context: Dict[str, Any]
+        self, context: dict[str, Any]
     ) -> tuple[float, FeatureAttributions, AdditiveAttributions]:
         """Calculate raw log-odds score from deterministic signals."""
         attributions = FeatureAttributions()
@@ -457,7 +457,7 @@ class ApprovalScorer:
 
     def _extract_top_drivers(
         self, additive_attribs: AdditiveAttributions, top_k: int = 3
-    ) -> Dict[str, List[FeatureContribution]]:
+    ) -> dict[str, list[FeatureContribution]]:
         """Extract top positive and negative feature drivers."""
         # Sort contributions by absolute value
         sorted_contribs = sorted(
@@ -473,7 +473,7 @@ class ApprovalScorer:
             "top_negative": negative_contribs[:top_k],
         }
 
-    def explain(self, context: Dict[str, Any]) -> AdditiveAttributions:
+    def explain(self, context: dict[str, Any]) -> AdditiveAttributions:
         """
         Explain the approval decision by returning additive feature attributions.
 

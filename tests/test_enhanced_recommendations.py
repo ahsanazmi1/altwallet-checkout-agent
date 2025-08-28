@@ -215,7 +215,7 @@ class TestEnhancedRecommendations:
         try:
             uuid.UUID(first_audit["request_id"])
         except ValueError:
-            assert False, "Request ID should be a valid UUID"
+            raise AssertionError("Request ID should be a valid UUID")
 
     def test_recommendation_ranking(self):
         """Test that recommendations are properly ranked."""

@@ -1,20 +1,19 @@
 """Tests for Preference & Loyalty Weighting Module."""
 
-import pytest
 from decimal import Decimal
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
-from src.altwallet_agent.preference_weighting import PreferenceWeighting
 from src.altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
-    LoyaltyTier,
+    Context,
+    Customer,
     Device,
     Geo,
+    LoyaltyTier,
+    Merchant,
 )
+from src.altwallet_agent.preference_weighting import PreferenceWeighting
 
 
 class TestPreferenceWeighting:

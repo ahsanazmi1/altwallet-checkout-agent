@@ -9,13 +9,13 @@ This module calculates composite utility scores for card recommendations by comb
 The utility score is used to rank cards in order of optimal choice for the user.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
 from .logger import get_logger
-from .models import Context
-from .scoring import score_transaction
-from .preference_weighting import PreferenceWeighting
 from .merchant_penalty import MerchantPenalty
+from .models import Context
+from .preference_weighting import PreferenceWeighting
+from .scoring import score_transaction
 
 logger = get_logger(__name__)
 
@@ -30,8 +30,8 @@ class CompositeUtility:
         logger.info("Composite utility calculator initialized")
 
     def calculate_card_utility(
-        self, card: Dict[str, Any], context: Context
-    ) -> Dict[str, Any]:
+        self, card: dict[str, Any], context: Context
+    ) -> dict[str, Any]:
         """Calculate composite utility for a single card.
 
         Args:
@@ -126,8 +126,8 @@ class CompositeUtility:
             }
 
     def rank_cards_by_utility(
-        self, cards: List[Dict[str, Any]], context: Context
-    ) -> List[Dict[str, Any]]:
+        self, cards: list[dict[str, Any]], context: Context
+    ) -> list[dict[str, Any]]:
         """Rank cards by their composite utility scores.
 
         Args:
@@ -190,7 +190,7 @@ class CompositeUtility:
             return 0.25  # Very low approval probability
 
     def _calculate_expected_rewards(
-        self, card: Dict[str, Any], context: Context
+        self, card: dict[str, Any], context: Context
     ) -> float:
         """Calculate expected rewards for a card given the transaction context.
 
@@ -236,7 +236,7 @@ class CompositeUtility:
             logger.error(f"Error calculating expected rewards: {e}")
             return card.get("cashback_rate", 0.01)
 
-    def _get_category_bonus(self, card: Dict[str, Any], context: Context) -> float:
+    def _get_category_bonus(self, card: dict[str, Any], context: Context) -> float:
         """Get category bonus multiplier for the card.
 
         Args:
@@ -266,7 +266,7 @@ class CompositeUtility:
         # Default bonus (no category bonus)
         return 1.0
 
-    def _get_signup_bonus(self, card: Dict[str, Any], context: Context) -> float:
+    def _get_signup_bonus(self, card: dict[str, Any], context: Context) -> float:
         """Get signup bonus for the card if eligible.
 
         Args:
@@ -282,8 +282,8 @@ class CompositeUtility:
         return 0.0
 
     def analyze_utility_components(
-        self, cards: List[Dict[str, Any]], context: Context
-    ) -> Dict[str, Any]:
+        self, cards: list[dict[str, Any]], context: Context
+    ) -> dict[str, Any]:
         """Analyze utility components across all cards.
 
         Args:

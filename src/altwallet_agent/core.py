@@ -1,10 +1,10 @@
 """Core CheckoutAgent implementation."""
 
 import contextvars
+import subprocess
 import time
 import uuid
 from typing import Any
-import subprocess
 
 import structlog
 from rich.console import Console
@@ -13,9 +13,9 @@ from rich.table import Table
 from .models import (
     CheckoutRequest,
     CheckoutResponse,
+    EnhancedCheckoutResponse,
     ScoreRequest,
     ScoreResponse,
-    EnhancedCheckoutResponse,
 )
 
 # Context variables for request/trace IDs
@@ -96,17 +96,18 @@ class CheckoutAgent:
 
     def _request_to_context(self, request: CheckoutRequest):
         """Convert CheckoutRequest to Context for scoring."""
+        from decimal import Decimal
+
         from .models import (
-            Context,
-            Customer,
-            Merchant,
             Cart,
             CartItem,
+            Context,
+            Customer,
             Device,
             Geo,
             LoyaltyTier,
+            Merchant,
         )
-        from decimal import Decimal
 
         # Try to get data from metadata or use defaults
         metadata = getattr(request, "metadata", {})

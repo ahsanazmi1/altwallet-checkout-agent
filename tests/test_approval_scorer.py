@@ -8,13 +8,12 @@ import pytest
 import yaml
 
 from src.altwallet_agent.approval_scorer import (
-    ApprovalScorer,
-    ApprovalResult,
-    FeatureAttributions,
     AdditiveAttributions,
+    ApprovalResult,
+    ApprovalScorer,
     FeatureContribution,
-    LogisticCalibrator,
     IsotonicCalibrator,
+    LogisticCalibrator,
 )
 
 

@@ -1,19 +1,18 @@
 """Tests for Composite Utility Module."""
 
-import pytest
 from decimal import Decimal
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from altwallet_agent.composite_utility import CompositeUtility
 from altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
-    LoyaltyTier,
+    Context,
+    Customer,
     Device,
     Geo,
+    LoyaltyTier,
+    Merchant,
 )
 
 

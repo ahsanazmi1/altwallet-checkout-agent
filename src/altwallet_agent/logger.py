@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 import time
-from typing import MutableMapping
+from collections.abc import MutableMapping
 from typing import Any
 
 import structlog

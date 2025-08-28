@@ -8,24 +8,25 @@ for CI integration and monitoring.
 import json
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+from decimal import Decimal
+
 from altwallet_agent.approval_scorer import ApprovalScorer
 from altwallet_agent.composite_utility import CompositeUtility
 from altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
+    Context,
+    Customer,
     Device,
     Geo,
     LoyaltyTier,
+    Merchant,
 )
-from decimal import Decimal
 
 
 class SmokeTester:
@@ -160,7 +161,7 @@ class SmokeTester:
             geo=Geo(city="Las Vegas", country="US"),
         )
 
-    def run_scenario(self, scenario_name: str, context: Context) -> Dict[str, Any]:
+    def run_scenario(self, scenario_name: str, context: Context) -> dict[str, Any]:
         """Run a single scenario and return results."""
         # Convert context to dict for approval scorer
         context_dict = {

@@ -8,19 +8,19 @@ import json
 import os
 from decimal import Decimal
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 from altwallet_agent.approval_scorer import ApprovalScorer
 from altwallet_agent.composite_utility import CompositeUtility
 from altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
+    Context,
+    Customer,
     Device,
     Geo,
     LoyaltyTier,
+    Merchant,
 )
 
 
@@ -81,25 +81,25 @@ class GoldenRegressionTest:
             },
         ]
 
-    def load_fixture(self, fixture_name: str) -> Dict[str, Any]:
+    def load_fixture(self, fixture_name: str) -> dict[str, Any]:
         """Load a fixture from the fixtures directory."""
         fixture_path = self.fixtures_dir / f"{fixture_name}.json"
-        with open(fixture_path, "r") as f:
+        with open(fixture_path) as f:
             return json.load(f)
 
-    def load_snapshot(self, snapshot_name: str) -> Dict[str, Any]:
+    def load_snapshot(self, snapshot_name: str) -> dict[str, Any]:
         """Load a snapshot from the snapshots directory."""
         snapshot_path = self.snapshots_dir / f"{snapshot_name}.json"
-        with open(snapshot_path, "r") as f:
+        with open(snapshot_path) as f:
             return json.load(f)
 
-    def save_snapshot(self, snapshot_name: str, data: Dict[str, Any]):
+    def save_snapshot(self, snapshot_name: str, data: dict[str, Any]):
         """Save a snapshot to the snapshots directory."""
         snapshot_path = self.snapshots_dir / f"{snapshot_name}.json"
         with open(snapshot_path, "w") as f:
             json.dump(data, f, indent=2)
 
-    def fixture_to_context(self, fixture_data: Dict[str, Any]) -> Context:
+    def fixture_to_context(self, fixture_data: dict[str, Any]) -> Context:
         """Convert fixture data to Context object."""
         customer_data = fixture_data.get("customer", {})
         merchant_data = fixture_data.get("merchant", {})
@@ -159,7 +159,7 @@ class GoldenRegressionTest:
             geo=geo,
         )
 
-    def run_scoring(self, context: Context) -> Dict[str, Any]:
+    def run_scoring(self, context: Context) -> dict[str, Any]:
         """Run scoring and return results."""
         # Convert context to dict for approval scorer
         context_dict = {
@@ -222,7 +222,7 @@ class GoldenRegressionTest:
         except Exception:
             return 0.0
 
-    def _extract_feature_drivers(self, attributions) -> List[Dict[str, Any]]:
+    def _extract_feature_drivers(self, attributions) -> list[dict[str, Any]]:
         """Extract top feature drivers from attributions."""
         if not attributions:
             return []
@@ -249,7 +249,7 @@ class GoldenRegressionTest:
         drivers.sort(key=lambda x: abs(x["contribution"]), reverse=True)
         return drivers[:4]
 
-    def _extract_risk_signals(self, context: Context) -> Dict[str, bool]:
+    def _extract_risk_signals(self, context: Context) -> dict[str, bool]:
         """Extract risk signals from context."""
         return {
             "location_mismatch": self._calculate_location_mismatch_distance(context)

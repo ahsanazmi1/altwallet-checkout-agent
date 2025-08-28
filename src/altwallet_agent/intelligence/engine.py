@@ -6,7 +6,7 @@ scoring, recommendations, and risk assessment for checkout processing.
 
 import time
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -31,7 +31,7 @@ class IntelligenceEngine:
         processing_time_ms: Processing time tracking for performance monitoring
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """Initialize the intelligence engine.
 
         Args:
@@ -211,7 +211,7 @@ class IntelligenceEngine:
         risk_score: float,
         transaction_score: float,
         request_id: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate intelligent card recommendations.
 
         Args:
@@ -293,7 +293,7 @@ class IntelligenceEngine:
         self,
         risk_score: float,
         transaction_score: float,
-        recommendations: List[Dict[str, Any]],
+        recommendations: list[dict[str, Any]],
     ) -> float:
         """Calculate the final intelligence score.
 
@@ -320,7 +320,7 @@ class IntelligenceEngine:
     def _prepare_response(
         self,
         request_id: str,
-        recommendations: List[Dict[str, Any]],
+        recommendations: list[dict[str, Any]],
         final_score: float,
         request: CheckoutRequest,
     ) -> CheckoutResponse:
@@ -350,7 +350,7 @@ class IntelligenceEngine:
             metadata=metadata,
         )
 
-    def get_processing_stats(self) -> Dict[str, Any]:
+    def get_processing_stats(self) -> dict[str, Any]:
         """Get processing statistics and performance metrics.
 
         Returns:

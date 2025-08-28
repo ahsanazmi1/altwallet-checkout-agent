@@ -5,7 +5,7 @@ rewards structures, annual fees, and category bonuses for intelligent
 recommendations.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class CardDatabase:
@@ -25,7 +25,7 @@ class CardDatabase:
         self.cards = self._initialize_cards()
         self.categories = self._initialize_categories()
 
-    def _initialize_cards(self) -> Dict[str, Dict[str, Any]]:
+    def _initialize_cards(self) -> dict[str, dict[str, Any]]:
         """Initialize the comprehensive card database.
 
         Returns:
@@ -162,7 +162,7 @@ class CardDatabase:
             },
         }
 
-    def _initialize_categories(self) -> Dict[str, Dict[str, Any]]:
+    def _initialize_categories(self) -> dict[str, dict[str, Any]]:
         """Initialize merchant categories for classification.
 
         Returns:
@@ -199,7 +199,7 @@ class CardDatabase:
             },
         }
 
-    def get_card(self, card_id: str) -> Optional[Dict[str, Any]]:
+    def get_card(self, card_id: str) -> dict[str, Any] | None:
         """Get card information by ID.
 
         Args:
@@ -210,7 +210,7 @@ class CardDatabase:
         """
         return self.cards.get(card_id)
 
-    def get_all_cards(self) -> Dict[str, Dict[str, Any]]:
+    def get_all_cards(self) -> dict[str, dict[str, Any]]:
         """Get all cards in the database.
 
         Returns:
@@ -218,7 +218,7 @@ class CardDatabase:
         """
         return self.cards.copy()
 
-    def get_cards_by_issuer(self, issuer: str) -> List[str]:
+    def get_cards_by_issuer(self, issuer: str) -> list[str]:
         """Get card IDs by issuer.
 
         Args:
@@ -233,7 +233,7 @@ class CardDatabase:
             if card_data["issuer"] == issuer
         ]
 
-    def get_cards_by_annual_fee(self, max_fee: int) -> List[str]:
+    def get_cards_by_annual_fee(self, max_fee: int) -> list[str]:
         """Get card IDs with annual fee less than or equal to specified amount.
 
         Args:
@@ -248,7 +248,7 @@ class CardDatabase:
             if card_data["annual_fee"] <= max_fee
         ]
 
-    def get_cards_with_category_bonus(self, category: str) -> List[str]:
+    def get_cards_with_category_bonus(self, category: str) -> list[str]:
         """Get card IDs that offer bonuses for a specific category.
 
         Args:
@@ -264,7 +264,7 @@ class CardDatabase:
         ]
 
     def calculate_effective_reward_rate(
-        self, card_id: str, category: Optional[str] = None
+        self, card_id: str, category: str | None = None
     ) -> float:
         """Calculate effective reward rate for a card in a category.
 
@@ -286,7 +286,7 @@ class CardDatabase:
 
         return base_rate
 
-    def get_category_info(self, category: str) -> Optional[Dict[str, Any]]:
+    def get_category_info(self, category: str) -> dict[str, Any] | None:
         """Get category information by name.
 
         Args:
@@ -297,7 +297,7 @@ class CardDatabase:
         """
         return self.categories.get(category)
 
-    def get_all_categories(self) -> Dict[str, Dict[str, Any]]:
+    def get_all_categories(self) -> dict[str, dict[str, Any]]:
         """Get all merchant categories.
 
         Returns:
@@ -307,11 +307,11 @@ class CardDatabase:
 
     def search_cards(
         self,
-        min_reward_rate: Optional[float] = None,
-        max_annual_fee: Optional[int] = None,
-        issuers: Optional[List[str]] = None,
-        categories: Optional[List[str]] = None,
-    ) -> List[str]:
+        min_reward_rate: float | None = None,
+        max_annual_fee: int | None = None,
+        issuers: list[str] | None = None,
+        categories: list[str] | None = None,
+    ) -> list[str]:
         """Search for cards matching specific criteria.
 
         Args:
@@ -349,7 +349,7 @@ class CardDatabase:
         return matching_cards
 
 
-def get_card_database() -> List[Dict[str, Any]]:
+def get_card_database() -> list[dict[str, Any]]:
     """Get the card database as a list of card dictionaries.
 
     Returns:

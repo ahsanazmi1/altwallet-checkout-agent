@@ -3,8 +3,8 @@
 from decimal import Decimal
 
 from altwallet_agent.approval_scorer import (
-    ApprovalScorer,
     AdditiveAttributions,
+    ApprovalScorer,
     FeatureContribution,
 )
 

@@ -5,18 +5,18 @@ import sys
 import uuid
 from decimal import Decimal
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
+from .composite_utility import CompositeUtility
 from .core import CheckoutAgent
-from .logger import get_logger, set_trace_id, set_request_start_time
+from .logger import get_logger, set_request_start_time, set_trace_id
 from .models import CheckoutRequest, Context
 from .scoring import score_transaction
-from .composite_utility import CompositeUtility
 
 app = typer.Typer(
     name="altwallet-agent",
@@ -26,7 +26,7 @@ app = typer.Typer(
 console = Console()
 
 
-def create_sample_cards() -> List[Dict[str, Any]]:
+def create_sample_cards() -> list[dict[str, Any]]:
     """Create sample cards for demonstration."""
     return [
         {
@@ -77,8 +77,8 @@ def create_sample_cards() -> List[Dict[str, Any]]:
 
 
 def get_top_drivers(
-    attributions: Dict[str, Any], max_drivers: int = 5
-) -> List[Dict[str, Any]]:
+    attributions: dict[str, Any], max_drivers: int = 5
+) -> list[dict[str, Any]]:
     """Extract top positive and negative drivers from attributions."""
     if not attributions:
         return []
@@ -124,8 +124,8 @@ def get_top_drivers(
 
 
 def create_audit_block(
-    context: Context, score_result: Any, utility_result: Dict[str, Any]
-) -> Dict[str, Any]:
+    context: Context, score_result: Any, utility_result: dict[str, Any]
+) -> dict[str, Any]:
     """Create audit block with detailed scoring information."""
     return {
         "scoring_audit": {

@@ -5,10 +5,10 @@ from the intelligence engine for regression testing.
 """
 
 import json
-import os
-import pytest
 from decimal import Decimal
 from pathlib import Path
+
+import pytest
 
 from src.altwallet_agent.intelligence import IntelligenceEngine
 from src.altwallet_agent.models import CheckoutRequest
@@ -41,7 +41,7 @@ class TestIntelligenceGolden:
         # Load expected golden output
         golden_file = golden_dir / "amazon_basic.json"
         if golden_file.exists():
-            with open(golden_file, "r") as f:
+            with open(golden_file) as f:
                 expected = json.load(f)
 
             # Compare deterministic parts
@@ -75,7 +75,7 @@ class TestIntelligenceGolden:
 
         golden_file = golden_dir / "hotel_high_value.json"
         if golden_file.exists():
-            with open(golden_file, "r") as f:
+            with open(golden_file) as f:
                 expected = json.load(f)
 
             # Compare deterministic parts
@@ -103,7 +103,7 @@ class TestIntelligenceGolden:
 
         golden_file = golden_dir / "grocery_store.json"
         if golden_file.exists():
-            with open(golden_file, "r") as f:
+            with open(golden_file) as f:
                 expected = json.load(f)
 
             assert response.score == pytest.approx(expected["score"], rel=1e-3)
@@ -124,7 +124,7 @@ class TestIntelligenceGolden:
 
         golden_file = golden_dir / "foreign_currency.json"
         if golden_file.exists():
-            with open(golden_file, "r") as f:
+            with open(golden_file) as f:
                 expected = json.load(f)
 
             assert response.score == pytest.approx(expected["score"], rel=1e-3)

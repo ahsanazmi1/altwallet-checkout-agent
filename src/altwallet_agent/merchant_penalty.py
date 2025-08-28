@@ -5,11 +5,12 @@ network requirements, and MCC categories. Penalties are applied when merchant
 preferences don't align with card capabilities.
 """
 
-import yaml
 import re
 from difflib import SequenceMatcher
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
+
+import yaml
 
 from .logger import get_logger
 from .models import Context
@@ -20,7 +21,7 @@ logger = get_logger(__name__)
 class MerchantPenalty:
     """Calculates merchant-specific penalties based on preferences and requirements."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         """Initialize the merchant penalty module.
 
         Args:
@@ -29,7 +30,7 @@ class MerchantPenalty:
         self.config = self._load_config(config_path)
         logger.info("Merchant penalty module initialized")
 
-    def _load_config(self, config_path: Optional[str] = None) -> Dict[str, Any]:
+    def _load_config(self, config_path: str | None = None) -> dict[str, Any]:
         """Load merchant penalty configuration from YAML file.
 
         Args:
@@ -46,7 +47,7 @@ class MerchantPenalty:
             )
 
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
+            with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             logger.info(f"Loaded merchant penalty config from {config_path}")
             return config
@@ -59,7 +60,7 @@ class MerchantPenalty:
             logger.error(f"Error parsing merchant penalty config: {e}")
             return self._get_default_config()
 
-    def _get_default_config(self) -> Dict[str, Any]:
+    def _get_default_config(self) -> dict[str, Any]:
         """Get default configuration when config file is not available."""
         return {
             "merchants": {
@@ -211,7 +212,7 @@ class MerchantPenalty:
         # No merchant-specific penalty found
         return self.config["calculation"]["base_penalty"]
 
-    def _find_fuzzy_merchant_match(self, merchant_name: str) -> Optional[str]:
+    def _find_fuzzy_merchant_match(self, merchant_name: str) -> str | None:
         """Find fuzzy match for merchant name using variations."""
         if not merchant_name:
             return None
@@ -225,7 +226,7 @@ class MerchantPenalty:
         best_score = 0.0
 
         # Check each variation group
-        for base_name, variation_list in variations.items():
+        for _base_name, variation_list in variations.items():
             for variation in variation_list:
                 score = SequenceMatcher(None, merchant_name, variation).ratio()
                 if score > best_score and score >= threshold:

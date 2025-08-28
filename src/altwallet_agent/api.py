@@ -11,11 +11,11 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from .composite_utility import CompositeUtility
+from .intelligence import IntelligenceEngine
 from .logger import get_logger, set_trace_id
 from .models import Context
 from .scoring import score_transaction
-from .composite_utility import CompositeUtility
-from .intelligence import IntelligenceEngine
 
 
 class HealthResponse(BaseModel):
