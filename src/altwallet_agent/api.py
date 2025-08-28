@@ -298,19 +298,20 @@ async def explain_endpoint(request: ExplainRequest) -> ExplainResponse:
         score_result = score_transaction(context)
 
         # Build attributions
+        flags = context.flags
         attributions = {
             "risk_factors": {
                 "location_mismatch": {
-                    "value": context.flags.get("mismatch_location", False),
+                    "value": flags.get("mismatch_location", False),
                     "contribution": (
-                        0.25 if context.flags.get("mismatch_location", False) else 0.0
+                        0.25 if flags.get("mismatch_location", False) else 0.0
                     ),
                     "description": "Device location differs from transaction location",
                 },
                 "velocity_flag": {
-                    "value": context.flags.get("velocity_24h_flag", False),
+                    "value": flags.get("velocity_24h_flag", False),
                     "contribution": (
-                        0.15 if context.flags.get("velocity_24h_flag", False) else 0.0
+                        0.15 if flags.get("velocity_24h_flag", False) else 0.0
                     ),
                     "description": "Customer transaction velocity within normal range",
                 },
@@ -322,9 +323,9 @@ async def explain_endpoint(request: ExplainRequest) -> ExplainResponse:
                     "description": "No recent chargebacks",
                 },
                 "high_ticket": {
-                    "value": float(context.cart.total) >= 1000.0,
+                    "value": float(context.cart.total()) >= 1000.0,
                     "contribution": (
-                        0.10 if float(context.cart.total) >= 1000.0 else 0.0
+                        0.10 if float(context.cart.total()) >= 1000.0 else 0.0
                     ),
                     "description": "Transaction amount below high-ticket threshold",
                 },
@@ -343,10 +344,10 @@ async def explain_endpoint(request: ExplainRequest) -> ExplainResponse:
                     "description": f"Customer loyalty tier: {context.customer.loyalty_tier.value}",
                 },
                 "transaction_amount": {
-                    "value": str(context.cart.total),
-                    "contribution": -0.05 if float(context.cart.total) > 500 else 0.02,
+                    "value": str(context.cart.total()),
+                    "contribution": -0.05 if float(context.cart.total()) > 500 else 0.02,
                     "direction": (
-                        "negative" if float(context.cart.total) > 500 else "positive"
+                        "negative" if float(context.cart.total()) > 500 else "positive"
                     ),
                     "description": "Transaction amount impact",
                 },

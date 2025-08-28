@@ -337,7 +337,7 @@ class TestAdditiveAttributions:
         # Should be JSON serializable
         import json
 
-        json_str = json.dumps(additive_attribs.dict())
+        json_str = json.dumps(additive_attribs.model_dump())
         assert isinstance(json_str, str)
 
         # Should be able to reconstruct

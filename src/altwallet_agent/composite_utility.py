@@ -90,7 +90,7 @@ class CompositeUtility:
                     "merchant_mcc": (
                         context.merchant.mcc if context.merchant else "Unknown"
                     ),
-                    "cart_total": float(context.cart.total) if context.cart else 0.0,
+                    "cart_total": float(context.cart.total()) if context.cart else 0.0,
                     "loyalty_tier": context.customer.loyalty_tier.value,
                 },
             }
@@ -204,9 +204,13 @@ class CompositeUtility:
         try:
             # Base rewards rate from card
             base_rate = card.get("cashback_rate", 0.01)  # Default 1%
+            if isinstance(base_rate, (int, float)):
+                base_rate = float(base_rate)
+            else:
+                base_rate = 0.01
 
             # Get transaction amount
-            cart_total = float(context.cart.total) if context.cart else 0.0
+            cart_total = float(context.cart.total()) if context.cart else 0.0
 
             # Calculate base rewards
             base_rewards = base_rate * cart_total
@@ -234,7 +238,10 @@ class CompositeUtility:
 
         except Exception as e:
             logger.error(f"Error calculating expected rewards: {e}")
-            return card.get("cashback_rate", 0.01)
+            cashback_rate = card.get("cashback_rate", 0.01)
+            if isinstance(cashback_rate, (int, float)):
+                return float(cashback_rate)
+            return 0.01
 
     def _get_category_bonus(self, card: dict[str, Any], context: Context) -> float:
         """Get category bonus multiplier for the card.
@@ -253,15 +260,20 @@ class CompositeUtility:
         category_bonuses = card.get("category_bonuses", {})
 
         # Check for exact MCC match
-        if mcc in category_bonuses:
-            return category_bonuses[mcc]
+        if mcc and mcc in category_bonuses:
+            bonus_rate = category_bonuses[mcc]
+            if isinstance(bonus_rate, (int, float)):
+                return float(bonus_rate)
+            return 1.0
 
         # Check for MCC family match (first 2 digits)
-        if len(mcc) >= 2:
+        if mcc and len(mcc) >= 2:
             mcc_family = mcc[:2]
             for bonus_mcc, bonus_rate in category_bonuses.items():
                 if bonus_mcc.startswith(mcc_family):
-                    return bonus_rate
+                    if isinstance(bonus_rate, (int, float)):
+                        return float(bonus_rate)
+                    return 1.0
 
         # Default bonus (no category bonus)
         return 1.0

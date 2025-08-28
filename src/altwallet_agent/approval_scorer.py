@@ -131,7 +131,9 @@ class ApprovalScorer:
             with open(config_path, encoding="utf-8") as f:
                 config = yaml.safe_load(f)
             self.logger.info("Loaded approval configuration from %s", config_path)
-            return config
+            if isinstance(config, dict):
+                return config
+            return self._get_default_config()
         except FileNotFoundError:
             self.logger.warning("Config file %s not found, using defaults", config_path)
             return self._get_default_config()
@@ -185,7 +187,10 @@ class ApprovalScorer:
     def _get_mcc_weight(self, mcc: str) -> float:
         """Get MCC weight from configuration."""
         weights = self.config["rules_layer"]["mcc_weights"]
-        return weights.get(mcc, weights.get("default", 0.0))
+        weight = weights.get(mcc, weights.get("default", 0.0))
+        if isinstance(weight, (int, float)):
+            return float(weight)
+        return 0.0
 
     def _get_amount_weight(self, amount: Decimal) -> float:
         """Get amount weight based on amount ranges."""
@@ -196,13 +201,20 @@ class ApprovalScorer:
             if range_str.endswith("+"):
                 min_val = float(range_str[:-1])
                 if amount_float >= min_val:
-                    return weight
+                    if isinstance(weight, (int, float)):
+                        return float(weight)
+                    return 0.0
             else:
                 min_val, max_val = map(float, range_str.split("-"))
                 if min_val <= amount_float < max_val:
-                    return weight
+                    if isinstance(weight, (int, float)):
+                        return float(weight)
+                    return 0.0
 
-        return weights.get("default", 0.0)
+        default_weight = weights.get("default", 0.0)
+        if isinstance(default_weight, (int, float)):
+            return float(default_weight)
+        return 0.0
 
     def _get_velocity_weight(self, velocity: int, period: str) -> float:
         """Get velocity weight for 24h or 7d period."""
@@ -212,11 +224,15 @@ class ApprovalScorer:
             if range_str.endswith("+"):
                 min_val = float(range_str[:-1])
                 if velocity >= min_val:
-                    return weight
+                    if isinstance(weight, (int, float)):
+                        return float(weight)
+                    return 0.0
             else:
                 min_val, max_val = map(float, range_str.split("-"))
                 if min_val <= velocity < max_val:
-                    return weight
+                    if isinstance(weight, (int, float)):
+                        return float(weight)
+                    return 0.0
 
         return 0.0
 
@@ -225,9 +241,15 @@ class ApprovalScorer:
         weights = self.config["rules_layer"]["chargeback_weights"]
 
         if chargebacks >= 3:
-            return weights.get("3+", -2.0)
+            weight = weights.get("3+", -2.0)
+            if isinstance(weight, (int, float)):
+                return float(weight)
+            return -2.0
         else:
-            return weights.get(str(chargebacks), 0.0)
+            weight = weights.get(str(chargebacks), 0.0)
+            if isinstance(weight, (int, float)):
+                return float(weight)
+            return 0.0
 
     def _calculate_location_mismatch_distance(self, context: Context) -> float:
         """Calculate distance between device and geo locations."""
@@ -260,11 +282,15 @@ class ApprovalScorer:
             if range_str.endswith("+"):
                 min_val = float(range_str[:-1])
                 if distance >= min_val:
-                    return weight
+                    if isinstance(weight, (int, float)):
+                        return float(weight)
+                    return 0.0
             else:
                 min_val, max_val = map(float, range_str.split("-"))
                 if min_val <= distance < max_val:
-                    return weight
+                    if isinstance(weight, (int, float)):
+                        return float(weight)
+                    return 0.0
 
         return 0.0
 
@@ -287,7 +313,8 @@ class ApprovalScorer:
         # Clamp probability to configured bounds
         min_prob = self.config["output"]["min_probability"]
         max_prob = self.config["output"]["max_probability"]
-        p_approval = max(min_prob, min(max_prob, p_approval))
+        if isinstance(min_prob, (int, float)) and isinstance(max_prob, (int, float)):
+            p_approval = max(float(min_prob), min(float(max_prob), p_approval))
 
         # Prepare calibration info
         calibration_info = {
@@ -339,7 +366,10 @@ class ApprovalScorer:
         issuer_weight = issuer_weights.get(
             issuer_family, issuer_weights.get("unknown", 0.0)
         )
-        attributions.issuer_contribution = issuer_weight
+        if isinstance(issuer_weight, (int, float)):
+            attributions.issuer_contribution = float(issuer_weight)
+        else:
+            attributions.issuer_contribution = 0.0
 
         # Cross-border weight - default to False (domestic) if missing
         cross_border = context.get("cross_border", False)
