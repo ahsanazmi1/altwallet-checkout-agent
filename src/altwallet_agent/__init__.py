@@ -1,6 +1,6 @@
 """AltWallet Checkout Agent - Core Engine MVP."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "AltWallet Team"
 __email__ = "support@altwallet.com"
 

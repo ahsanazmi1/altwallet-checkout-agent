@@ -1,6 +1,10 @@
 # Merchant Penalty Configuration
 # This configuration defines penalties for merchants based on their payment preferences
 # Penalties are applied when merchant preferences don't align with card capabilities
+# Version: 0.2.0
+# Notes: Phase 2 Intelligence Layer - Enhanced merchant penalty system with exact merchant matching,
+#        fuzzy matching, MCC family penalties, and network preference penalties.
+#        Supports major retailers, airlines, and online merchants with specific preferences.
 
 # Merchant-specific penalties (exact merchant name + MCC combinations)
 merchants:

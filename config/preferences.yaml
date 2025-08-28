@@ -1,5 +1,9 @@
 # Preference & Loyalty Weighting Configuration
 # This configuration controls how user preferences and loyalty tiers affect card recommendations
+# Version: 0.2.0
+# Notes: Phase 2 Intelligence Layer - Enhanced preference weighting with loyalty tier multipliers,
+#        category boost multipliers, issuer promotions, and seasonal adjustments.
+#        Supports cashback vs points preferences and annual fee tolerance.
 
 # User Preference Weights
 # These weights adjust card scores based on user preferences

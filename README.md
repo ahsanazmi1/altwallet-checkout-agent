@@ -2,9 +2,9 @@
 
 AltWallet Checkout Agent is a production-minded Python scaffold for intelligent checkout processing and card recommendations. It provides a robust foundation for processing transactions, scoring, and providing intelligent card recommendations with a clean API and CLI interface.
 
-## What's New in Phase 2
+## What's New in v0.2.0
 
-Phase 2 introduces intelligent decision-making capabilities that build upon the solid foundation established in Phase 1:
+v0.2.0 introduces the Phase 2 Intelligence Layer with advanced decision-making capabilities that build upon the solid foundation established in v0.1.0:
 
 ### 🧠 Core Intelligence Engine
 - **Main Orchestrator**: `IntelligenceEngine` class coordinates all intelligence components
@@ -44,6 +44,90 @@ Phase 2 introduces intelligent decision-making capabilities that build upon the 
 - **Testing**: Comprehensive test suite with pytest and golden tests
 - **Docker Support**: Multi-stage build for production deployment
 - **Development Tools**: Ruff (linting), Black (formatting), MyPy (typing)
+
+## API Usage Examples
+
+### Basic Transaction Scoring
+
+```bash
+# Start the API server
+python -m altwallet_agent.api
+
+# Score a basic transaction
+curl -X POST "http://localhost:8000/v1/score" \
+  -H "Content-Type: application/json" \
+  -d @examples/context_basic.json
+```
+
+### Enhanced Card Recommendations
+
+```bash
+# Get comprehensive card recommendations with explainability
+curl -X POST "http://localhost:8000/v1/score" \
+  -H "Content-Type: application/json" \
+  -d @examples/context_risky.json \
+  | jq '.card_recommendations[0]'
+```
+
+### CLI Usage Examples
+
+```bash
+# Basic transaction scoring
+altwallet_agent score --input examples/context_basic.json
+
+# Pretty-printed output with enhanced recommendations
+altwallet_agent score --input examples/context_risky.json --pretty --json
+
+# Process checkout with merchant ID
+altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+
+# Show version information
+altwallet_agent version
+```
+
+## Smoke Test Commands
+
+### Quick Health Check
+
+```bash
+# Test API health endpoint
+curl http://localhost:8000/health
+
+# Test CLI version
+altwallet_agent version
+
+# Run basic scoring test
+altwallet_agent score --input examples/context_basic.json
+```
+
+### Comprehensive Testing
+
+```bash
+# Run all tests
+python -m pytest tests/ -v
+
+# Run golden tests for regression testing
+python -m pytest tests/golden/ -v
+
+# Test API endpoints
+python -m pytest test_api.py -v
+
+# Test CLI functionality
+python -m pytest test_cli_extended.py -v
+```
+
+### Docker Smoke Tests
+
+```bash
+# Build and test Docker image
+docker build -t altwallet/checkout-agent:0.2.0 .
+docker run --rm altwallet/checkout-agent:0.2.0 altwallet_agent version
+
+# Test API with Docker
+docker run -d -p 8000:8000 --name test-api altwallet/checkout-agent:0.2.0
+curl http://localhost:8000/health
+docker stop test-api && docker rm test-api
+```
 
 ## How Approval Odds Work
 

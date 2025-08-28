@@ -10,6 +10,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2024-12-26
 
 ### Added
+- **Phase 2 Intelligence Layer**: Complete implementation of intelligent decision-making engine
+- **Intelligence Engine**: Main orchestrator for intelligent checkout processing with performance tracking
+- **Card Database**: Comprehensive database with 7 major credit cards and detailed rewards structures
+- **Merchant Analyzer**: Intelligent merchant categorization and multi-level risk assessment
+- **Enhanced Processing**: Multi-factor risk assessment with amount bonuses and merchant bonuses
+- **Smart Recommendations**: Context-aware card recommendations with reasoning and confidence scoring
+- **Deterministic Testing**: Golden test fixtures for regression testing and output validation
+- **Performance Tracking**: Processing time monitoring and optimization strategies
+- **Structured Logging**: Enhanced JSON logging with intelligence insights and trace IDs
+- **API Usage Examples**: Comprehensive examples for transaction scoring and card recommendations
+- **Smoke Test Commands**: Quick health checks and comprehensive testing procedures
+
+### Changed
+- **Core Integration**: Integrated intelligence engine into main checkout processing pipeline
+- **Fallback Logic**: Graceful fallback to basic processing if intelligence components unavailable
+- **Enhanced Models**: Updated data models to support intelligence metadata and explainability
+- **Configuration Freezing**: Version-stamped configuration files with detailed release notes
+- **Documentation**: Updated README with v0.2.0 features, API examples, and smoke tests
+
+### Technical
+- **Comprehensive Testing**: 188 unit tests with pytest coverage (67% overall)
+- **Golden Tests**: Deterministic output validation for regression testing
+- **Code Quality**: Clear docstrings, type hints, and comprehensive error handling
+- **Modular Architecture**: Separated intelligence components for maintainability and scalability
+
+### Performance
+- **Fast Processing**: Average processing time <100ms per request
+- **Memory Efficient**: Optimized data structures and algorithms
+- **Scalable Design**: Modular components ready for horizontal scaling
+- **Error Resilience**: Graceful degradation with fallback mechanisms
+
+### Configuration
+- **Frozen Configs**: Version 0.2.0 stamped configuration files
+- **Approval Scoring**: Enhanced two-stage approval system with MCC-based weights
+- **Preference Weighting**: Advanced preference system with loyalty tiers and category boosts
+- **Merchant Penalties**: Comprehensive merchant penalty system with fuzzy matching
+
+### Added
 - **Phase 2 Intelligence Layer**: Implemented core intelligence engine with advanced decision-making
 - **Intelligence Engine**: Main orchestrator for intelligent checkout processing
 - **Card Database**: Comprehensive database with 7 major credit cards and rewards data

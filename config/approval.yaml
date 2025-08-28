@@ -1,5 +1,9 @@
 # Approval Odds Configuration
 # Two-stage approval-odds module configuration
+# Version: 0.2.0
+# Notes: Phase 2 Intelligence Layer - Enhanced risk assessment with MCC-based weights,
+#        amount-based scoring, velocity analysis, and location mismatch detection.
+#        Calibration layer supports logistic and isotonic methods.
 
 # Stage 1: Rules Layer - Feature Weights (raw log-odds contributions)
 rules_layer:
