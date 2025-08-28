@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-from src.altwallet_agent.approval_scorer import (
+from altwallet_agent.approval_scorer import (
     AdditiveAttributions,
     ApprovalResult,
     ApprovalScorer,

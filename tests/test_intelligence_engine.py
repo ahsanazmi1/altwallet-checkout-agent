@@ -8,8 +8,8 @@ from decimal import Decimal
 
 import pytest
 
-from src.altwallet_agent.intelligence import IntelligenceEngine
-from src.altwallet_agent.models import CheckoutRequest
+from altwallet_agent.intelligence import IntelligenceEngine
+from altwallet_agent.models import CheckoutRequest
 
 
 class TestIntelligenceEngine:

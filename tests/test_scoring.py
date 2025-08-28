@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from src.altwallet_agent.models import (
+from altwallet_agent.models import (
     Cart,
     CartItem,
     Context,
@@ -14,7 +14,7 @@ from src.altwallet_agent.models import (
     LoyaltyTier,
     Merchant,
 )
-from src.altwallet_agent.policy import (
+from altwallet_agent.policy import (
     RISK_SCORE_CHARGEBACKS,
     RISK_SCORE_HIGH_TICKET,
     RISK_SCORE_LOCATION_MISMATCH,
@@ -22,7 +22,7 @@ from src.altwallet_agent.policy import (
 )
 
 # Import the scoring functions
-from src.altwallet_agent.scoring import (
+from altwallet_agent.scoring import (
     ScoreResult,
     calculate_final_score,
     calculate_loyalty_boost,

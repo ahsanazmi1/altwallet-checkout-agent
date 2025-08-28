@@ -3,8 +3,8 @@
 from decimal import Decimal
 from unittest.mock import mock_open, patch
 
-from src.altwallet_agent.merchant_penalty import MerchantPenalty
-from src.altwallet_agent.models import (
+from altwallet_agent.merchant_penalty import MerchantPenalty
+from altwallet_agent.models import (
     Cart,
     CartItem,
     Context,

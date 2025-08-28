@@ -3,7 +3,7 @@
 from decimal import Decimal
 from unittest.mock import mock_open, patch
 
-from src.altwallet_agent.models import (
+from altwallet_agent.models import (
     Cart,
     CartItem,
     Context,
@@ -13,7 +13,7 @@ from src.altwallet_agent.models import (
     LoyaltyTier,
     Merchant,
 )
-from src.altwallet_agent.preference_weighting import PreferenceWeighting
+from altwallet_agent.preference_weighting import PreferenceWeighting
 
 
 class TestPreferenceWeighting:
