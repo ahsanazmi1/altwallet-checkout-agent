@@ -2,16 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ main, phase1-core-engine ]
+    branches: [ main, phase1-core-engine, phase2-intelligence ]
   pull_request:
-    branches: [ main, phase1-core-engine ]
+    branches: [ main, phase1-core-engine, phase2-intelligence ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11.9", "3.12.9"]
 
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt', '**/pyproject.toml') }}
@@ -52,10 +52,12 @@ jobs:
 
     - name: Run smoke tests
       run: |
-        pytest tests/smoke_tests.py -v
+        python tests/smoke_tests.py
+      env:
+        LOG_SILENT: "1"
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
         fail_ci_if_error: false

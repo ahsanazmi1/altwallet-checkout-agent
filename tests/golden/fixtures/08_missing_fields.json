@@ -1,0 +1,42 @@
+{
+  "customer": {
+    "id": "customer_008",
+    "loyalty_tier": "SILVER",
+    "historical_velocity_24h": 1,
+    "velocity_7d": 3,
+    "chargebacks_12m": 0
+  },
+  "merchant": {
+    "name": "Unknown Store",
+    "mcc": "5999",
+    "network_preferences": ["visa", "mastercard"],
+    "location": {
+      "city": "Unknown",
+      "country": "US"
+    }
+  },
+  "cart": {
+    "items": [
+      {
+        "name": "Miscellaneous Item",
+        "price": "25.00",
+        "quantity": 1
+      }
+    ],
+    "total_amount": "25.00"
+  },
+  "device": {
+    "ip": "192.168.1.108",
+    "location": {
+      "city": "Unknown",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "Unknown",
+    "country": "US"
+  },
+  "cross_border": false,
+  "velocity_24h": 1,
+  "velocity_7d": 3
+}

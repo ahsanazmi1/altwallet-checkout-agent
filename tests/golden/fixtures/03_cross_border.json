@@ -1,0 +1,49 @@
+{
+  "customer": {
+    "id": "customer_003",
+    "loyalty_tier": "GOLD",
+    "historical_velocity_24h": 1,
+    "velocity_7d": 5,
+    "chargebacks_12m": 0,
+    "issuer_affinity": "visa"
+  },
+  "merchant": {
+    "name": "Paris Fashion Boutique",
+    "mcc": "5651",
+    "network_preferences": ["visa", "mastercard"],
+    "location": {
+      "city": "Paris",
+      "country": "FR"
+    },
+    "risk_tier": "medium"
+  },
+  "cart": {
+    "items": [
+      {
+        "name": "Designer Handbag",
+        "price": "1200.00",
+        "quantity": 1
+      },
+      {
+        "name": "Silk Scarf",
+        "price": "180.00",
+        "quantity": 1
+      }
+    ],
+    "total_amount": "1380.00"
+  },
+  "device": {
+    "ip": "192.168.1.103",
+    "location": {
+      "city": "New York",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "Paris",
+    "country": "FR"
+  },
+  "cross_border": true,
+  "velocity_24h": 1,
+  "velocity_7d": 5
+}

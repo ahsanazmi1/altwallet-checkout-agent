@@ -54,6 +54,77 @@ class CheckoutResponse(BaseModel):
     )
 
 
+class EnhancedRecommendation(BaseModel):
+    """Enhanced card recommendation with detailed metrics and explainability."""
+
+    # Core recommendation fields
+    card_id: str = Field(..., description="Unique card identifier")
+    card_name: str = Field(..., description="Human-readable card name")
+    rank: int = Field(..., description="Recommendation rank (1-based)")
+
+    # Key metrics
+    p_approval: float = Field(..., description="Approval probability", ge=0.0, le=1.0)
+    expected_rewards: float = Field(..., description="Expected rewards rate", ge=0.0)
+    utility: float = Field(..., description="Overall utility score", ge=0.0, le=1.0)
+
+    # Explainability
+    explainability: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Explainability information including baseline, contributions, and drivers"
+        ),
+    )
+
+    # Audit information
+    audit: dict[str, Any] = Field(
+        default_factory=dict,
+        description=(
+            "Audit information including config versions, code version, and timing"
+        ),
+    )
+
+
+class ExplainabilityInfo(BaseModel):
+    """Explainability information for a recommendation."""
+
+    baseline: float = Field(..., description="Baseline score contribution")
+    contributions: list[dict[str, Any]] = Field(
+        default_factory=list, description="Per-feature contributions to the score"
+    )
+    calibration: dict[str, Any] = Field(
+        default_factory=dict, description="Calibration method and parameters"
+    )
+    top_drivers: dict[str, list[dict[str, Any]]] = Field(
+        default_factory=dict, description="Top positive and negative feature drivers"
+    )
+
+
+class AuditInfo(BaseModel):
+    """Audit information for tracking and compliance."""
+
+    config_versions: dict[str, str] = Field(
+        default_factory=dict, description="Configuration file versions"
+    )
+    code_version: str = Field(..., description="Git SHA of the deployed code")
+    request_id: str = Field(..., description="Unique request identifier")
+    latency_ms: int = Field(..., description="Processing latency in milliseconds")
+
+
+class EnhancedCheckoutResponse(BaseModel):
+    """Enhanced response model with detailed recommendations and audit information."""
+
+    transaction_id: str = Field(..., description="Unique transaction identifier")
+    recommendations: list[EnhancedRecommendation] = Field(
+        default_factory=list,
+        description="Enhanced card recommendations with explainability",
+    )
+    score: float = Field(..., description="Transaction score", ge=0, le=1)
+    status: str = Field(..., description="Processing status")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Response metadata"
+    )
+
+
 class ScoreRequest(BaseModel):
     """Request model for scoring."""
 
@@ -99,6 +170,7 @@ class LoyaltyTier(str, Enum):
     SILVER = "SILVER"
     GOLD = "GOLD"
     PLATINUM = "PLATINUM"
+    DIAMOND = "DIAMOND"
 
 
 class CartItem(BaseModel):

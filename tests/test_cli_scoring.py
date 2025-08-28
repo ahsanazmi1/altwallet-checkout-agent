@@ -163,20 +163,29 @@ def test_cli_scoring_pretty():
     print(result.stdout)
 
     if result.returncode == 0:
-        # For pretty output, we need to extract the last JSON object
-        # Split by lines and find the last JSON object
-        lines = result.stdout.strip().split("\n")
-        last_json_line = None
-        for line in lines:
-            if line.strip().startswith("{") and line.strip().endswith("}"):
-                last_json_line = line.strip()
+        # For pretty output, we need to extract the JSON object from the entire output
+        # Try to parse the entire stdout as JSON
+        try:
+            output = json.loads(result.stdout.strip())
+        except json.JSONDecodeError:
+            # If that fails, try to find JSON in the output
+            lines = result.stdout.strip().split("\n")
+            json_lines = []
+            in_json = False
+            for line in lines:
+                if line.strip().startswith("{"):
+                    in_json = True
+                if in_json:
+                    json_lines.append(line)
+                if line.strip().endswith("}"):
+                    break
 
-        if not last_json_line:
-            print("❌ No JSON output found in stdout")
-            raise AssertionError("No JSON output found in stdout")
+            if not json_lines:
+                print("❌ No JSON output found in stdout")
+                raise AssertionError("No JSON output found in stdout")
 
-        # Verify it's valid JSON
-        output = json.loads(last_json_line)
+            json_str = "\n".join(json_lines)
+            output = json.loads(json_str)
         assert "trace_id" in output
         assert "risk_score" in output
         print("✅ Pretty output test passed!")

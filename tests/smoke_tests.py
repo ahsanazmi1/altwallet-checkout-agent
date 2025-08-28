@@ -1,139 +1,268 @@
-"""Smoke tests for AltWallet Checkout Agent."""
+#!/usr/bin/env python3
+"""Smoke tests for the AltWallet Checkout Agent.
+
+This module runs 3 representative scenarios and emits compact JSON lines
+for CI integration and monitoring.
+"""
 
 import json
-import subprocess
 import sys
-from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
-import pytest
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from altwallet_agent import CheckoutAgent
-from altwallet_agent.models import CheckoutRequest, ScoreRequest
+from decimal import Decimal
 
-
-def test_agent_initialization():
-    """Test that the agent can be initialized."""
-    agent = CheckoutAgent()
-    assert agent is not None
-    assert hasattr(agent, "process_checkout")
-    assert hasattr(agent, "score_transaction")
-
-
-def test_checkout_request_validation():
-    """Test checkout request validation."""
-    request = CheckoutRequest(
-        merchant_id="test_merchant", amount=Decimal("100.50"), currency="USD"
-    )
-    assert request.merchant_id == "test_merchant"
-    assert request.amount == Decimal("100.50")
-    assert request.currency == "USD"
+from altwallet_agent.approval_scorer import ApprovalScorer
+from altwallet_agent.composite_utility import CompositeUtility
+from altwallet_agent.models import (
+    Cart,
+    CartItem,
+    Context,
+    Customer,
+    Device,
+    Geo,
+    LoyaltyTier,
+    Merchant,
+)
 
 
-def test_score_request_validation():
-    """Test score request validation."""
-    request = ScoreRequest(transaction_data={"amount": 100, "merchant": "test"})
-    assert request.transaction_data["amount"] == 100
-    assert request.transaction_data["merchant"] == "test"
+class SmokeTester:
+    """Smoke test runner for representative scenarios."""
 
+    def __init__(self):
+        """Initialize the smoke tester."""
+        self.approval_scorer = ApprovalScorer()
+        self.composite_utility = CompositeUtility()
 
-def test_checkout_processing():
-    """Test basic checkout processing."""
-    agent = CheckoutAgent()
-    request = CheckoutRequest(
-        merchant_id="test_merchant", amount=Decimal("50.00"), currency="USD"
-    )
+        # Sample cards for utility testing
+        self.sample_cards = [
+            {
+                "card_id": "chase_sapphire_preferred",
+                "name": "Chase Sapphire Preferred",
+                "cashback_rate": 0.02,
+                "category_bonuses": {
+                    "4511": 2.0,  # Airlines
+                    "5812": 2.0,  # Restaurants
+                    "4722": 2.0,  # Travel agencies
+                },
+                "issuer": "chase",
+                "annual_fee": 95,
+                "rewards_type": "points",
+            },
+            {
+                "card_id": "amex_gold",
+                "name": "American Express Gold",
+                "cashback_rate": 0.04,
+                "category_bonuses": {
+                    "5812": 4.0,  # Restaurants
+                    "5411": 4.0,  # Grocery stores
+                },
+                "issuer": "american_express",
+                "annual_fee": 250,
+                "rewards_type": "points",
+            },
+            {
+                "card_id": "chase_freedom_unlimited",
+                "name": "Chase Freedom Unlimited",
+                "cashback_rate": 0.015,
+                "category_bonuses": {},
+                "issuer": "chase",
+                "annual_fee": 0,
+                "rewards_type": "cashback",
+            },
+        ]
 
-    response = agent.process_checkout(request)
-
-    assert response.transaction_id is not None
-    assert response.score >= 0 and response.score <= 1
-    assert response.status == "completed"
-    assert isinstance(response.recommendations, list)
-
-
-def test_transaction_scoring():
-    """Test basic transaction scoring."""
-    agent = CheckoutAgent()
-    request = ScoreRequest(
-        transaction_data={"amount": 100, "merchant_category": "dining"}
-    )
-
-    response = agent.score_transaction(request)
-
-    assert response.score >= 0 and response.score <= 1
-    assert response.confidence >= 0 and response.confidence <= 1
-    assert isinstance(response.factors, list)
-
-
-def test_agent_with_config():
-    """Test agent initialization with configuration."""
-    config = {"test_mode": True, "debug": True}
-    agent = CheckoutAgent(config=config)
-    assert agent.config == config
-
-
-def test_cli_with_context_basic():
-    """Test CLI with examples/context_basic.json produces valid JSON."""
-    # Get the project root directory
-    project_root = Path(__file__).parent.parent
-    context_file = project_root / "examples" / "context_basic.json"
-
-    assert context_file.exists(), f"Context file not found: {context_file}"
-
-    try:
-        # Run the CLI command
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "altwallet_agent",
-                "score",
-                "--input",
-                str(context_file),
-            ],
-            capture_output=True,
-            text=True,
-            cwd=project_root,
-            check=True,
+    def create_grocery_scenario(self) -> Context:
+        """Create a grocery shopping scenario."""
+        return Context(
+            customer=Customer(
+                id="smoke_grocery",
+                loyalty_tier=LoyaltyTier.SILVER,
+                historical_velocity_24h=2,
+                chargebacks_12m=0,
+            ),
+            merchant=Merchant(
+                name="Local Grocery Store",
+                mcc="5411",
+                network_preferences=["visa", "mastercard"],
+                location={"city": "Austin", "country": "US"},
+            ),
+            cart=Cart(
+                items=[
+                    CartItem(item="Organic Bananas", unit_price=Decimal("3.99"), qty=1),
+                    CartItem(item="Whole Milk", unit_price=Decimal("4.50"), qty=1),
+                ],
+            ),
+            device=Device(
+                ip="192.168.1.100", location={"city": "Austin", "country": "US"}
+            ),
+            geo=Geo(city="Austin", country="US"),
         )
 
-        # Extract the JSON output from the last line (after log messages)
-        lines = result.stdout.strip().split("\n")
-        json_line = lines[-1]  # Last line should be the JSON output
+    def create_travel_scenario(self) -> Context:
+        """Create a travel booking scenario."""
+        return Context(
+            customer=Customer(
+                id="smoke_travel",
+                loyalty_tier=LoyaltyTier.PLATINUM,
+                historical_velocity_24h=1,
+                chargebacks_12m=0,
+            ),
+            merchant=Merchant(
+                name="Travel Agency",
+                mcc="4722",
+                network_preferences=["american_express", "visa"],
+                location={"city": "Miami", "country": "US"},
+            ),
+            cart=Cart(
+                items=[
+                    CartItem(
+                        item="Flight to Tokyo", unit_price=Decimal("8500.00"), qty=1
+                    ),
+                    CartItem(
+                        item="Hotel Booking", unit_price=Decimal("3200.00"), qty=1
+                    ),
+                ],
+            ),
+            device=Device(
+                ip="192.168.1.101", location={"city": "Miami", "country": "US"}
+            ),
+            geo=Geo(city="Miami", country="US"),
+        )
 
-        # Parse the JSON output
-        output_data = json.loads(json_line)
+    def create_high_risk_scenario(self) -> Context:
+        """Create a high-risk transaction scenario."""
+        return Context(
+            customer=Customer(
+                id="smoke_high_risk",
+                loyalty_tier=LoyaltyTier.GOLD,
+                historical_velocity_24h=15,
+                chargebacks_12m=1,
+            ),
+            merchant=Merchant(
+                name="Online Casino",
+                mcc="7995",
+                network_preferences=["visa", "mastercard"],
+                location={"city": "Las Vegas", "country": "US"},
+            ),
+            cart=Cart(
+                items=[
+                    CartItem(
+                        item="Gaming Credits", unit_price=Decimal("500.00"), qty=1
+                    ),
+                ],
+            ),
+            device=Device(
+                ip="192.168.1.102", location={"city": "Los Angeles", "country": "US"}
+            ),
+            geo=Geo(city="Las Vegas", country="US"),
+        )
 
-        # Assert it has the required fields
-        assert "final_score" in output_data, "Missing final_score field"
-        assert "risk_score" in output_data, "Missing risk_score field"
-        assert "loyalty_boost" in output_data, "Missing loyalty_boost field"
-        assert "routing_hint" in output_data, "Missing routing_hint field"
-        assert "signals" in output_data, "Missing signals field"
+    def run_scenario(self, scenario_name: str, context: Context) -> dict[str, Any]:
+        """Run a single scenario and return results."""
+        # Convert context to dict for approval scorer
+        context_dict = {
+            "mcc": context.merchant.mcc,
+            "amount": context.cart.total,
+            "issuer_family": "visa",  # Default
+            "cross_border": False,
+            "location_mismatch_distance": self._calculate_location_mismatch_distance(
+                context
+            ),
+            "velocity_24h": context.customer.historical_velocity_24h,
+            "velocity_7d": context.customer.historical_velocity_24h * 4,  # Estimate
+            "chargebacks_12m": context.customer.chargebacks_12m,
+            "merchant_risk_tier": "low",
+            "loyalty_tier": context.customer.loyalty_tier.value,
+        }
 
-        # Assert score values are reasonable
-        assert isinstance(
-            output_data["final_score"], (int, float)
-        ), "final_score numeric"
-        assert isinstance(output_data["risk_score"], (int, float)), "risk_score numeric"
-        assert isinstance(
-            output_data["loyalty_boost"], (int, float)
-        ), "loyalty_boost numeric"
+        # Run approval scoring
+        approval_result = self.approval_scorer.score(context_dict)
 
-        # Assert score ranges
-        assert 0 <= output_data["risk_score"] <= 100, "risk_score should be 0-100"
-        assert 0 <= output_data["loyalty_boost"] <= 20, "loyalty_boost should be 0-20"
-        assert 0 <= output_data["final_score"] <= 120, "final_score should be 0-120"
+        # Run composite utility scoring
+        ranked_cards = self.composite_utility.rank_cards_by_utility(
+            self.sample_cards, context
+        )
 
-        # Assert signals is a dictionary
-        assert isinstance(output_data["signals"], dict), "signals should be dict"
+        # Get top card and utility
+        top_card = ranked_cards[0]["card_id"] if ranked_cards else "unknown"
+        top_utility = ranked_cards[0]["utility_score"] if ranked_cards else 0.0
 
-    except subprocess.CalledProcessError as e:
-        pytest.fail(f"CLI command failed: {e.stderr}")
-    except json.JSONDecodeError as e:
-        pytest.fail(f"Failed to parse JSON output: {e}")
+        return {
+            "scenario": scenario_name,
+            "p_approval": round(approval_result.p_approval, 3),
+            "top_card": top_card,
+            "utility": round(top_utility, 4),
+            "raw_score": round(approval_result.raw_score, 1),
+            "risk_signals": {
+                "location_mismatch": self._calculate_location_mismatch_distance(context)
+                > 0,
+                "high_velocity": context.customer.historical_velocity_24h > 10,
+                "chargeback_history": context.customer.chargebacks_12m > 0,
+            },
+            "status": "pass" if approval_result.p_approval > 0.005 else "fail",
+        }
+
+    def _calculate_location_mismatch_distance(self, context: Context) -> float:
+        """Calculate location mismatch distance."""
+        try:
+            device = context.device
+            geo = context.geo
+
+            if (
+                device.location.get("city") == geo.city
+                and device.location.get("country") == geo.country
+            ):
+                return 0.0
+            elif device.location.get("country") == geo.country:
+                return 50.0  # Same country, different city
+            else:
+                return 200.0  # Different country
+        except Exception:
+            return 0.0
+
+    def run_all_scenarios(self) -> list:
+        """Run all smoke test scenarios."""
+        scenarios = [
+            ("grocery", self.create_grocery_scenario()),
+            ("travel", self.create_travel_scenario()),
+            ("high_risk", self.create_high_risk_scenario()),
+        ]
+
+        results = []
+        for scenario_name, context in scenarios:
+            try:
+                result = self.run_scenario(scenario_name, context)
+                results.append(result)
+            except Exception as e:
+                results.append(
+                    {"scenario": scenario_name, "error": str(e), "status": "error"}
+                )
+
+        return results
+
+
+def main():
+    """Main entry point for smoke tests."""
+    tester = SmokeTester()
+    results = tester.run_all_scenarios()
+
+    # Emit compact JSON lines for CI
+    for result in results:
+        print(json.dumps(result, separators=(",", ":")))
+
+    # Check for failures
+    failed_scenarios = [r for r in results if r.get("status") == "fail"]
+    error_scenarios = [r for r in results if r.get("status") == "error"]
+
+    if failed_scenarios or error_scenarios:
+        sys.exit(1)
+
+    sys.exit(0)
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    main()
