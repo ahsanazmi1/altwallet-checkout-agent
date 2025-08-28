@@ -1,0 +1,35 @@
+{
+  "p_approval": 0.13,
+  "top_card": "amex_gold",
+  "utility": 0.0196,
+  "top_feature_drivers": [
+    {
+      "feature": "amount_contribution",
+      "contribution": -1.0,
+      "description": "Amount Contribution contribution"
+    },
+    {
+      "feature": "mcc_contribution",
+      "contribution": -0.5,
+      "description": "Mcc Contribution contribution"
+    },
+    {
+      "feature": "location_mismatch_contribution",
+      "contribution": -0.5,
+      "description": "Location Mismatch Contribution contribution"
+    },
+    {
+      "feature": "chargeback_contribution",
+      "contribution": -0.5,
+      "description": "Chargeback Contribution contribution"
+    }
+  ],
+  "raw_score": -1.9,
+  "calibration_method": "logistic",
+  "risk_signals": {
+    "location_mismatch": true,
+    "cross_border": false,
+    "high_velocity": false,
+    "chargeback_history": true
+  }
+}

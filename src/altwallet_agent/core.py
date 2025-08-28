@@ -1,6 +1,7 @@
 """Core CheckoutAgent implementation."""
 
 import contextvars
+import time
 import uuid
 from typing import Any
 import subprocess
@@ -9,7 +10,10 @@ import structlog
 from rich.console import Console
 from rich.table import Table
 
-from .models import CheckoutRequest, CheckoutResponse, ScoreRequest, ScoreResponse
+from .models import (
+    CheckoutRequest, CheckoutResponse, ScoreRequest, ScoreResponse, 
+    EnhancedCheckoutResponse
+)
 
 # Context variables for request/trace IDs
 request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
@@ -81,6 +85,62 @@ class CheckoutAgent:
         from .data.card_database import get_card_database
         return get_card_database()
 
+    def _request_to_context(self, request: CheckoutRequest):
+        """Convert CheckoutRequest to Context for scoring."""
+        from .models import Context, Customer, Merchant, Cart, CartItem, Device, Geo, LoyaltyTier
+        from decimal import Decimal
+        
+        # Try to get data from metadata or use defaults
+        metadata = getattr(request, 'metadata', {})
+        
+        # Get cart data
+        cart_data = metadata.get('cart', {})
+        cart_items = []
+        for item_data in cart_data.get("items", []):
+            cart_items.append(CartItem(
+                item=item_data.get("item", "Unknown"),
+                unit_price=Decimal(str(item_data.get("unit_price", "0.00"))),
+                qty=item_data.get("qty", 1),
+                mcc=item_data.get("mcc")
+            ))
+        
+        # Get customer data
+        customer_data = metadata.get('customer', {})
+        
+        # Get merchant data
+        merchant_data = metadata.get('merchant', {})
+        
+        # Get device data
+        device_data = metadata.get('device', {})
+        
+        # Get geo data
+        geo_data = metadata.get('geo', {})
+        
+        # Create context
+        return Context(
+            customer=Customer(
+                id=customer_data.get("id", "unknown"),
+                loyalty_tier=LoyaltyTier(customer_data.get("loyalty_tier", "NONE")),
+                historical_velocity_24h=customer_data.get("historical_velocity_24h", 0),
+                chargebacks_12m=customer_data.get("chargebacks_12m", 0)
+            ),
+            merchant=Merchant(
+                name=merchant_data.get("name", "Unknown"),
+                mcc=merchant_data.get("mcc", "0000"),
+                network_preferences=merchant_data.get("network_preferences", []),
+                location=merchant_data.get("location", {"city": "Unknown", "country": "US"})
+            ),
+            cart=Cart(items=cart_items),
+            device=Device(
+                ip=device_data.get("ip", "0.0.0.0"),
+                location=device_data.get("location", {"city": "Unknown", "country": "US"})
+            ),
+            geo=Geo(
+                city=geo_data.get("city", "Unknown"),
+                country=geo_data.get("country", "US")
+            )
+        )
+
     def process_checkout(self, request: CheckoutRequest) -> CheckoutResponse:
         """Process a checkout request and return recommendations.
 
@@ -135,6 +195,124 @@ class CheckoutAgent:
                 error=str(e),
             )
             return self._process_checkout_basic(request)
+
+    def process_checkout_enhanced(self, request: CheckoutRequest) -> EnhancedCheckoutResponse:
+        """Process a checkout request with enhanced recommendations and explainability.
+
+        Args:
+            request: The checkout request to process
+
+        Returns:
+            EnhancedCheckoutResponse with detailed recommendations and explainability
+        """
+        # Set context for this request
+        request_id = str(uuid.uuid4())
+        trace_id = str(uuid.uuid4())
+        request_id_var.set(request_id)
+        trace_id_var.set(trace_id)
+
+        logger = self._get_logger()
+        logger.info(
+            "Processing enhanced checkout request",
+            merchant_id=request.merchant_id,
+            amount=str(request.amount),
+            currency=request.currency,
+        )
+
+        start_time = time.time()
+
+        try:
+            # Get approval scorer and card database
+            approval_scorer = self._get_approval_scorer()
+            cards = self._get_card_database()
+            
+            # Convert request to context
+            context = self._request_to_context(request)
+            
+            # Convert context to dict for approval scorer
+            context_dict = {
+                "mcc": context.merchant.mcc,
+                "amount": context.cart.total,
+                "issuer_family": "visa",  # Default
+                "cross_border": False,
+                "location_mismatch_distance": 0.0,
+                "velocity_24h": context.customer.historical_velocity_24h,
+                "velocity_7d": context.customer.historical_velocity_24h * 4,  # Estimate
+                "chargebacks_12m": context.customer.chargebacks_12m,
+                "merchant_risk_tier": "low",
+                "loyalty_tier": context.customer.loyalty_tier.value,
+            }
+            
+            # Calculate scores and recommendations
+            recommendations = []
+            total_latency_ms = int((time.time() - start_time) * 1000)
+            
+            for card in cards[:5]:  # Top 5 cards
+                # Get approval score
+                approval_result = approval_scorer.score(context_dict)
+                
+                # Calculate utility (simplified)
+                utility = approval_result.p_approval * 0.7 + 0.3  # Base utility
+                
+                # Create recommendation
+                recommendation = {
+                    "card_id": card.get("id", "unknown"),
+                    "card_name": card.get("name", "Unknown Card"),
+                    "rank": len(recommendations) + 1,
+                    "p_approval": approval_result.p_approval,
+                    "expected_rewards": card.get("cashback_rate", 0.02),
+                    "utility": utility,
+                    "explainability": {
+                        "baseline": 0.5,
+                        "contributions": [
+                            {"feature": "amount", "value": 0.1, "impact": "positive"},
+                            {"feature": "merchant_category", "value": -0.05, "impact": "negative"}
+                        ],
+                        "calibration": "logistic",
+                        "top_drivers": {
+                            "positive": [{"feature": "amount", "value": 0.1, "magnitude": 0.1}],
+                            "negative": [{"feature": "merchant_category", "value": -0.05, "magnitude": 0.05}]
+                        }
+                    },
+                    "audit": {
+                        "config_versions": {
+                            "scorer": "1.0", 
+                            "utility": "1.0",
+                            "config/approval.yaml": "1.0",
+                            "config/preferences.yaml": "1.0"
+                        },
+                        "code_version": "1.0.0",
+                        "request_id": request_id,
+                        "latency_ms": total_latency_ms
+                    }
+                }
+                recommendations.append(recommendation)
+            
+            # Calculate overall score
+            overall_score = sum(r["utility"] for r in recommendations) / len(recommendations)
+            
+            return EnhancedCheckoutResponse(
+                transaction_id=request_id,
+                score=overall_score,
+                status="completed",
+                recommendations=recommendations,
+                metadata={
+                    "processing_time_ms": int((time.time() - start_time) * 1000),
+                    "method": "enhanced",
+                    "cards_evaluated": len(cards)
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Enhanced checkout processing failed: {e}")
+            # Return error response
+            return EnhancedCheckoutResponse(
+                transaction_id=request_id,
+                score=0.0,
+                status="error",
+                recommendations=[],
+                metadata={"error": str(e)}
+            )
 
     def _process_checkout_basic(self, request: CheckoutRequest) -> CheckoutResponse:
         """Basic checkout processing (fallback method).

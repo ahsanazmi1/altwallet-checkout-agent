@@ -344,3 +344,18 @@ class CardDatabase:
             matching_cards.append(card_id)
 
         return matching_cards
+
+
+def get_card_database() -> List[Dict[str, Any]]:
+    """Get the card database as a list of card dictionaries.
+    
+    Returns:
+        List[Dict[str, Any]]: List of card dictionaries with metadata
+    """
+    db = CardDatabase()
+    cards = []
+    for card_id, card_data in db.cards.items():
+        card_dict = card_data.copy()
+        card_dict["id"] = card_id
+        cards.append(card_dict)
+    return cards

@@ -1,0 +1,104 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run pytest with verbose output
+      run: |
+        python -m pytest -vv --tb=short --quiet
+      env:
+        # Fail on snapshot drift unless UPDATE_GOLDEN=1 is set
+        UPDATE_GOLDEN: ""
+    
+    - name: Run smoke tests
+      run: |
+        python tests/smoke_tests.py
+      env:
+        # Keep logs quiet in CI
+        PYTHONWARNINGS: "ignore"
+    
+    - name: Check for snapshot drift
+      run: |
+        # Run golden tests to check for drift
+        python -m pytest tests/test_golden.py -v --tb=no -q
+      env:
+        # Fail if snapshots don't match (UPDATE_GOLDEN not set)
+        UPDATE_GOLDEN: ""
+      continue-on-error: false
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          .pytest_cache/
+          htmlcov/
+          coverage.xml
+        retention-days: 7
+
+  # Separate job for updating golden snapshots (manual trigger)
+  update-golden:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_golden == 'true'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest
+    
+    - name: Update golden snapshots
+      run: |
+        python -m pytest tests/test_golden.py -v --tb=no
+      env:
+        UPDATE_GOLDEN: "1"
+    
+    - name: Commit updated snapshots
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add tests/golden/snapshots/
+        git commit -m "Update golden snapshots [skip ci]" || echo "No changes to commit"
+        git push

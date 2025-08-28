@@ -1,0 +1,49 @@
+{
+  "customer": {
+    "id": "customer_002",
+    "loyalty_tier": "PLATINUM",
+    "historical_velocity_24h": 1,
+    "velocity_7d": 3,
+    "chargebacks_12m": 0,
+    "issuer_affinity": "american_express"
+  },
+  "merchant": {
+    "name": "Luxury Travel Agency",
+    "mcc": "4722",
+    "network_preferences": ["american_express", "visa"],
+    "location": {
+      "city": "Miami",
+      "country": "US"
+    },
+    "risk_tier": "low"
+  },
+  "cart": {
+    "items": [
+      {
+        "name": "First Class Flight to Tokyo",
+        "price": "8500.00",
+        "quantity": 1
+      },
+      {
+        "name": "5-Star Hotel Booking",
+        "price": "3200.00",
+        "quantity": 1
+      }
+    ],
+    "total_amount": "11700.00"
+  },
+  "device": {
+    "ip": "192.168.1.101",
+    "location": {
+      "city": "Miami",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "Miami",
+    "country": "US"
+  },
+  "cross_border": false,
+  "velocity_24h": 1,
+  "velocity_7d": 3
+}
