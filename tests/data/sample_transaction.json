@@ -1,0 +1,13 @@
+{
+    "amount": 150.00,
+    "merchant_category": "dining",
+    "merchant_name": "Sample Restaurant",
+    "currency": "USD",
+    "timestamp": "2024-01-15T12:30:00Z",
+    "user_id": "user_123",
+    "location": {
+        "city": "New York",
+        "state": "NY",
+        "country": "US"
+    }
+}

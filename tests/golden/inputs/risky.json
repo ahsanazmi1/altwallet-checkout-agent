@@ -1,0 +1,45 @@
+{
+    "cart": {
+        "items": [
+            {
+                "item": "High-End Electronics",
+                "unit_price": "899.99",
+                "qty": 1,
+                "mcc": "5732",
+                "merchant_category": "Electronics Stores"
+            }
+        ],
+        "currency": "USD"
+    },
+    "merchant": {
+        "name": "Electronics Store",
+        "mcc": "5732",
+        "network_preferences": [],
+        "location": {
+            "city": "Los Angeles",
+            "country": "US"
+        }
+    },
+    "customer": {
+        "id": "customer_67890",
+        "loyalty_tier": "NONE",
+        "historical_velocity_24h": 15,
+        "chargebacks_12m": 2
+    },
+    "device": {
+        "ip": "192.168.1.200",
+        "device_id": "device_def456",
+        "ip_distance_km": 3500.0,
+        "location": {
+            "city": "New York",
+            "country": "US"
+        }
+    },
+    "geo": {
+        "city": "Los Angeles",
+        "region": "CA",
+        "country": "US",
+        "lat": 34.0522,
+        "lon": -118.2437
+    }
+}

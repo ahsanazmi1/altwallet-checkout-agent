@@ -1,0 +1,53 @@
+{
+  "customer": {
+    "id": "customer_005",
+    "loyalty_tier": "GOLD",
+    "historical_velocity_24h": 3,
+    "velocity_7d": 12,
+    "chargebacks_12m": 0,
+    "issuer_affinity": "chase"
+  },
+  "merchant": {
+    "name": "Premium Restaurant",
+    "mcc": "5812",
+    "network_preferences": ["visa", "mastercard", "american_express"],
+    "location": {
+      "city": "Chicago",
+      "country": "US"
+    },
+    "risk_tier": "low"
+  },
+  "cart": {
+    "items": [
+      {
+        "name": "Tasting Menu",
+        "price": "250.00",
+        "quantity": 2
+      },
+      {
+        "name": "Wine Pairing",
+        "price": "120.00",
+        "quantity": 1
+      }
+    ],
+    "total_amount": "620.00"
+  },
+  "device": {
+    "ip": "192.168.1.105",
+    "location": {
+      "city": "Chicago",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "Chicago",
+    "country": "US"
+  },
+  "cross_border": false,
+  "velocity_24h": 3,
+  "velocity_7d": 12,
+  "promotions": {
+    "restaurant_bonus": 0.05,
+    "gold_tier_boost": 0.02
+  }
+}
