@@ -20,7 +20,7 @@ class CardDatabase:
         categories: Dictionary of merchant categories and their codes
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the card database with comprehensive card data."""
         self.cards = self._initialize_cards()
         self.categories = self._initialize_categories()
@@ -282,9 +282,11 @@ class CardDatabase:
         base_rate = card_data["base_rewards_rate"]
 
         if category and category in card_data.get("category_bonuses", {}):
-            return card_data["category_bonuses"][category]
+            bonus_rate = card_data["category_bonuses"][category]
+            if isinstance(bonus_rate, (int, float)):
+                return float(bonus_rate)
 
-        return base_rate
+        return float(base_rate)
 
     def get_category_info(self, category: str) -> dict[str, Any] | None:
         """Get category information by name.

@@ -40,7 +40,7 @@ class MerchantPenalty:
             Configuration dictionary
         """
         if config_path is None:
-            config_path = (
+            config_path = str(
                 Path(__file__).parent.parent.parent
                 / "config"
                 / "merchant_penalties.yaml"

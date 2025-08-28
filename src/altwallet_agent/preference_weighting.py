@@ -40,7 +40,7 @@ class PreferenceWeighting:
             Configuration dictionary
         """
         if config_path is None:
-            config_path = (
+            config_path = str(
                 Path(__file__).parent.parent.parent / "config" / "preferences.yaml"
             )
 
@@ -140,7 +140,10 @@ class PreferenceWeighting:
 
         except Exception as e:
             logger.error(f"Error calculating preference weight: {e}")
-            return self.config["calculation"]["base_weight"]
+            base_weight = self.config["calculation"]["base_weight"]
+            if isinstance(base_weight, (int, float)):
+                return float(base_weight)
+            return 1.0
 
     def _calculate_user_preference_weight(
         self, card: dict[str, Any], context: Context
@@ -185,7 +188,10 @@ class PreferenceWeighting:
     def _calculate_loyalty_weight(self, context: Context) -> float:
         """Calculate weight based on customer loyalty tier."""
         loyalty_tier = context.customer.loyalty_tier
-        return self.config["loyalty_tiers"].get(loyalty_tier.value, 1.0)
+        loyalty_weight = self.config["loyalty_tiers"].get(loyalty_tier.value, 1.0)
+        if isinstance(loyalty_weight, (int, float)):
+            return float(loyalty_weight)
+        return 1.0
 
     def _calculate_category_weight(
         self, card: dict[str, Any], context: Context
@@ -203,7 +209,10 @@ class PreferenceWeighting:
                     break
 
         if not mcc:
-            return self.config["category_boosts"].get("default", 1.0)
+            default_boost = self.config["category_boosts"].get("default", 1.0)
+            if isinstance(default_boost, (int, float)):
+                return float(default_boost)
+            return 1.0
 
         # Check if card has category bonuses that match the MCC
         category_bonuses = card.get("category_bonuses", {})
@@ -223,10 +232,16 @@ class PreferenceWeighting:
             category = mcc_to_category.get(mcc)
             if category and category in category_bonuses:
                 # Boost for cards with relevant category bonuses
-                return self.config["category_boosts"].get(mcc, 1.0) * 1.05
+                boost = self.config["category_boosts"].get(mcc, 1.0)
+                if isinstance(boost, (int, float)):
+                    return float(boost) * 1.05
+                return 1.05
 
         # Return category boost if available, otherwise default
-        return self.config["category_boosts"].get(mcc, 1.0)
+        boost = self.config["category_boosts"].get(mcc, 1.0)
+        if isinstance(boost, (int, float)):
+            return float(boost)
+        return 1.0
 
     def _calculate_promotion_weight(
         self, card: dict[str, Any], context: Context
@@ -251,7 +266,9 @@ class PreferenceWeighting:
             if self._is_promotion_active(promotion_data, current_date):
                 affected_categories = promotion_data.get("affected_categories", [])
                 if self._is_category_affected(affected_categories, context):
-                    weight *= promotion_data.get("multiplier", 1.0)
+                    multiplier = promotion_data.get("multiplier", 1.0)
+                    if isinstance(multiplier, (int, float)):
+                        weight *= float(multiplier)
 
         return weight
 

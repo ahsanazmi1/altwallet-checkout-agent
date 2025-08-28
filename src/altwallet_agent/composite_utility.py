@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 class CompositeUtility:
     """Calculates composite utility scores for card recommendations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the composite utility calculator."""
         self.preference_weighting = PreferenceWeighting()
         self.merchant_penalty = MerchantPenalty()

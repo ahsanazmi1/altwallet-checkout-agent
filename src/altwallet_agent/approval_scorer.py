@@ -99,7 +99,7 @@ class LogisticCalibrator(Calibrator):
 class IsotonicCalibrator(Calibrator):
     """Isotonic calibration (placeholder for future implementation)."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         # TODO: Implement isotonic calibration with learned parameters
         self.bias = kwargs.get("bias", 0.0)
         self.scale = kwargs.get("scale", 1.0)
@@ -239,9 +239,13 @@ class ApprovalScorer:
                 return 0.0
 
             # Simple distance calculation (in practice, would use proper geocoding)
-            if device.city == geo.city and device.country == geo.country:
+            device_location = device.location or {}
+            device_city = device_location.get("city", "")
+            device_country = device_location.get("country", "")
+            
+            if device_city == geo.city and device_country == geo.country:
                 return 0.0
-            elif device.country == geo.country:
+            elif device_country == geo.country:
                 return 50.0  # Same country, different city
             else:
                 return 200.0  # Different country
@@ -305,7 +309,19 @@ class ApprovalScorer:
         self, context: dict[str, Any]
     ) -> tuple[float, FeatureAttributions, AdditiveAttributions]:
         """Calculate raw log-odds score from deterministic signals."""
-        attributions = FeatureAttributions()
+        attributions = FeatureAttributions(
+            mcc_contribution=0.0,
+            amount_contribution=0.0,
+            issuer_contribution=0.0,
+            cross_border_contribution=0.0,
+            location_mismatch_contribution=0.0,
+            velocity_24h_contribution=0.0,
+            velocity_7d_contribution=0.0,
+            chargeback_contribution=0.0,
+            merchant_risk_contribution=0.0,
+            loyalty_contribution=0.0,
+            base_contribution=0.0,
+        )
 
         # MCC weight - default to unknown (neutral) if missing
         mcc = context.get("mcc", "unknown")

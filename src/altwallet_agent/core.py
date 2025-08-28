@@ -13,7 +13,9 @@ from rich.table import Table
 from .models import (
     CheckoutRequest,
     CheckoutResponse,
+    Context,
     EnhancedCheckoutResponse,
+    EnhancedRecommendation,
     ScoreRequest,
     ScoreResponse,
 )
@@ -82,7 +84,7 @@ class CheckoutAgent:
         except subprocess.CalledProcessError:
             return "unknown"
 
-    def _get_approval_scorer(self):
+    def _get_approval_scorer(self) -> Any:
         """Get approval scorer instance."""
         from .approval_scorer import ApprovalScorer
 
@@ -94,7 +96,7 @@ class CheckoutAgent:
 
         return get_card_database()
 
-    def _request_to_context(self, request: CheckoutRequest):
+    def _request_to_context(self, request: CheckoutRequest) -> Context:
         """Convert CheckoutRequest to Context for scoring."""
         from decimal import Decimal
 
@@ -122,6 +124,7 @@ class CheckoutAgent:
                     unit_price=Decimal(str(item_data.get("unit_price", "0.00"))),
                     qty=item_data.get("qty", 1),
                     mcc=item_data.get("mcc"),
+                    merchant_category=item_data.get("merchant_category"),
                 )
             )
 
@@ -156,13 +159,18 @@ class CheckoutAgent:
             cart=Cart(items=cart_items),
             device=Device(
                 ip=device_data.get("ip", "0.0.0.0"),
+                device_id=device_data.get("device_id"),
+                ip_distance_km=device_data.get("ip_distance_km"),
                 location=device_data.get(
                     "location", {"city": "Unknown", "country": "US"}
                 ),
             ),
             geo=Geo(
                 city=geo_data.get("city", "Unknown"),
+                region=geo_data.get("region"),
                 country=geo_data.get("country", "US"),
+                lat=geo_data.get("lat"),
+                lon=geo_data.get("lon"),
             ),
         )
 
@@ -271,7 +279,7 @@ class CheckoutAgent:
             }
 
             # Calculate scores and recommendations
-            recommendations = []
+            recommendations: list[dict[str, Any]] = []
             total_latency_ms = int((time.time() - start_time) * 1000)
 
             for card in cards[:5]:  # Top 5 cards
@@ -332,11 +340,26 @@ class CheckoutAgent:
                 recommendations
             )
 
+            # Convert recommendations to EnhancedRecommendation objects
+            enhanced_recommendations = []
+            for rec in recommendations:
+                enhanced_rec = EnhancedRecommendation(
+                    card_id=rec["card_id"],
+                    card_name=rec["card_name"],
+                    rank=rec["rank"],
+                    p_approval=rec["p_approval"],
+                    expected_rewards=rec["expected_rewards"],
+                    utility=rec["utility"],
+                    explainability=rec["explainability"],
+                    audit=rec["audit"],
+                )
+                enhanced_recommendations.append(enhanced_rec)
+
             return EnhancedCheckoutResponse(
                 transaction_id=request_id,
                 score=overall_score,
                 status="completed",
-                recommendations=recommendations,
+                recommendations=enhanced_recommendations,
                 metadata={
                     "processing_time_ms": int((time.time() - start_time) * 1000),
                     "method": "enhanced",
