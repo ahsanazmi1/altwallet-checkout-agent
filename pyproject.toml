@@ -49,7 +49,7 @@ dev = [
 ]
 
 [project.scripts]
-altwallet_agent = "altwallet_agent.cli:app"
+altwallet_agent = "altwallet_agent.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/altwallet/checkout-agent"

@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .composite_utility import CompositeUtility
+from .decisioning import DecisionContract, DecisionEngine
 from .intelligence import IntelligenceEngine
 from .logger import get_logger, set_trace_id
 from .models import Context
@@ -70,6 +71,21 @@ class ExplainResponse(BaseModel):
     metadata: dict[str, Any] | None = None
 
 
+class DecisionRequest(BaseModel):
+    """Request model for decision endpoint."""
+
+    context_data: dict[str, Any]
+
+
+class DecisionResponse(BaseModel):
+    """Response model for decision endpoint."""
+
+    decision_contract: DecisionContract
+    transaction_id: str
+    status: str
+    metadata: dict[str, Any] | None = None
+
+
 # Create FastAPI app
 app = FastAPI(
     title="AltWallet Checkout Agent API",
@@ -95,6 +111,7 @@ app.add_middleware(
 # Initialize components
 composite_utility = CompositeUtility()
 intelligence_engine = IntelligenceEngine()
+decision_engine = DecisionEngine()
 start_time = time.time()
 
 
@@ -395,6 +412,53 @@ async def explain_endpoint(request: ExplainRequest) -> ExplainResponse:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post("/v1/decision", response_model=DecisionResponse)
+async def decision_endpoint(request: DecisionRequest) -> DecisionResponse:
+    """Make a transaction decision with full decision contract."""
+    logger = get_logger(__name__)
+    start_time = time.time()
+
+    try:
+        # Parse context from request data
+        context = Context.from_json_payload(request.context_data)
+        logger.info(
+            "Context parsed for decision",
+            context_keys=list(context.dict().keys()),
+        )
+
+        # Generate decision contract using decision engine
+        decision_contract = decision_engine.make_decision(context)
+
+        # Add transaction ID if not present
+        if not decision_contract.transaction_id:
+            decision_contract.transaction_id = str(uuid.uuid4())
+
+        processing_time = int((time.time() - start_time) * 1000)
+
+        logger.info(
+            "Decision completed",
+            decision=decision_contract.decision.value,
+            actions_count=len(decision_contract.actions),
+            reasons_count=len(decision_contract.reasons),
+            processing_time_ms=processing_time,
+        )
+
+        return DecisionResponse(
+            decision_contract=decision_contract,
+            transaction_id=decision_contract.transaction_id,
+            status="completed",
+            metadata={
+                "processing_time_ms": processing_time,
+                "decision_engine_version": "1.0.0",
+                "algorithm_used": "decision_engine",
+            },
+        )
+
+    except Exception as e:
+        logger.error("Decision failed", error=str(e), exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Legacy endpoints for backward compatibility
 @app.get("/health", response_model=HealthResponse)
 async def legacy_health_check() -> HealthResponse:
@@ -406,6 +470,12 @@ async def legacy_health_check() -> HealthResponse:
 async def legacy_score_endpoint(request: ScoreRequest) -> ScoreResponse:
     """Legacy scoring endpoint."""
     return await score_endpoint(request)
+
+
+@app.post("/decision", response_model=DecisionResponse)
+async def legacy_decision_endpoint(request: DecisionRequest) -> DecisionResponse:
+    """Legacy decision endpoint."""
+    return await decision_endpoint(request)
 
 
 @app.on_event("startup")

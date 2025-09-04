@@ -646,10 +646,10 @@ class DecisionEngine:
         reasons.append(
             DecisionReason(
                 feature_name="loyalty_tier",
-                                    value=context.customer.loyalty_tier.value,
-                    threshold="NONE",
-                    weight=float(score_result.loyalty_boost) / 100.0,
-                    description=f"Customer loyalty tier: {context.customer.loyalty_tier.value}",
+                value=context.customer.loyalty_tier.value,
+                threshold="NONE",
+                weight=float(score_result.loyalty_boost) / 100.0,
+                description=f"Customer loyalty tier: {context.customer.loyalty_tier.value}",
             )
         )
 

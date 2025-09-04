@@ -122,6 +122,45 @@
         }
       }
     },
+    "/v1/decision": {
+      "post": {
+        "summary": "Decision Endpoint",
+        "description": "Make a transaction decision with full decision contract.",
+        "operationId": "decision_endpoint_v1_decision_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "summary": "Legacy Health Check",
@@ -179,10 +218,303 @@
           }
         }
       }
+    },
+    "/decision": {
+      "post": {
+        "summary": "Legacy Decision Endpoint",
+        "description": "Legacy decision endpoint.",
+        "operationId": "legacy_decision_endpoint_decision_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ActionType": {
+        "type": "string",
+        "enum": [
+          "KYC_REQUIRED",
+          "ADDITIONAL_VERIFICATION",
+          "MANUAL_REVIEW",
+          "LOYALTY_BOOST",
+          "LOYALTY_ADJUSTMENT",
+          "DISCOUNT_APPLIED",
+          "SURCHARGE_APPLIED",
+          "NETWORK_ROUTING",
+          "FRAUD_SCREENING",
+          "VELOCITY_LIMIT"
+        ],
+        "title": "ActionType",
+        "description": "Business rule action types."
+      },
+      "BusinessRule": {
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id",
+            "description": "Unique identifier for the business rule"
+          },
+          "action_type": {
+            "$ref": "#/components/schemas/ActionType",
+            "description": "Type of action taken"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Human-readable description of the rule"
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters",
+            "description": "Parameters used in rule evaluation"
+          },
+          "impact_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Score",
+            "description": "Impact of this rule on the final decision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_id",
+          "action_type",
+          "description"
+        ],
+        "title": "BusinessRule",
+        "description": "Individual business rule that was applied."
+      },
+      "Decision": {
+        "type": "string",
+        "enum": [
+          "APPROVE",
+          "REVIEW",
+          "DECLINE"
+        ],
+        "title": "Decision",
+        "description": "Transaction decision enumeration."
+      },
+      "DecisionContract": {
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/Decision",
+            "description": "Final transaction decision"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/BusinessRule"
+            },
+            "type": "array",
+            "title": "Actions",
+            "description": "List of applied business rules"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionReason"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "List of features/flags contributing to the decision"
+          },
+          "routing_hint": {
+            "$ref": "#/components/schemas/RoutingHint",
+            "description": "Routing hint information"
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Id",
+            "description": "Unique transaction identifier"
+          },
+          "score_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScoreResult"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Underlying scoring result"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Confidence in the decision (0.0 to 1.0)",
+            "default": 1.0
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Additional metadata"
+          },
+          "is_approved": {
+            "type": "boolean",
+            "title": "Is Approved",
+            "description": "Check if transaction is approved.",
+            "readOnly": true
+          },
+          "requires_review": {
+            "type": "boolean",
+            "title": "Requires Review",
+            "description": "Check if transaction requires manual review.",
+            "readOnly": true
+          },
+          "is_declined": {
+            "type": "boolean",
+            "title": "Is Declined",
+            "description": "Check if transaction is declined.",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision",
+          "routing_hint",
+          "is_approved",
+          "requires_review",
+          "is_declined"
+        ],
+        "title": "DecisionContract",
+        "description": "Standardized decision contract for transaction processing."
+      },
+      "DecisionReason": {
+        "properties": {
+          "feature_name": {
+            "type": "string",
+            "title": "Feature Name",
+            "description": "Name of the feature or flag"
+          },
+          "value": {
+            "title": "Value",
+            "description": "Value of the feature"
+          },
+          "threshold": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold",
+            "description": "Threshold that triggered this reason"
+          },
+          "weight": {
+            "type": "number",
+            "title": "Weight",
+            "description": "Weight/importance of this feature"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Human-readable description of the reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feature_name",
+          "value",
+          "weight",
+          "description"
+        ],
+        "title": "DecisionReason",
+        "description": "Reason contributing to the decision."
+      },
+      "DecisionRequest": {
+        "properties": {
+          "context_data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Context Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "context_data"
+        ],
+        "title": "DecisionRequest",
+        "description": "Request model for decision endpoint."
+      },
+      "DecisionResponse": {
+        "properties": {
+          "decision_contract": {
+            "$ref": "#/components/schemas/DecisionContract"
+          },
+          "transaction_id": {
+            "type": "string",
+            "title": "Transaction Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision_contract",
+          "transaction_id",
+          "status"
+        ],
+        "title": "DecisionResponse",
+        "description": "Response model for decision endpoint."
+      },
       "ExplainRequest": {
         "properties": {
           "context_data": {
@@ -306,6 +638,100 @@
         "title": "HealthResponse",
         "description": "Health check response."
       },
+      "PenaltyOrIncentive": {
+        "type": "string",
+        "enum": [
+          "surcharge",
+          "suppression",
+          "none"
+        ],
+        "title": "PenaltyOrIncentive",
+        "description": "Penalty or incentive types for routing."
+      },
+      "RoutingHint": {
+        "properties": {
+          "preferred_network": {
+            "type": "string",
+            "title": "Preferred Network",
+            "description": "Preferred payment network (visa, mc, any)",
+            "default": "any"
+          },
+          "preferred_acquirer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Acquirer",
+            "description": "Preferred acquirer identifier"
+          },
+          "penalty_or_incentive": {
+            "$ref": "#/components/schemas/PenaltyOrIncentive",
+            "description": "Type of penalty or incentive applied",
+            "default": "none"
+          },
+          "approval_odds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Odds",
+            "description": "Phase 2 scoring: approval probability (0.0 to 1.0)"
+          },
+          "network_preferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Network Preferences",
+            "description": "List of network preferences in priority order"
+          },
+          "mcc_based_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mcc Based Hint",
+            "description": "MCC-based routing hint if applicable"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Confidence in routing recommendation (0.0 to 1.0)",
+            "default": 0.8
+          },
+          "has_preference": {
+            "type": "boolean",
+            "title": "Has Preference",
+            "description": "Check if there's a specific network preference.",
+            "readOnly": true
+          },
+          "has_penalty_or_incentive": {
+            "type": "boolean",
+            "title": "Has Penalty Or Incentive",
+            "description": "Check if penalty or incentive is applied.",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "has_preference",
+          "has_penalty_or_incentive"
+        ],
+        "title": "RoutingHint",
+        "description": "Routing hint information for transaction processing."
+      },
       "ScoreRequest": {
         "properties": {
           "context_data": {
@@ -365,6 +791,45 @@
         ],
         "title": "ScoreResponse",
         "description": "Response model for scoring endpoint."
+      },
+      "ScoreResult": {
+        "properties": {
+          "risk_score": {
+            "type": "integer",
+            "title": "Risk Score",
+            "description": "Risk score (0-100)"
+          },
+          "loyalty_boost": {
+            "type": "integer",
+            "title": "Loyalty Boost",
+            "description": "Loyalty boost points"
+          },
+          "final_score": {
+            "type": "integer",
+            "title": "Final Score",
+            "description": "Final score (0-120)"
+          },
+          "routing_hint": {
+            "type": "string",
+            "title": "Routing Hint",
+            "description": "Payment network preference"
+          },
+          "signals": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Signals",
+            "description": "Detailed scoring signals and components"
+          }
+        },
+        "type": "object",
+        "required": [
+          "risk_score",
+          "loyalty_boost",
+          "final_score",
+          "routing_hint"
+        ],
+        "title": "ScoreResult",
+        "description": "Result of deterministic scoring calculation."
       },
       "ValidationError": {
         "properties": {

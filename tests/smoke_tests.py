@@ -92,8 +92,7 @@ def test_cli_with_context_basic():
                 "--input",
                 str(context_file),
             ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             cwd=project_root,
             check=True,
@@ -101,7 +100,7 @@ def test_cli_with_context_basic():
 
         # Extract the JSON output from stdout (stderr contains log messages)
         lines = result.stdout.strip().split("\n")
-        
+
         # Join all lines to reconstruct the complete JSON
         json_content = "\n".join(lines)
 

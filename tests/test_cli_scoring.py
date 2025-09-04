@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
-def test_cli_scoring_basic():
+def test_cli_scoring_basic() -> None:
     """Test CLI scoring with basic context."""
     print("Testing CLI scoring with basic context...")
 
@@ -70,7 +70,7 @@ def test_cli_scoring_basic():
         print("❌ Basic context test failed!")
 
 
-def test_cli_scoring_risky():
+def test_cli_scoring_risky() -> None:
     """Test CLI scoring with risky context."""
     print("\nTesting CLI scoring with risky context...")
 
@@ -135,7 +135,7 @@ def test_cli_scoring_risky():
         print("❌ Risky context test failed!")
 
 
-def test_cli_scoring_pretty():
+def test_cli_scoring_pretty() -> None:
     """Test CLI scoring with pretty output."""
     print("\nTesting CLI scoring with pretty output...")
 
@@ -166,7 +166,7 @@ def test_cli_scoring_pretty():
         # For pretty output, just check if the expected fields are present
         # The pretty output might have formatting that makes JSON parsing difficult
         stdout = result.stdout
-        
+
         # Check if key fields are present in the output
         assert "trace_id" in stdout
         assert "risk_score" in stdout
@@ -177,7 +177,7 @@ def test_cli_scoring_pretty():
         print("❌ Pretty output test failed!")
 
 
-def test_cli_scoring_stdin():
+def test_cli_scoring_stdin() -> None:
     """Test CLI scoring with stdin input."""
     print("\nTesting CLI scoring with stdin input...")
 

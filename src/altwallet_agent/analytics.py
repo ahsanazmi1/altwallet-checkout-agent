@@ -127,9 +127,7 @@ class AnalyticsEvent(BaseModel):
     # Request context
     request_id: str = Field(..., description="Request identifier for correlation")
     session_id: str | None = Field(None, description="Session identifier")
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for tracing"
-    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
     # Business context
     customer_id: str = Field(..., description="Customer identifier")
@@ -137,9 +135,7 @@ class AnalyticsEvent(BaseModel):
     transaction_id: str | None = Field(None, description="Transaction identifier")
 
     # Decision outcomes
-    decision: DecisionOutcome | None = Field(
-        None, description="Final decision outcome"
-    )
+    decision: DecisionOutcome | None = Field(None, description="Final decision outcome")
     decision_reason: str | None = Field(
         None, description="Human-readable decision reason"
     )
@@ -233,9 +229,7 @@ class DecisionOutcomeEvent(AnalyticsEvent):
     # Business impact
     transaction_amount: float | None = Field(None, description="Transaction amount")
     currency: str | None = Field(None, description="Transaction currency")
-    revenue_impact: float | None = Field(
-        None, description="Revenue impact of decision"
-    )
+    revenue_impact: float | None = Field(None, description="Revenue impact of decision")
 
     # Risk assessment
     risk_factors: list[str] = Field(
