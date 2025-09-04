@@ -24,6 +24,9 @@ request_start_time_var: contextvars.ContextVar[float | None] = contextvars.Conte
 
 def get_log_level() -> str:
     """Get log level from environment variable, defaulting to INFO."""
+    # Check for LOG_SILENT first
+    if os.getenv("LOG_SILENT", "0") == "1":
+        return "CRITICAL"  # Only show critical errors when silent
     return os.getenv("LOG_LEVEL", "INFO").upper()
 
 
@@ -44,7 +47,7 @@ def configure_logging() -> None:
     # Configure standard library logging
     logging.basicConfig(
         format="%(message)s",
-        stream=sys.stdout,
+        stream=sys.stderr,
         level=getattr(logging, get_log_level()),
     )
 
@@ -70,6 +73,22 @@ def configure_logging() -> None:
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
+
+    # Ensure structlog outputs to stderr for CLI compatibility
+    logger_names = [
+        "altwallet_agent",
+        "altwallet_agent.scoring",
+        "altwallet_agent.decisioning",
+        "altwallet_agent.webhooks",
+        "altwallet_agent.analytics",
+    ]
+    for logger_name in logger_names:
+        logger = logging.getLogger(logger_name)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stderr)
+            handler.setFormatter(logging.Formatter("%(message)s"))
+            logger.addHandler(handler)
+            logger.propagate = False
 
 
 def _add_structured_fields(

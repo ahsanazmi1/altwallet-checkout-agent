@@ -1,0 +1,796 @@
+{
+  "version": 1,
+  "name": "Loyalty Events Analysis Dashboard",
+  "description": "Comprehensive dashboard for analyzing loyalty events, customer engagement patterns, and program effectiveness",
+  "layout": [
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "text",
+          "title": "Dashboard Overview",
+          "content": "This dashboard provides detailed insights into loyalty events, customer engagement patterns, and program effectiveness metrics. Use the filters above to analyze specific time periods, customer segments, or loyalty event types."
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Total Loyalty Events (Last 30 Days)",
+          "query_id": "total_loyalty_events",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "total_loyalty_events",
+              "counterLabel": "Total Events",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Unique Customers (Last 30 Days)",
+          "query_id": "unique_customers",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "unique_customers",
+              "counterLabel": "Unique Customers",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Unique Merchants (Last 30 Days)",
+          "query_id": "unique_merchants",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "unique_merchants",
+              "counterLabel": "Unique Merchants",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Avg Transaction Amount (Last 30 Days)",
+          "query_id": "avg_transaction_amount",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "avg_transaction_amount",
+              "counterLabel": "Avg Amount",
+              "countRow": false,
+              "format": "$0.00"
+            }
+          },
+          "width": 3
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Type (Last 30 Days)",
+          "query_id": "loyalty_events_by_type",
+          "visualization": {
+            "type": "pie",
+            "options": {
+              "pieType": "pie",
+              "donut": false,
+              "innerRadius": 0,
+              "legend": {
+                "enabled": true,
+                "position": "right"
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00%"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events Trend (Last 90 Days)",
+          "query_id": "loyalty_events_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Date"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Decision Type (Last 30 Days)",
+          "query_id": "loyalty_events_by_decision",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Decision"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by Customer Segment (Last 30 Days)",
+          "query_id": "loyalty_events_by_customer_segment",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Customer Segment"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Transaction Amount (Last 30 Days)",
+          "query_id": "loyalty_events_by_amount",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Amount Range"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by Business Rules (Last 30 Days)",
+          "query_id": "loyalty_events_by_business_rules",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Business Rule"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Risk Level (Last 30 Days)",
+          "query_id": "loyalty_events_by_risk_level",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Risk Level"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by Confidence Score (Last 30 Days)",
+          "query_id": "loyalty_events_by_confidence",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Confidence Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Routing Hints (Last 30 Days)",
+          "query_id": "loyalty_events_by_routing_hints",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Network & Penalty Type"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by MCC Code (Last 30 Days)",
+          "query_id": "loyalty_events_by_mcc",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "MCC Code"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Time (Hourly - Last 7 Days)",
+          "query_id": "loyalty_events_by_hour",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Hour"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by Merchant (Last 30 Days)",
+          "query_id": "loyalty_events_by_merchant",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Merchant ID"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events by Tags (Last 30 Days)",
+          "query_id": "loyalty_events_by_tags",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Loyalty Tag Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by Geographic Region (Last 30 Days)",
+          "query_id": "loyalty_events_by_region",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Geographic Region"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Customer Loyalty Engagement (Last 30 Days)",
+          "query_id": "customer_loyalty_engagement",
+          "visualization": {
+            "type": "table",
+            "options": {
+              "itemsPerPage": 15,
+              "defaultRows": 15,
+              "minColumns": 7,
+              "fitWidth": true,
+              "useCustomCSS": false
+            }
+          },
+          "width": 12
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Loyalty Events Performance Metrics (Last 30 Days)",
+          "query_id": "loyalty_events_performance",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Performance Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Loyalty Events by Error Flags (Last 30 Days)",
+          "query_id": "loyalty_events_by_errors",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Error Code"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Monthly Loyalty Events Trend (Last 12 Months)",
+          "query_id": "monthly_loyalty_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Month"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Event Count"
+              },
+              "seriesOptions": {
+                "loyalty_event_count": {
+                  "name": "Loyalty Events",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "unique_customers": {
+                  "name": "Unique Customers",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 12
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "name": "time_range",
+      "type": "date",
+      "title": "Time Range",
+      "default": "30d"
+    },
+    {
+      "name": "merchant_id",
+      "type": "text",
+      "title": "Merchant ID",
+      "default": ""
+    },
+    {
+      "name": "customer_segment",
+      "type": "dropdown",
+      "title": "Customer Segment",
+      "default": "all",
+      "options": [
+        {"label": "All Segments", "value": "all"},
+        {"label": "Premium", "value": "premium"},
+        {"label": "High Risk", "value": "high_risk"},
+        {"label": "New Customer", "value": "new_customer"},
+        {"label": "Returning Customer", "value": "returning_customer"},
+        {"label": "Standard", "value": "standard"}
+      ]
+    },
+    {
+      "name": "loyalty_event_type",
+      "type": "dropdown",
+      "title": "Loyalty Event Type",
+      "default": "all",
+      "options": [
+        {"label": "All Types", "value": "all"},
+        {"label": "Loyalty Boost", "value": "loyalty_boost"},
+        {"label": "Loyalty Suppression", "value": "loyalty_suppression"},
+        {"label": "Loyalty Verification", "value": "loyalty_verification"},
+        {"label": "Loyalty Expiry", "value": "loyalty_expiry"},
+        {"label": "Loyalty Upgrade", "value": "loyalty_upgrade"}
+      ]
+    },
+    {
+      "name": "risk_level",
+      "type": "dropdown",
+      "title": "Risk Level",
+      "default": "all",
+      "options": [
+        {"label": "All Levels", "value": "all"},
+        {"label": "Low", "value": "low"},
+        {"label": "Medium", "value": "medium"},
+        {"label": "High", "value": "high"}
+      ]
+    },
+    {
+      "name": "transaction_amount_min",
+      "type": "number",
+      "title": "Min Transaction Amount",
+      "default": 0
+    },
+    {
+      "name": "transaction_amount_max",
+      "type": "number",
+      "title": "Max Transaction Amount",
+      "default": 10000
+    }
+  ],
+  "options": {
+    "showTitle": true,
+    "title": "Loyalty Events Analysis Dashboard",
+    "showFilters": true,
+    "autoHeight": true,
+    "allowCustomCSS": false,
+    "allowCustomJS": false,
+    "hideParameters": false,
+    "hideQueryTitles": false,
+    "hideParametersOnLoad": false,
+    "hideQueryTitlesOnLoad": false
+  },
+  "tags": [
+    "loyalty-events",
+    "customer-engagement",
+    "program-effectiveness",
+    "customer-loyalty",
+    "business-intelligence",
+    "customer-analytics"
+  ],
+  "is_archived": false,
+  "is_draft": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "user_id": 1,
+  "version": 1
+}

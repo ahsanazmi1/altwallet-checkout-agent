@@ -1,0 +1,33 @@
+feat(phase3): add decisioning & telemetry layer (v0.3.0)
+
+Implements Phase 3 of the AltWallet Agent roadmap: Decisioning & Telemetry.
+
+- Decision Contract
+  • Standardized JSON with decision (APPROVE/REVIEW/DECLINE), actions (discount, KYC, loyalty), and reasons.
+  • Consistent output across CLI, API, and structured logs.
+
+- Routing Hints & Policy Flags
+  • Added preferred_network, preferred_acquirer, surcharge/suppression indicators.
+  • Integrated with Phase 2 scoring outputs (approval odds, preferences, penalties).
+
+- Webhooks
+  • Async event emitter for downstream events: auth_result, settlement, chargeback, loyalty_event.
+  • Supports signed payloads and retry with exponential backoff.
+
+- Telemetry & Analytics Schema
+  • Structured JSON event schema capturing request_id, timestamp, decision, actions, routing hints, merchant_id, customer_id, latency, error_flags.
+  • Logs ready for ingestion into Redash/Metabase.
+
+- Dashboards
+  • Starter SQL queries and JSON configs for Redash/Metabase.
+  • Metrics: approval rates, decline reasons distribution, decision latency, surcharge/suppression frequency, loyalty events.
+
+Artifacts:
+- Updated OpenAPI schema (decision contract).
+- Analytics schema JSON under /analytics/.
+- Webhook emitter and docs.
+- Dashboard configs.
+- CI regression tests for contract validation, webhook delivery, telemetry event schema.
+
+Release:
+- Tagged as v0.3.0

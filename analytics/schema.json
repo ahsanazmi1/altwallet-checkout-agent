@@ -1,0 +1,254 @@
+{
+  "title": "AltWallet Checkout Agent Analytics Schema",
+  "version": "0.3.0",
+  "description": "Schema for analytics events capturing decision outcomes and lifecycle telemetry",
+  "type": "object",
+  "properties": {
+    "analytics_events": {
+      "type": "object",
+      "description": "Analytics events table schema",
+      "properties": {
+        "event_id": {
+          "type": "string",
+          "description": "Unique identifier for the analytics event",
+          "maxLength": 64
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "decision_outcome",
+            "routing_analysis", 
+            "error_occurrence",
+            "performance_metric",
+            "loyalty_event"
+          ],
+          "description": "Type of analytics event"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp when the event occurred"
+        },
+        "request_id": {
+          "type": "string",
+          "description": "Unique identifier for the original request",
+          "maxLength": 64
+        },
+        "customer_id": {
+          "type": "string",
+          "description": "Customer identifier",
+          "maxLength": 64
+        },
+        "merchant_id": {
+          "type": "string", 
+          "description": "Merchant identifier",
+          "maxLength": 64
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["APPROVE", "REVIEW", "DECLINE", "ERROR", "TIMEOUT"],
+          "description": "Decision outcome for the transaction"
+        },
+        "actions": {
+          "type": "array",
+          "description": "Array of business rules applied during decisioning",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule_type": {
+                "type": "string",
+                "enum": [
+                  "KYC_REQUIRED",
+                  "LOYALTY_BOOST", 
+                  "RISK_THRESHOLD",
+                  "COMPLIANCE_CHECK",
+                  "FRAUD_DETECTION",
+                  "NETWORK_PREFERENCE",
+                  "ACQUIRER_OPTIMIZATION"
+                ]
+              },
+              "rule_id": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "impact": {
+                "type": "string",
+                "enum": ["POSITIVE", "NEGATIVE", "NEUTRAL"]
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0
+              }
+            },
+            "required": ["rule_type", "rule_id", "description", "impact", "confidence"]
+          }
+        },
+        "routing_hints": {
+          "type": "object",
+          "description": "Routing hint information for transaction processing",
+          "properties": {
+            "preferred_network": {
+              "type": "string",
+              "default": "any",
+              "maxLength": 32
+            },
+            "preferred_acquirer": {
+              "type": "string",
+              "nullable": true,
+              "maxLength": 64
+            },
+            "penalty_or_incentive": {
+              "type": "string",
+              "enum": ["surcharge", "suppression", "none"]
+            },
+            "approval_odds": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "nullable": true
+            },
+            "network_preferences": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "maxLength": 32
+              }
+            },
+            "mcc_based_hint": {
+              "type": "string",
+              "nullable": true,
+              "maxLength": 128
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.8
+            }
+          },
+          "required": ["preferred_network", "penalty_or_incentive", "network_preferences", "confidence"]
+        },
+        "performance_metrics": {
+          "type": "object",
+          "description": "Performance metrics for the event",
+          "properties": {
+            "total_latency_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Total processing time in milliseconds"
+            },
+            "scoring_latency_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "nullable": true
+            },
+            "routing_latency_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "nullable": true
+            },
+            "decision_latency_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "nullable": true
+            },
+            "external_api_latency_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "nullable": true
+            },
+            "external_api_calls": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "memory_usage_mb": {
+              "type": "number",
+              "minimum": 0,
+              "nullable": true
+            },
+            "cpu_usage_percent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "nullable": true
+            }
+          },
+          "required": ["total_latency_ms"]
+        },
+        "error_flags": {
+          "type": "array",
+          "description": "Array of error flags if any occurred",
+          "items": {
+            "type": "object",
+            "properties": {
+              "error_code": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "error_message": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "severity": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical"]
+              },
+              "component": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["error_code", "error_message", "severity", "component", "timestamp"]
+          }
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "nullable": true,
+          "description": "Confidence score for the decision"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Array of tags for categorization",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Additional metadata as key-value pairs",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "event_id",
+        "event_type", 
+        "timestamp",
+        "request_id",
+        "customer_id",
+        "merchant_id",
+        "decision",
+        "actions",
+        "routing_hints",
+        "performance_metrics",
+        "error_flags",
+        "tags",
+        "metadata"
+      ]
+    }
+  },
+  "required": ["analytics_events"],
+  "additionalProperties": false
+}
