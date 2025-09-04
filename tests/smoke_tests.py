@@ -92,18 +92,21 @@ def test_cli_with_context_basic():
                 "--input",
                 str(context_file),
             ],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
             cwd=project_root,
             check=True,
         )
 
-        # Extract the JSON output from the last line (after log messages)
+        # Extract the JSON output from stdout (stderr contains log messages)
         lines = result.stdout.strip().split("\n")
-        json_line = lines[-1]  # Last line should be the JSON output
+        
+        # Join all lines to reconstruct the complete JSON
+        json_content = "\n".join(lines)
 
         # Parse the JSON output
-        output_data = json.loads(json_line)
+        output_data = json.loads(json_content)
 
         # Assert it has the required fields
         assert "final_score" in output_data, "Missing final_score field"

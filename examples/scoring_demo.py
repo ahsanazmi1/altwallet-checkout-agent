@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """Demonstration of AltWallet Deterministic Scoring v1."""
 
-import sys
 import os
+import sys
 from decimal import Decimal
 
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from altwallet_agent.models import (
-    Context,
     Cart,
     CartItem,
-    Merchant,
+    Context,
     Customer,
     Device,
     Geo,
     LoyaltyTier,
+    Merchant,
 )
 from altwallet_agent.scoring import score_transaction
 
@@ -71,7 +71,7 @@ def create_sample_context(
 def print_scoring_result(context: Context, result):
     """Print a formatted scoring result."""
     print(f"\n{'='*60}")
-    print(f"SCORING RESULT")
+    print("SCORING RESULT")
     print(f"{'='*60}")
 
     print(f"Merchant: {context.merchant.name}")
@@ -85,11 +85,11 @@ def print_scoring_result(context: Context, result):
     print(f"Final Score: {result.final_score}")
     print(f"Routing Hint: {result.routing_hint}")
 
-    print(f"\nRisk Factors:")
+    print("\nRisk Factors:")
     for factor in result.signals.get("risk_factors", []):
         print(f"  - {factor}")
 
-    print(f"\nSignals:")
+    print("\nSignals:")
     for key, value in result.signals.items():
         if key not in ["risk_factors"]:
             print(f"  {key}: {value}")

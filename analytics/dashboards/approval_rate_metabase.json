@@ -1,0 +1,396 @@
+{
+  "name": "Transaction Approval Rate Dashboard",
+  "description": "Comprehensive dashboard for monitoring transaction approval rates, decline reasons, and decision patterns",
+  "collection_id": 1,
+  "collection_position": 1,
+  "parameters": [
+    {
+      "id": "time_range",
+      "name": "Time Range",
+      "slug": "time_range",
+      "type": "date/range",
+      "target": ["dimension", ["field", "timestamp", null]],
+      "default": "past30days"
+    },
+    {
+      "id": "merchant_id",
+      "name": "Merchant ID",
+      "slug": "merchant_id",
+      "type": "string/=",
+      "target": ["dimension", ["field", "merchant_id", null]],
+      "default": null
+    },
+    {
+      "id": "customer_segment",
+      "name": "Customer Segment",
+      "slug": "customer_segment",
+      "type": "string/=",
+      "target": ["dimension", ["field", "customer_segment", null]],
+      "default": "all"
+    },
+    {
+      "id": "transaction_amount_min",
+      "name": "Min Transaction Amount",
+      "slug": "transaction_amount_min",
+      "type": "number/>=",
+      "target": ["dimension", ["field", "transaction_amount", null]],
+      "default": 0
+    },
+    {
+      "id": "transaction_amount_max",
+      "name": "Max Transaction Amount",
+      "slug": "transaction_amount_max",
+      "type": "number/<=",
+      "target": ["dimension", ["field", "transaction_amount", null]],
+      "default": 10000
+    }
+  ],
+  "cards": [
+    {
+      "id": 1,
+      "name": "Overall Approval Rate (Last 30 Days)",
+      "display": "scalar",
+      "visualization_settings": {
+        "card.title": "Overall Approval Rate (Last 30 Days)",
+        "card.description": "Current approval rate for the last 30 days",
+        "scalar.decimals": 2,
+        "scalar.prefix": "",
+        "scalar.suffix": "%"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 0,
+        "sizeX": 3,
+        "sizeY": 2
+      }
+    },
+    {
+      "id": 2,
+      "name": "Total Transactions (Last 30 Days)",
+      "display": "scalar",
+      "visualization_settings": {
+        "card.title": "Total Transactions (Last 30 Days)",
+        "card.description": "Total number of transactions in the last 30 days",
+        "scalar.decimals": 0,
+        "scalar.prefix": "",
+        "scalar.suffix": ""
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT COUNT(*) as total_transactions FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 3,
+        "sizeX": 3,
+        "sizeY": 2
+      }
+    },
+    {
+      "id": 3,
+      "name": "Decline Rate (Last 30 Days)",
+      "display": "scalar",
+      "visualization_settings": {
+        "card.title": "Decline Rate (Last 30 Days)",
+        "card.description": "Current decline rate for the last 30 days",
+        "scalar.decimals": 2,
+        "scalar.prefix": "",
+        "scalar.suffix": "%"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT ROUND((SUM(CASE WHEN decision = 'DECLINE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as decline_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 6,
+        "sizeX": 3,
+        "sizeY": 2
+      }
+    },
+    {
+      "id": 4,
+      "name": "Review Rate (Last 30 Days)",
+      "display": "scalar",
+      "visualization_settings": {
+        "card.title": "Review Rate (Last 30 Days)",
+        "card.description": "Current review rate for the last 30 days",
+        "scalar.decimals": 2,
+        "scalar.prefix": "",
+        "scalar.suffix": "%"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT ROUND((SUM(CASE WHEN decision = 'REVIEW' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as review_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 9,
+        "sizeX": 3,
+        "sizeY": 2
+      }
+    },
+    {
+      "id": 5,
+      "name": "Approval Rate Trend (Last 90 Days)",
+      "display": "line",
+      "visualization_settings": {
+        "card.title": "Approval Rate Trend (Last 90 Days)",
+        "card.description": "Daily approval rate trend over the last 90 days",
+        "graph.dimensions": ["date_bucket"],
+        "graph.metrics": ["approval_rate_percent"],
+        "graph.x_axis.title_text": "Date",
+        "graph.y_axis.title_text": "Approval Rate (%)",
+        "graph.y_axis.scale": "linear"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT DATE(FROM_UNIXTIME(timestamp)) as date_bucket, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 90 DAY)) GROUP BY date_bucket ORDER BY date_bucket",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 2,
+        "col": 0,
+        "sizeX": 6,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 6,
+      "name": "Decision Distribution (Last 30 Days)",
+      "display": "pie",
+      "visualization_settings": {
+        "card.title": "Decision Distribution (Last 30 Days)",
+        "card.description": "Distribution of decision outcomes",
+        "pie.dimension": "decision",
+        "pie.metric": "transaction_count",
+        "pie.show_legend": true,
+        "pie.show_values": true
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT decision, COUNT(*) as transaction_count FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY)) GROUP BY decision ORDER BY transaction_count DESC",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 2,
+        "col": 6,
+        "sizeX": 6,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 7,
+      "name": "Approval Rate by Merchant (Last 30 Days)",
+      "display": "bar",
+      "visualization_settings": {
+        "card.title": "Approval Rate by Merchant (Last 30 Days)",
+        "card.description": "Approval rates broken down by merchant",
+        "graph.dimensions": ["merchant_id"],
+        "graph.metrics": ["approval_rate_percent"],
+        "graph.x_axis.title_text": "Merchant ID",
+        "graph.y_axis.title_text": "Approval Rate (%)",
+        "graph.y_axis.scale": "linear"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT merchant_id, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY)) GROUP BY merchant_id HAVING COUNT(*) >= 10 ORDER BY approval_rate_percent DESC LIMIT 20",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 6,
+        "col": 0,
+        "sizeX": 6,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 8,
+      "name": "Approval Rate by Transaction Amount (Last 30 Days)",
+      "display": "bar",
+      "visualization_settings": {
+        "card.title": "Approval Rate by Transaction Amount (Last 30 Days)",
+        "card.description": "Approval rates by transaction amount ranges",
+        "graph.dimensions": ["amount_range"],
+        "graph.metrics": ["approval_rate_percent"],
+        "graph.x_axis.title_text": "Amount Range",
+        "graph.y_axis.title_text": "Approval Rate (%)",
+        "graph.y_axis.scale": "linear"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT CASE WHEN metadata->>'$.transaction_amount' IS NULL THEN 'Unknown' WHEN CAST(metadata->>'$.transaction_amount' AS DECIMAL(10,2)) < 50 THEN 'Under $50' WHEN CAST(metadata->>'$.transaction_amount' AS DECIMAL(10,2)) < 100 THEN '$50-$99' WHEN CAST(metadata->>'$.transaction_amount' AS DECIMAL(10,2)) < 500 THEN '$100-$499' WHEN CAST(metadata->>'$.transaction_amount' AS DECIMAL(10,2)) < 1000 THEN '$500-$999' ELSE 'Over $1000' END as amount_range, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY)) GROUP BY amount_range ORDER BY CASE amount_range WHEN 'Under $50' THEN 1 WHEN '$50-$99' THEN 2 WHEN '$100-$499' THEN 3 WHEN '$500-$999' THEN 4 WHEN 'Over $1000' THEN 5 ELSE 6 END",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 6,
+        "col": 6,
+        "sizeX": 6,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 9,
+      "name": "Approval Rate by Hour (Last 7 Days)",
+      "display": "line",
+      "visualization_settings": {
+        "card.title": "Approval Rate by Hour (Last 7 Days)",
+        "card.description": "Hourly approval rate patterns over the last 7 days",
+        "graph.dimensions": ["hour_bucket"],
+        "graph.metrics": ["approval_rate_percent"],
+        "graph.x_axis.title_text": "Hour",
+        "graph.y_axis.title_text": "Approval Rate (%)",
+        "graph.y_axis.scale": "linear"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT DATE_FORMAT(FROM_UNIXTIME(timestamp), '%Y-%m-%d %H:00:00') as hour_bucket, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 7 DAY)) GROUP BY hour_bucket ORDER BY hour_bucket",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 10,
+        "col": 0,
+        "sizeX": 6,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 10,
+      "name": "Approval Rate by Customer Segment (Last 30 Days)",
+      "display": "bar",
+      "visualization_settings": {
+        "card.title": "Approval Rate by Customer Segment (Last 30 Days)",
+        "card.description": "Approval rates by customer segment",
+        "graph.dimensions": ["customer_segment"],
+        "graph.metrics": ["approval_rate_percent"],
+        "graph.x_axis.title_text": "Customer Segment",
+        "graph.y_axis.title_text": "Approval Rate (%)",
+        "graph.y_axis.scale": "linear"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT CASE WHEN tags LIKE '%premium_customer%' THEN 'Premium' WHEN tags LIKE '%high_risk%' THEN 'High Risk' WHEN tags LIKE '%new_customer%' THEN 'New Customer' WHEN tags LIKE '%returning_customer%' THEN 'Returning Customer' ELSE 'Standard' END as customer_segment, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY)) GROUP BY customer_segment ORDER BY approval_rate_percent DESC",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 10,
+        "col": 6,
+        "sizeX": 6,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 11,
+      "name": "Approval Rate by Business Rules (Last 30 Days)",
+      "display": "table",
+      "visualization_settings": {
+        "card.title": "Approval Rate by Business Rules (Last 30 Days)",
+        "card.description": "Approval rates by business rules applied",
+        "table.column_widths": {},
+        "table.pivot_column": null,
+        "table.cell_column": null
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT business_rules.rule_type, COUNT(*) as rule_applied_count, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events, JSON_TABLE(business_rules, '$[*]' COLUMNS(rule_type VARCHAR(100) PATH '$.rule_type')) as business_rules WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY)) AND business_rules IS NOT NULL GROUP BY business_rules.rule_type ORDER BY approval_rate_percent DESC",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 14,
+        "col": 0,
+        "sizeX": 12,
+        "sizeY": 4
+      }
+    },
+    {
+      "id": 12,
+      "name": "Weekly Approval Rate Trend (Last 52 Weeks)",
+      "display": "line",
+      "visualization_settings": {
+        "card.title": "Weekly Approval Rate Trend (Last 52 Weeks)",
+        "card.description": "Weekly approval rate trend over the last 52 weeks",
+        "graph.dimensions": ["week_start"],
+        "graph.metrics": ["approval_rate_percent"],
+        "graph.x_axis.title_text": "Week Start",
+        "graph.y_axis.title_text": "Approval Rate (%)",
+        "graph.y_axis.scale": "linear"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT MIN(DATE(FROM_UNIXTIME(timestamp))) as week_start, ROUND((SUM(CASE WHEN decision = 'APPROVE' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as approval_rate_percent FROM analytics_events WHERE event_type = 'decision_outcome' AND timestamp >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 52 WEEK)) GROUP BY YEARWEEK(FROM_UNIXTIME(timestamp)) ORDER BY week_start",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 18,
+        "col": 0,
+        "sizeX": 12,
+        "sizeY": 4
+      }
+    }
+  ],
+  "tabs": [],
+  "archived": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "made_public_by_id": null,
+  "enable_embedding": false,
+  "embedding_params": null,
+  "can_write": true,
+  "public_uuid": null,
+  "show_in_getting_started": false,
+  "caveats": null,
+  "points_of_interest": null,
+  "last_edit_info": {
+    "id": 1,
+    "email": "admin@example.com",
+    "first_name": "Admin",
+    "last_name": "User",
+    "timestamp": "2024-01-01T00:00:00Z"
+  },
+  "last_edit_id": 1,
+  "version": 1
+}

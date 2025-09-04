@@ -1,0 +1,163 @@
+{
+  "decision": "DECLINE",
+  "actions": [
+    {
+      "rule_id": "LOC_001",
+      "action_type": "ADDITIONAL_VERIFICATION",
+      "description": "Location mismatch detected - additional verification required",
+      "parameters": {
+        "device_location": {
+          "city": "Los Angeles",
+          "country": "USA"
+        },
+        "transaction_location": {
+          "city": "New York",
+          "country": "USA"
+        },
+        "ip_distance_km": 5000.0
+      },
+      "impact_score": 30.0
+    },
+    {
+      "rule_id": "VEL_001",
+      "action_type": "VELOCITY_LIMIT",
+      "description": "High transaction velocity detected - velocity limit applied",
+      "parameters": {
+        "velocity_24h": 15,
+        "threshold": 10
+      },
+      "impact_score": 20.0
+    },
+    {
+      "rule_id": "CHB_001",
+      "action_type": "KYC_REQUIRED",
+      "description": "Customer has chargeback history - KYC verification required",
+      "parameters": {
+        "chargebacks_12m": 2
+      },
+      "impact_score": 25.0
+    },
+    {
+      "rule_id": "HTK_001",
+      "action_type": "MANUAL_REVIEW",
+      "description": "High ticket amount - manual review recommended",
+      "parameters": {
+        "cart_total": 5000.0,
+        "threshold": 500.0
+      },
+      "impact_score": 10.0
+    },
+    {
+      "rule_id": "NET_001",
+      "action_type": "NETWORK_ROUTING",
+      "description": "Payment network routing preference: prefer_visa",
+      "parameters": {
+        "routing_hint": "prefer_visa",
+        "merchant_mcc": "5944",
+        "merchant_preferences": [
+          "visa"
+        ]
+      },
+      "impact_score": null
+    }
+  ],
+  "reasons": [
+    {
+      "feature_name": "location_mismatch",
+      "value": true,
+      "threshold": false,
+      "weight": 0.3,
+      "description": "Device location differs from transaction location"
+    },
+    {
+      "feature_name": "high_velocity_24h",
+      "value": 15,
+      "threshold": 10,
+      "weight": 0.2,
+      "description": "Customer has 15 transactions in 24h"
+    },
+    {
+      "feature_name": "chargebacks_12m",
+      "value": 2,
+      "threshold": 0,
+      "weight": 0.25,
+      "description": "Customer has 2 chargebacks in 12 months"
+    },
+    {
+      "feature_name": "high_ticket_amount",
+      "value": 5000.0,
+      "threshold": 500.0,
+      "weight": 0.1,
+      "description": "Transaction amount $5000.00 exceeds threshold $500.00"
+    },
+    {
+      "feature_name": "loyalty_tier",
+      "value": "NONE",
+      "threshold": "NONE",
+      "weight": 0.0,
+      "description": "Customer loyalty tier: NONE"
+    },
+    {
+      "feature_name": "final_score",
+      "value": 15,
+      "threshold": 70,
+      "weight": 1.0,
+      "description": "Final calculated score: 15"
+    }
+  ],
+  "routing_hint": {
+    "preferred_network": "prefer_visa",
+    "preferred_acquirer": null,
+    "penalty_or_incentive": "surcharge",
+    "approval_odds": 0.15,
+    "network_preferences": [
+      "visa"
+    ],
+    "mcc_based_hint": null,
+    "confidence": 0.8500000000000001,
+    "has_preference": true,
+    "has_penalty_or_incentive": true
+  },
+  "transaction_id": "txn_risky_001",
+  "score_result": {
+    "risk_score": 85,
+    "loyalty_boost": 0,
+    "final_score": 15,
+    "routing_hint": "prefer_visa",
+    "signals": {
+      "location_mismatch": true,
+      "velocity_flag": true,
+      "chargebacks_present": true,
+      "high_ticket": true,
+      "risk_factors": [
+        "location_mismatch",
+        "high_velocity_24h",
+        "chargebacks_12m",
+        "high_ticket_amount"
+      ],
+      "cart_total": 5000.0,
+      "customer_velocity_24h": 15,
+      "customer_chargebacks_12m": 2,
+      "loyalty_tier": "NONE",
+      "merchant_mcc": "5944",
+      "merchant_network_preferences": [
+        "visa"
+      ],
+      "routing_hint": "prefer_visa",
+      "loyalty_boost": 0,
+      "final_score": 15
+    }
+  },
+  "confidence": 0.9500000000000001,
+  "metadata": {
+    "decision_engine_version": "1.0",
+    "scoring_version": "1.0",
+    "context_flags": {
+      "mismatch_location": true,
+      "velocity_24h_flag": true
+    }
+  },
+  "is_approved": false,
+  "requires_review": false,
+  "is_declined": true
+}

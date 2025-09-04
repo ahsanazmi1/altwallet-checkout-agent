@@ -1,0 +1,646 @@
+{
+  "version": 1,
+  "name": "Decision Latency Performance Dashboard",
+  "description": "Comprehensive dashboard for monitoring decision processing performance, latency trends, and system bottlenecks",
+  "layout": [
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "text",
+          "title": "Dashboard Overview",
+          "content": "This dashboard provides real-time insights into decision processing performance, latency patterns, and system optimization opportunities. Use the filters above to analyze specific time periods, components, or performance categories."
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Average Total Latency (Last 30 Days)",
+          "query_id": "avg_total_latency",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "avg_total_latency_ms",
+              "counterLabel": "Avg Latency",
+              "countRow": false,
+              "format": "0.00 ms"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "P95 Total Latency (Last 30 Days)",
+          "query_id": "p95_total_latency",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "p95_total_latency_ms",
+              "counterLabel": "P95 Latency",
+              "countRow": false,
+              "format": "0.00 ms"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "P99 Total Latency (Last 30 Days)",
+          "query_id": "p99_total_latency",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "p99_total_latency_ms",
+              "counterLabel": "P99 Latency",
+              "countRow": false,
+              "format": "0.00 ms"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Total Transactions (Last 30 Days)",
+          "query_id": "total_transactions",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "total_transactions",
+              "counterLabel": "Transactions",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Performance Distribution (Last 30 Days)",
+          "query_id": "performance_distribution",
+          "visualization": {
+            "type": "pie",
+            "options": {
+              "pieType": "pie",
+              "donut": false,
+              "innerRadius": 0,
+              "legend": {
+                "enabled": true,
+                "position": "right"
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00%"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Latency Trend (Last 90 Days)",
+          "query_id": "latency_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Date"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Average Latency",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "p95_total_latency_ms": {
+                  "name": "P95 Latency",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Performance by Component (Last 30 Days)",
+          "query_id": "performance_by_component",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Component"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Performance by Decision Type (Last 30 Days)",
+          "query_id": "performance_by_decision",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Decision"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Performance by Transaction Amount (Last 30 Days)",
+          "query_id": "performance_by_amount",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Amount Range"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Performance by Customer Segment (Last 30 Days)",
+          "query_id": "performance_by_customer_segment",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Customer Segment"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Performance by Business Rules (Last 30 Days)",
+          "query_id": "performance_by_business_rules",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Business Rule"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Performance by External API Calls (Last 30 Days)",
+          "query_id": "performance_by_api_calls",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "API Calls"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Performance by Time (Hourly - Last 7 Days)",
+          "query_id": "performance_by_hour",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Hour"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Performance by Merchant (Last 30 Days)",
+          "query_id": "performance_by_merchant",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Merchant ID"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Performance by Memory Usage (Last 30 Days)",
+          "query_id": "performance_by_memory",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Memory Usage Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Performance by CPU Usage (Last 30 Days)",
+          "query_id": "performance_by_cpu",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "CPU Usage Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Detailed Performance Analysis (Last 30 Days)",
+          "query_id": "detailed_performance_analysis",
+          "visualization": {
+            "type": "table",
+            "options": {
+              "itemsPerPage": 15,
+              "defaultRows": 15,
+              "minColumns": 5,
+              "fitWidth": true,
+              "useCustomCSS": false
+            }
+          },
+          "width": 12
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Weekly Performance Trend (Last 52 Weeks)",
+          "query_id": "weekly_performance_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Week"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Average Latency (ms)"
+              },
+              "seriesOptions": {
+                "avg_total_latency_ms": {
+                  "name": "Avg Latency",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "p95_total_latency_ms": {
+                  "name": "P95 Latency",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 12
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "name": "time_range",
+      "type": "date",
+      "title": "Time Range",
+      "default": "30d"
+    },
+    {
+      "name": "merchant_id",
+      "type": "text",
+      "title": "Merchant ID",
+      "default": ""
+    },
+    {
+      "name": "customer_segment",
+      "type": "dropdown",
+      "title": "Customer Segment",
+      "default": "all",
+      "options": [
+        {"label": "All Segments", "value": "all"},
+        {"label": "Premium", "value": "premium"},
+        {"label": "High Risk", "value": "high_risk"},
+        {"label": "New Customer", "value": "new_customer"},
+        {"label": "Returning Customer", "value": "returning_customer"},
+        {"label": "Standard", "value": "standard"}
+      ]
+    },
+    {
+      "name": "performance_category",
+      "type": "dropdown",
+      "title": "Performance Category",
+      "default": "all",
+      "options": [
+        {"label": "All Categories", "value": "all"},
+        {"label": "Fast (<100ms)", "value": "fast"},
+        {"label": "Normal (100-500ms)", "value": "normal"},
+        {"label": "Slow (500-1000ms)", "value": "slow"},
+        {"label": "Very Slow (>1000ms)", "value": "very_slow"}
+      ]
+    },
+    {
+      "name": "transaction_amount_min",
+      "type": "number",
+      "title": "Min Transaction Amount",
+      "default": 0
+    },
+    {
+      "name": "transaction_amount_max",
+      "type": "number",
+      "title": "Max Transaction Amount",
+      "default": 10000
+    }
+  ],
+  "options": {
+    "showTitle": true,
+    "title": "Decision Latency Performance Dashboard",
+    "showFilters": true,
+    "autoHeight": true,
+    "allowCustomCSS": false,
+    "allowCustomJS": false,
+    "hideParameters": false,
+    "hideQueryTitles": false,
+    "hideParametersOnLoad": false,
+    "hideQueryTitlesOnLoad": false
+  },
+  "tags": [
+    "performance",
+    "latency",
+    "system-monitoring",
+    "optimization",
+    "bottleneck-analysis",
+    "business-intelligence"
+  ],
+  "is_archived": false,
+  "is_draft": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "user_id": 1,
+  "version": 1
+}

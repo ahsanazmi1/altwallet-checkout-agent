@@ -46,17 +46,23 @@ def run_scorer_on_input(input_file: Path) -> dict[str, Any]:
                 "--input",
                 str(input_file),
             ],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
             cwd=PROJECT_ROOT,
             check=True,
         )
 
-        # Extract the JSON output from the last line (after log messages)
+        # Extract the JSON output from stdout (stderr contains log messages)
         lines = result.stdout.strip().split("\n")
-        json_line = lines[-1]  # Last line should be the JSON output
+        
+        if not lines:
+            pytest.fail("No output captured from CLI command")
+        
+        # Join all lines to reconstruct the complete JSON
+        json_content = "\n".join(lines)
 
-        return json.loads(json_line)
+        return json.loads(json_content)
 
     except subprocess.CalledProcessError as e:
         pytest.fail(f"CLI command failed: {e.stderr}")

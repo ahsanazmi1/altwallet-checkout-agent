@@ -1,0 +1,707 @@
+{
+  "version": 1,
+  "name": "Transaction Decline Reasons Dashboard",
+  "description": "Comprehensive dashboard for analyzing transaction decline reasons, error patterns, and risk factors",
+  "layout": [
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "text",
+          "title": "Dashboard Overview",
+          "content": "This dashboard provides detailed insights into transaction decline patterns, error distributions, and risk factor analysis. Use the filters above to analyze specific time periods, merchants, or decline categories."
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Total Declines (Last 30 Days)",
+          "query_id": "total_declines",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "total_declines",
+              "counterLabel": "Total Declines",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate (Last 30 Days)",
+          "query_id": "decline_rate",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "decline_rate_percent",
+              "counterLabel": "Decline Rate",
+              "countRow": false,
+              "format": "0.00%"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Unique Error Types (Last 30 Days)",
+          "query_id": "unique_error_types",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "unique_error_types",
+              "counterLabel": "Error Types",
+              "countRow": false,
+              "format": "0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "High Risk Declines (Last 30 Days)",
+          "query_id": "high_risk_declines",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "high_risk_declines",
+              "counterLabel": "High Risk",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Decline Reasons Distribution (Last 30 Days)",
+          "query_id": "decline_reasons_distribution",
+          "visualization": {
+            "type": "pie",
+            "options": {
+              "pieType": "pie",
+              "donut": false,
+              "innerRadius": 0,
+              "legend": {
+                "enabled": true,
+                "position": "right"
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00%"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate Trend (Last 90 Days)",
+          "query_id": "decline_rate_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Date"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Rate (%)"
+              },
+              "seriesOptions": {
+                "decline_rate_percent": {
+                  "name": "Decline Rate",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Top Decline Reasons (Last 30 Days)",
+          "query_id": "top_decline_reasons",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Decline Reason"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Count"
+              },
+              "seriesOptions": {
+                "occurrence_count": {
+                  "name": "Occurrences",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate by Error Severity (Last 30 Days)",
+          "query_id": "decline_rate_by_severity",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Error Severity"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Decline Rate by Risk Factors (Last 30 Days)",
+          "query_id": "decline_rate_by_risk_factors",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Risk Factor"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate by Fraud Indicators (Last 30 Days)",
+          "query_id": "decline_rate_by_fraud_indicators",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Fraud Indicator"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Decline Rate by Compliance Flags (Last 30 Days)",
+          "query_id": "decline_rate_by_compliance_flags",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Compliance Flag"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate by Business Rules (Last 30 Days)",
+          "query_id": "decline_rate_by_business_rules",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Business Rule"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Decline Rate by Transaction Amount (Last 30 Days)",
+          "query_id": "decline_rate_by_amount",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Amount Range"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate by Customer Segment (Last 30 Days)",
+          "query_id": "decline_rate_by_customer_segment",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Customer Segment"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Decline Rate by Time (Hourly - Last 7 Days)",
+          "query_id": "decline_rate_by_hour",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Hour"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate by Merchant (Last 30 Days)",
+          "query_id": "decline_rate_by_merchant",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Merchant ID"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Decline Rate by Confidence Score (Last 30 Days)",
+          "query_id": "decline_rate_by_confidence",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Confidence Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Decline Rate by Risk Score (Last 30 Days)",
+          "query_id": "decline_rate_by_risk_score",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Risk Score Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Count"
+              },
+              "seriesOptions": {
+                "decline_count": {
+                  "name": "Declines",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Detailed Error Analysis (Last 30 Days)",
+          "query_id": "detailed_error_analysis",
+          "visualization": {
+            "type": "table",
+            "options": {
+              "itemsPerPage": 15,
+              "defaultRows": 15,
+              "minColumns": 4,
+              "fitWidth": true,
+              "useCustomCSS": false
+            }
+          },
+          "width": 12
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Weekly Decline Rate Trend (Last 52 Weeks)",
+          "query_id": "weekly_decline_rate_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Week"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Decline Rate (%)"
+              },
+              "seriesOptions": {
+                "decline_rate_percent": {
+                  "name": "Decline Rate",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": false
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 12
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "name": "time_range",
+      "type": "date",
+      "title": "Time Range",
+      "default": "30d"
+    },
+    {
+      "name": "merchant_id",
+      "type": "text",
+      "title": "Merchant ID",
+      "default": ""
+    },
+    {
+      "name": "customer_segment",
+      "type": "dropdown",
+      "title": "Customer Segment",
+      "default": "all",
+      "options": [
+        {"label": "All Segments", "value": "all"},
+        {"label": "Premium", "value": "premium"},
+        {"label": "High Risk", "value": "high_risk"},
+        {"label": "New Customer", "value": "new_customer"},
+        {"label": "Returning Customer", "value": "returning_customer"},
+        {"label": "Standard", "value": "standard"}
+      ]
+    },
+    {
+      "name": "error_severity",
+      "type": "dropdown",
+      "title": "Error Severity",
+      "default": "all",
+      "options": [
+        {"label": "All Severities", "value": "all"},
+        {"label": "Low", "value": "low"},
+        {"label": "Medium", "value": "medium"},
+        {"label": "High", "value": "high"},
+        {"label": "Critical", "value": "critical"}
+      ]
+    },
+    {
+      "name": "transaction_amount_min",
+      "type": "number",
+      "title": "Min Transaction Amount",
+      "default": 0
+    },
+    {
+      "name": "transaction_amount_max",
+      "type": "number",
+      "title": "Max Transaction Amount",
+      "default": 10000
+    }
+  ],
+  "options": {
+    "showTitle": true,
+    "title": "Transaction Decline Reasons Dashboard",
+    "showFilters": true,
+    "autoHeight": true,
+    "allowCustomCSS": false,
+    "allowCustomJS": false,
+    "hideParameters": false,
+    "hideQueryTitles": false,
+    "hideParametersOnLoad": false,
+    "hideQueryTitlesOnLoad": false
+  },
+  "tags": [
+    "decline-reasons",
+    "error-analysis",
+    "risk-management",
+    "fraud-detection",
+    "compliance",
+    "business-intelligence"
+  ],
+  "is_archived": false,
+  "is_draft": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "user_id": 1,
+  "version": 1
+}

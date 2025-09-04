@@ -1,0 +1,116 @@
+{
+  "decision": "APPROVE",
+  "actions": [
+    {
+      "rule_id": "HTK_001",
+      "action_type": "MANUAL_REVIEW",
+      "description": "High ticket amount - manual review recommended",
+      "parameters": {
+        "cart_total": 1225.0,
+        "threshold": 500.0
+      },
+      "impact_score": 10.0
+    },
+    {
+      "rule_id": "LOY_001",
+      "action_type": "LOYALTY_BOOST",
+      "description": "Loyalty tier GOLD boost applied",
+      "parameters": {
+        "loyalty_tier": "GOLD",
+        "boost_points": 10
+      },
+      "impact_score": null
+    },
+    {
+      "rule_id": "NET_001",
+      "action_type": "NETWORK_ROUTING",
+      "description": "Payment network routing preference: prefer_visa",
+      "parameters": {
+        "routing_hint": "prefer_visa",
+        "merchant_mcc": "5732",
+        "merchant_preferences": [
+          "visa",
+          "mc"
+        ]
+      },
+      "impact_score": null
+    }
+  ],
+  "reasons": [
+    {
+      "feature_name": "high_ticket_amount",
+      "value": 1225.0,
+      "threshold": 500.0,
+      "weight": 0.1,
+      "description": "Transaction amount $1225.00 exceeds threshold $500.00"
+    },
+    {
+      "feature_name": "loyalty_tier",
+      "value": "GOLD",
+      "threshold": "NONE",
+      "weight": 0.1,
+      "description": "Customer loyalty tier: GOLD"
+    },
+    {
+      "feature_name": "final_score",
+      "value": 100,
+      "threshold": 70,
+      "weight": 1.0,
+      "description": "Final calculated score: 100"
+    }
+  ],
+  "routing_hint": {
+    "preferred_network": "prefer_visa",
+    "preferred_acquirer": null,
+    "penalty_or_incentive": "surcharge",
+    "approval_odds": 0.949,
+    "network_preferences": [
+      "visa",
+      "mc"
+    ],
+    "mcc_based_hint": "prefer_mc",
+    "confidence": 0.9500000000000001,
+    "has_preference": true,
+    "has_penalty_or_incentive": true
+  },
+  "transaction_id": "txn_normal_001",
+  "score_result": {
+    "risk_score": 10,
+    "loyalty_boost": 10,
+    "final_score": 100,
+    "routing_hint": "prefer_visa",
+    "signals": {
+      "location_mismatch": false,
+      "velocity_flag": false,
+      "chargebacks_present": false,
+      "high_ticket": true,
+      "risk_factors": [
+        "high_ticket_amount"
+      ],
+      "cart_total": 1225.0,
+      "customer_velocity_24h": 3,
+      "customer_chargebacks_12m": 0,
+      "loyalty_tier": "GOLD",
+      "merchant_mcc": "5732",
+      "merchant_network_preferences": [
+        "visa",
+        "mc"
+      ],
+      "routing_hint": "prefer_visa",
+      "loyalty_boost": 10,
+      "final_score": 100
+    }
+  },
+  "confidence": 0.9500000000000001,
+  "metadata": {
+    "decision_engine_version": "1.0",
+    "scoring_version": "1.0",
+    "context_flags": {
+      "mismatch_location": false,
+      "velocity_24h_flag": false
+    }
+  },
+  "is_approved": true,
+  "requires_review": false,
+  "is_declined": false
+}

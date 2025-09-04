@@ -1,0 +1,858 @@
+{
+  "version": 1,
+  "name": "Surcharge vs Suppression Analysis Dashboard",
+  "description": "Comprehensive dashboard for analyzing routing hint patterns, penalty/incentive distribution, and business impact",
+  "layout": [
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "text",
+          "title": "Dashboard Overview",
+          "content": "This dashboard provides detailed insights into routing hint patterns, surcharge/suppression distribution, and their impact on transaction processing. Use the filters above to analyze specific time periods, merchants, or routing categories."
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Total Transactions (Last 30 Days)",
+          "query_id": "total_transactions",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "total_transactions",
+              "counterLabel": "Total Transactions",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Surcharge Transactions (Last 30 Days)",
+          "query_id": "surcharge_transactions",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "surcharge_count",
+              "counterLabel": "Surcharge",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "Suppression Transactions (Last 30 Days)",
+          "query_id": "suppression_transactions",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "suppression_count",
+              "counterLabel": "Suppression",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        },
+        {
+          "type": "query",
+          "title": "No Penalty/Incentive (Last 30 Days)",
+          "query_id": "no_penalty_transactions",
+          "visualization": {
+            "type": "counter",
+            "options": {
+              "counterColName": "no_penalty_count",
+              "counterLabel": "No Penalty",
+              "countRow": false,
+              "format": "0,0"
+            }
+          },
+          "width": 3
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive Distribution (Last 30 Days)",
+          "query_id": "penalty_incentive_distribution",
+          "visualization": {
+            "type": "pie",
+            "options": {
+              "pieType": "pie",
+              "donut": false,
+              "innerRadius": 0,
+              "legend": {
+                "enabled": true,
+                "position": "right"
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0.00%"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive Trend (Last 90 Days)",
+          "query_id": "penalty_incentive_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Date"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Decision Type (Last 30 Days)",
+          "query_id": "penalty_by_decision",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Decision"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Transaction Amount (Last 30 Days)",
+          "query_id": "penalty_by_amount",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Amount Range"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Customer Segment (Last 30 Days)",
+          "query_id": "penalty_by_customer_segment",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Customer Segment"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Network Preference (Last 30 Days)",
+          "query_id": "penalty_by_network",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Preferred Network"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Acquirer (Last 30 Days)",
+          "query_id": "penalty_by_acquirer",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Preferred Acquirer"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Business Rules (Last 30 Days)",
+          "query_id": "penalty_by_business_rules",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Business Rule"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Risk Level (Last 30 Days)",
+          "query_id": "penalty_by_risk_level",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Risk Level"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Confidence Score (Last 30 Days)",
+          "query_id": "penalty_by_confidence",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Confidence Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Approval Odds (Last 30 Days)",
+          "query_id": "penalty_by_approval_odds",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Approval Odds Category"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by MCC Code (Last 30 Days)",
+          "query_id": "penalty_by_mcc",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "MCC Code"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Time (Hourly - Last 7 Days)",
+          "query_id": "penalty_by_hour",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Hour"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 6
+        },
+        {
+          "type": "query",
+          "title": "Penalty/Incentive by Merchant (Last 30 Days)",
+          "query_id": "penalty_by_merchant",
+          "visualization": {
+            "type": "bar",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Merchant ID"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "bar",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "bar",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "bar",
+              "sortX": false,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": true,
+              "dataLabelsFormat": "0"
+            }
+          },
+          "width": 6
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Detailed Routing Analysis (Last 30 Days)",
+          "query_id": "detailed_routing_analysis",
+          "visualization": {
+            "type": "table",
+            "options": {
+              "itemsPerPage": 15,
+              "defaultRows": 15,
+              "minColumns": 6,
+              "fitWidth": true,
+              "useCustomCSS": false
+            }
+          },
+          "width": 12
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "content": [
+        {
+          "type": "query",
+          "title": "Weekly Penalty/Incentive Trend (Last 52 Weeks)",
+          "query_id": "weekly_penalty_trend",
+          "visualization": {
+            "type": "line",
+            "options": {
+              "xAxis": {
+                "type": "category",
+                "title": "Week"
+              },
+              "yAxis": {
+                "type": "linear",
+                "title": "Transaction Count"
+              },
+              "seriesOptions": {
+                "surcharge_count": {
+                  "name": "Surcharge",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "suppression_count": {
+                  "name": "Suppression",
+                  "type": "line",
+                  "yAxis": 0
+                },
+                "no_penalty_count": {
+                  "name": "No Penalty",
+                  "type": "line",
+                  "yAxis": 0
+                }
+              },
+              "globalSeriesType": "line",
+              "sortX": true,
+              "legend": {
+                "enabled": true
+              },
+              "showDataLabels": false,
+              "enableXZoom": true,
+              "enableYZoom": true
+            }
+          },
+          "width": 12
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "name": "time_range",
+      "type": "date",
+      "title": "Time Range",
+      "default": "30d"
+    },
+    {
+      "name": "merchant_id",
+      "type": "text",
+      "title": "Merchant ID",
+      "default": ""
+    },
+    {
+      "name": "customer_segment",
+      "type": "dropdown",
+      "title": "Customer Segment",
+      "default": "all",
+      "options": [
+        {"label": "All Segments", "value": "all"},
+        {"label": "Premium", "value": "premium"},
+        {"label": "High Risk", "value": "high_risk"},
+        {"label": "New Customer", "value": "new_customer"},
+        {"label": "Returning Customer", "value": "returning_customer"},
+        {"label": "Standard", "value": "standard"}
+      ]
+    },
+    {
+      "name": "penalty_type",
+      "type": "dropdown",
+      "title": "Penalty/Incentive Type",
+      "default": "all",
+      "options": [
+        {"label": "All Types", "value": "all"},
+        {"label": "Surcharge", "value": "surcharge"},
+        {"label": "Suppression", "value": "suppression"},
+        {"label": "None", "value": "none"}
+      ]
+    },
+    {
+      "name": "preferred_network",
+      "type": "dropdown",
+      "title": "Preferred Network",
+      "default": "all",
+      "options": [
+        {"label": "All Networks", "value": "all"},
+        {"label": "Visa", "value": "visa"},
+        {"label": "Mastercard", "value": "mc"},
+        {"label": "Any", "value": "any"}
+      ]
+    },
+    {
+      "name": "transaction_amount_min",
+      "type": "number",
+      "title": "Min Transaction Amount",
+      "default": 0
+    },
+    {
+      "name": "transaction_amount_max",
+      "type": "number",
+      "title": "Max Transaction Amount",
+      "default": 10000
+    }
+  ],
+  "options": {
+    "showTitle": true,
+    "title": "Surcharge vs Suppression Analysis Dashboard",
+    "showFilters": true,
+    "autoHeight": true,
+    "allowCustomCSS": false,
+    "allowCustomJS": false,
+    "hideParameters": false,
+    "hideQueryTitles": false,
+    "hideParametersOnLoad": false,
+    "hideQueryTitlesOnLoad": false
+  },
+  "tags": [
+    "routing-hints",
+    "surcharge",
+    "suppression",
+    "penalty-incentive",
+    "business-impact",
+    "business-intelligence"
+  ],
+  "is_archived": false,
+  "is_draft": false,
+  "created_at": "2024-01-01T00:00:00Z",
+  "updated_at": "2024-01-01T00:00:00Z",
+  "user_id": 1,
+  "version": 1
+}
