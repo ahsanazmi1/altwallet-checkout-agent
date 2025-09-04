@@ -26,10 +26,3 @@ aiohttp==3.9.1
 
 # CLI dependencies
 click==8.1.7
-structlog==23.2.0
-
-# Webhook dependencies
-aiohttp==3.9.1
-
-# CLI dependencies
-click==8.1.7
