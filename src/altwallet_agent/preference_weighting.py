@@ -149,7 +149,7 @@ class PreferenceWeighting:
                 f"final={final_weight:.3f}"
             )
 
-            return final_weight
+            return float(final_weight)
 
         except Exception as e:
             logger.error(f"Error calculating preference weight: {e}")

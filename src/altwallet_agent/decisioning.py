@@ -318,7 +318,7 @@ class DecisionEngine:
             return PenaltyOrIncentive.SURCHARGE
 
         # Premium customers get suppression
-        if context.customer.loyalty_tier in ["GOLD", "PLATINUM"]:  # type: ignore
+        if context.customer.loyalty_tier in ["GOLD", "PLATINUM"]:
             return PenaltyOrIncentive.SUPPRESSION
 
         # Default: no penalty or incentive
@@ -638,7 +638,7 @@ class DecisionEngine:
                     value=float(context.cart.total),  # type: ignore
                     threshold=float(HIGH_TICKET_THRESHOLD),
                     weight=float(RISK_SCORE_HIGH_TICKET) / 100.0,
-                    description=f"Transaction amount ${context.cart.total} exceeds threshold ${HIGH_TICKET_THRESHOLD}",  # type: ignore
+                    description=f"Transaction amount ${context.cart.total} exceeds threshold ${HIGH_TICKET_THRESHOLD}",
                 )
             )
 

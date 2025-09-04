@@ -28,7 +28,7 @@ class Purchase:
 class CardRecommender:
     """Deterministic card recommendation engine."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.cards = [
             Card("Chase Freedom Unlimited", Decimal("0.015"), Decimal("0")),
             Card(

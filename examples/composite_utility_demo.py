@@ -11,18 +11,19 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+from decimal import Decimal
+
 from altwallet_agent.composite_utility import CompositeUtility
 from altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
-    LoyaltyTier,
+    Context,
+    Customer,
     Device,
     Geo,
+    LoyaltyTier,
+    Merchant,
 )
-from decimal import Decimal
 
 
 def create_sample_cards():
@@ -286,7 +287,7 @@ def demo_composite_utility_formula():
 
     print(f"Card: {card['name']}")
     print(
-        f"Formula: utility = p_approval × expected_rewards × preference_weight × merchant_penalty"
+        "Formula: utility = p_approval × expected_rewards × preference_weight × merchant_penalty"
     )
     print()
 
@@ -296,13 +297,13 @@ def demo_composite_utility_formula():
     merchant_penalty = result["components"]["merchant_penalty"]
     final_utility = result["utility_score"]
 
-    print(f"Components:")
+    print("Components:")
     print(f"  p_approval = {p_approval:.3f}")
     print(f"  expected_rewards = {expected_rewards:.3f}")
     print(f"  preference_weight = {preference_weight:.3f}")
     print(f"  merchant_penalty = {merchant_penalty:.3f}")
     print()
-    print(f"Calculation:")
+    print("Calculation:")
     print(
         f"  utility = {p_approval:.3f} × {expected_rewards:.3f} × {preference_weight:.3f} × {merchant_penalty:.3f}"
     )

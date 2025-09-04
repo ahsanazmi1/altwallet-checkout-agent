@@ -234,7 +234,7 @@ class CompositeUtility:
             # Cap at reasonable maximum (e.g., 10% total rewards)
             rewards_multiplier = min(rewards_multiplier, 0.10)
 
-            return rewards_multiplier
+            return float(rewards_multiplier)
 
         except Exception as e:
             logger.error(f"Error calculating expected rewards: {e}")

@@ -11,18 +11,19 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+from decimal import Decimal
+
 from altwallet_agent.merchant_penalty import MerchantPenalty
 from altwallet_agent.models import (
-    Context,
-    Customer,
-    Merchant,
     Cart,
     CartItem,
-    LoyaltyTier,
+    Context,
+    Customer,
     Device,
     Geo,
+    LoyaltyTier,
+    Merchant,
 )
-from decimal import Decimal
 
 
 def create_sample_context(
