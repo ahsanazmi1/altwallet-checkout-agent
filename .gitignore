@@ -194,3 +194,7 @@ openapi/
 build/
 dist/
 *.egg-info/
+
+# Log files
+logs/
+*.log
