@@ -295,7 +295,6 @@
             "description": "Human-readable description of the rule"
           },
           "parameters": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Parameters",
             "description": "Parameters used in rule evaluation"
@@ -388,7 +387,6 @@
             "default": 1.0
           },
           "metadata": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Metadata",
             "description": "Additional metadata"
@@ -468,7 +466,6 @@
       "DecisionRequest": {
         "properties": {
           "context_data": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Context Data"
           }
@@ -496,7 +493,6 @@
           "metadata": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -518,7 +514,6 @@
       "ExplainRequest": {
         "properties": {
           "context_data": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Context Data"
           }
@@ -541,14 +536,12 @@
             "title": "Request Id"
           },
           "attributions": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Attributions"
           },
           "metadata": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -735,7 +728,6 @@
       "ScoreRequest": {
         "properties": {
           "context_data": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Context Data"
           }
@@ -755,7 +747,6 @@
           },
           "recommendations": {
             "items": {
-              "additionalProperties": true,
               "type": "object"
             },
             "type": "array",
@@ -772,7 +763,6 @@
           "metadata": {
             "anyOf": [
               {
-                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -815,7 +805,6 @@
             "description": "Payment network preference"
           },
           "signals": {
-            "additionalProperties": true,
             "type": "object",
             "title": "Signals",
             "description": "Detailed scoring signals and components"

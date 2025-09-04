@@ -221,7 +221,6 @@ def demonstrate_analytics():
     print("\n📋 Demo 6: Analytics Event Structure")
     print("-" * 50)
 
-
     # Create a sample event to show structure
     sample_event = DecisionOutcomeEvent(
         event_id="sample_event_001",

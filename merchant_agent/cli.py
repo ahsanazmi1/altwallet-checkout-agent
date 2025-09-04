@@ -5,6 +5,7 @@ from merchant_agent.core import Context, score_purchase
 
 app = typer.Typer(add_completion=False, help="Merchant Agent CLI (starter)")
 
+
 @app.command()
 def demo(
     merchant: str = typer.Option(..., "-m", "--merchant", help="Merchant name"),
@@ -28,6 +29,7 @@ def demo(
             rprint("[bold]Signals:[/bold]")
             for k, v in result["signals"].items():
                 rprint(f"  - {k}: {v}")
+
 
 if __name__ == "__main__":
     app()
