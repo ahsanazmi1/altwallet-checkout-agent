@@ -17,9 +17,7 @@ class SDKConfig(BaseModel):
         default="http://localhost:8000", description="AltWallet API endpoint URL"
     )
 
-    api_key: str | None = Field(
-        default=None, description="API key for authentication"
-    )
+    api_key: str | None = Field(default=None, description="API key for authentication")
 
     timeout: int = Field(default=30, description="Request timeout in seconds")
 
@@ -75,9 +73,7 @@ class Cart(BaseModel):
     currency: str = Field(default="USD", description="Currency code")
     total_amount: float | None = Field(default=None, description="Total cart amount")
     tax_amount: float | None = Field(default=None, description="Tax amount")
-    shipping_amount: float | None = Field(
-        default=None, description="Shipping amount"
-    )
+    shipping_amount: float | None = Field(default=None, description="Shipping amount")
 
     @validator("currency")
     def validate_currency(cls, v):
@@ -90,15 +86,11 @@ class Customer(BaseModel):
     """Customer information for personalization."""
 
     customer_id: str = Field(description="Unique customer identifier")
-    loyalty_tier: str | None = Field(
-        default=None, description="Customer loyalty tier"
-    )
+    loyalty_tier: str | None = Field(default=None, description="Customer loyalty tier")
     preferred_cards: list[str] | None = Field(
         default=None, description="Preferred card IDs"
     )
-    risk_profile: str | None = Field(
-        default=None, description="Customer risk profile"
-    )
+    risk_profile: str | None = Field(default=None, description="Customer risk profile")
     location: dict[str, str] | None = Field(
         default=None, description="Customer location"
     )
@@ -116,9 +108,7 @@ class Context(BaseModel):
     ip_address: str | None = Field(default=None, description="Customer IP address")
     session_id: str | None = Field(default=None, description="Session identifier")
     referrer: str | None = Field(default=None, description="Referrer URL")
-    campaign_id: str | None = Field(
-        default=None, description="Marketing campaign ID"
-    )
+    campaign_id: str | None = Field(default=None, description="Marketing campaign ID")
 
 
 class QuoteRequest(BaseModel):
@@ -173,9 +163,7 @@ class Recommendation(BaseModel):
     approval_probability: float = Field(description="Probability of approval (0.0-1.0)")
     expected_rewards: float = Field(description="Expected rewards rate")
     utility_score: float = Field(description="Overall utility score")
-    reasoning: str | None = Field(
-        default=None, description="Human-readable reasoning"
-    )
+    reasoning: str | None = Field(default=None, description="Human-readable reasoning")
     features: dict[str, Any] | None = Field(
         default=None, description="Feature attributions"
     )
