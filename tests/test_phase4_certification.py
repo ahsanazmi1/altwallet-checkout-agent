@@ -126,7 +126,7 @@ class TestDocumentationCompleteness:
 
         for doc_path in sdk_docs:
             if Path(doc_path).exists():
-                with open(doc_path) as f:
+                with open(doc_path, encoding="utf-8") as f:
                     content = f.read()
                     assert (
                         len(content) > 200
