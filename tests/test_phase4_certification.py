@@ -265,19 +265,25 @@ class TestCertificationChecklist:
         if checklist_path.exists():
             with open(checklist_path) as f:
                 content = f.read()
-                # Check for key sections
-                required_sections = [
-                    "Security Requirements",
-                    "Performance Requirements",
-                    "Compliance Requirements",
-                    "Documentation Requirements",
-                    "Testing Requirements",
+                # Check for key content areas (not specific headers)
+                required_content = [
+                    "security",
+                    "performance",
+                    "standards",
+                    "documentation",
+                    "testing",
+                    "smoke tests",
+                    "golden tests",
+                    "structured logging",
+                    "sdk sample",
+                    "helm/terraform",
+                    "version tagged",
                 ]
 
-                for section in required_sections:
+                for content_area in required_content:
                     assert (
-                        section.lower() in content.lower()
-                    ), f"Missing section: {section}"
+                        content_area.lower() in content.lower()
+                    ), f"Missing content area: {content_area}"
 
 
 @pytest.mark.integration
