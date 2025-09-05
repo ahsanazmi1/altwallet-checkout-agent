@@ -219,7 +219,10 @@ class TestLoggingConfiguration:
         test_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
         for level in test_levels:
-            with patch.dict(os.environ, {"LOG_LEVEL": level}):
+            with patch.dict(os.environ, {"LOG_LEVEL": level}, clear=False):
+                # Clear LOG_SILENT to ensure it doesn't interfere with log level testing
+                if "LOG_SILENT" in os.environ:
+                    del os.environ["LOG_SILENT"]
                 configure_logging()
                 assert get_log_level() == level
 

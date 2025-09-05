@@ -69,7 +69,7 @@ class TestSDKStructure:
             assert "installation" in python_content.lower()
             assert "usage" in python_content.lower()
 
-        with open(nodejs_readme) as f:
+        with open(nodejs_readme, encoding='utf-8') as f:
             nodejs_content = f.read()
             assert "installation" in nodejs_content.lower()
             assert "usage" in nodejs_content.lower()
@@ -84,7 +84,7 @@ class TestSDKExamples:
         assert basic_example.exists(), "Python basic usage example missing"
 
         # Basic validation of example content
-        with open(basic_example) as f:
+        with open(basic_example, encoding='utf-8') as f:
             content = f.read()
             assert "import" in content
             assert "altwallet" in content.lower()
@@ -100,7 +100,7 @@ class TestSDKExamples:
         assert basic_example.exists(), "Node.js basic usage example missing"
 
         # Basic validation of example content
-        with open(basic_example) as f:
+        with open(basic_example, encoding='utf-8') as f:
             content = f.read()
             assert "require" in content or "import" in content
             assert "altwallet" in content.lower()
