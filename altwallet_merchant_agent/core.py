@@ -1,7 +1,6 @@
 """Core functionality for AltWallet Merchant Agent."""
 
 from dataclasses import dataclass
-from typing import List, Optional
 from decimal import Decimal
 
 
@@ -12,7 +11,7 @@ class Card:
     name: str
     cashback_rate: Decimal
     annual_fee: Decimal
-    category_bonus: Optional[str] = None
+    category_bonus: str | None = None
     category_multiplier: Decimal = Decimal("1.0")
 
 

@@ -6,13 +6,12 @@ This script performs sanity checks to verify all Phase 1 requirements are met.
 Run this script to ensure the project is ready for CI/CD integration.
 """
 
+import importlib.util
 import json
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import List, Tuple, Optional
-import importlib.util
 
 # Try to import requests, fallback to httpx if not available
 try:
@@ -41,8 +40,8 @@ class Phase1Verifier:
 
     def __init__(self):
         self.project_root = Path(__file__).parent.parent
-        self.results: List[Tuple[str, bool, str]] = []
-        self.api_process: Optional[subprocess.Popen] = None
+        self.results: list[tuple[str, bool, str]] = []
+        self.api_process: subprocess.Popen | None = None
 
     def print_header(self, message: str) -> None:
         """Print a formatted header."""
@@ -121,8 +120,8 @@ class Phase1Verifier:
         self.print_header("Checking Deterministic Scoring")
 
         try:
-            from altwallet_agent.scoring import score_transaction
             from altwallet_agent.models import Context
+            from altwallet_agent.scoring import score_transaction
 
             # Create test context
             test_context = {
@@ -263,7 +262,7 @@ class Phase1Verifier:
 
         try:
             # Run golden tests
-            result = subprocess.run(
+            subprocess.run(
                 [sys.executable, "-m", "pytest", "tests/golden/", "-v"],
                 capture_output=True,
                 text=True,
@@ -471,7 +470,7 @@ class Phase1Verifier:
 
             # Try to build Docker image (dry run - just check syntax)
             try:
-                result = subprocess.run(
+                subprocess.run(
                     ["docker", "build", "--dry-run", "."],
                     capture_output=True,
                     text=True,
