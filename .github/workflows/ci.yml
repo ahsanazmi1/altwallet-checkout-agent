@@ -114,8 +114,22 @@ jobs:
       run: |
         python -c "
         import json
-        with open('openapi/openapi-v0.3.0.json', 'r') as f:
+        import os
+        schema_path = 'openapi/openapi-v0.3.0.json'
+        if not os.path.exists(schema_path):
+            print(f'OpenAPI schema file not found at {schema_path}')
+            print('Available files in openapi/ directory:')
+            if os.path.exists('openapi/'):
+                for f in os.listdir('openapi/'):
+                    print(f'  {f}')
+            exit(1)
+        
+        with open(schema_path, 'r') as f:
             schema = json.load(f)
+        
+        print(f'OpenAPI schema version: {schema[\"info\"][\"version\"]}')
+        print(f'Available paths: {list(schema[\"paths\"].keys())}')
+        
         assert schema['info']['version'] == '0.3.0'
         assert '/decision' in schema['paths']
         assert '/webhooks' in schema['paths']
