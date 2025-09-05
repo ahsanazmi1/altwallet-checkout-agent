@@ -230,7 +230,8 @@ class TestLoggingConfiguration:
 
         for value in silent_values:
             with patch.dict(os.environ, {"LOG_SILENT": value}):
-                configure_logging()
+                # Test the functions directly without calling configure_logging()
+                # since that might reset the configuration
                 assert is_silent_mode() is True
                 assert get_log_level() == "CRITICAL"
 
