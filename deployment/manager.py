@@ -220,7 +220,7 @@ class DeploymentManager:
                 "metrics_enabled": self.config.metrics_enabled,
                 "tracing_enabled": self.config.tracing_enabled,
             },
-            "mode_config": self.get_mode_config().dict(),
+            "mode_config": self.get_mode_config().model_dump(),
             "health_check": self.get_health_check_config(),
             "logging": self.get_logging_config(),
             "metrics": self.get_metrics_config(),

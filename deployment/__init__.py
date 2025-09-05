@@ -20,6 +20,8 @@ from .inline.embedded import (
     CircuitBreakerOpenError,
 )
 
+from .manager import DeploymentManager, get_deployment_manager, initialize_deployment
+
 __all__ = [
     # Configuration
     "DeploymentConfig",
@@ -30,6 +32,11 @@ __all__ = [
     "get_deployment_mode",
     "is_sidecar_mode",
     "is_inline_mode",
+    
+    # Deployment management
+    "DeploymentManager",
+    "get_deployment_manager",
+    "initialize_deployment",
     
     # Inline deployment
     "InlineCheckoutClient",

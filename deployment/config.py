@@ -225,13 +225,7 @@ def load_deployment_config(config_path: Optional[str] = None) -> DeploymentConfi
     """
     config_data = {}
     
-    # Load from file if provided
-    if config_path and os.path.exists(config_path):
-        import json
-        with open(config_path, 'r') as f:
-            config_data = json.load(f)
-    
-    # Override with environment variables
+    # First load from environment variables
     env_mappings = {
         'DEPLOYMENT_MODE': 'mode',
         'ENVIRONMENT': 'environment',
@@ -253,6 +247,13 @@ def load_deployment_config(config_path: Optional[str] = None) -> DeploymentConfi
             elif config_key in ['metrics_enabled', 'tracing_enabled']:
                 value = value.lower() in ('true', '1', 'yes', 'on')
             config_data[config_key] = value
+    
+    # Then override with file configuration if provided
+    if config_path and os.path.exists(config_path):
+        import json
+        with open(config_path, 'r') as f:
+            file_data = json.load(f)
+            config_data.update(file_data)
     
     return DeploymentConfig(**config_data)
 

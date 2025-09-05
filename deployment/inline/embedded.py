@@ -198,12 +198,20 @@ class InlineCheckoutClient:
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check."""
         try:
+            # Determine health status
+            status = "healthy"
             if not self._initialized:
-                await self.initialize()
+                status = "unhealthy"
+            elif self._circuit_breaker_state == "open":
+                status = "unhealthy"
+            elif self._error_count > 0 and self._request_count > 0:
+                error_rate = self._error_count / self._request_count
+                if error_rate > 0.5:  # More than 50% error rate
+                    status = "unhealthy"
             
             # Basic health check
             health_status = {
-                "status": "healthy",
+                "status": status,
                 "initialized": self._initialized,
                 "request_count": self._request_count,
                 "error_count": self._error_count,

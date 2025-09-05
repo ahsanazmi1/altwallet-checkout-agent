@@ -9,6 +9,7 @@ import pytest
 import json
 import os
 import tempfile
+import time
 from unittest.mock import Mock, patch, AsyncMock
 from pathlib import Path
 
@@ -493,8 +494,9 @@ class TestInlineCheckoutClient:
     async def test_process_checkout_circuit_breaker_open(self, inline_client):
         """Test checkout processing with circuit breaker open."""
         inline_client._initialized = True
+        inline_client._agent = AsyncMock()  # Set an async mock agent
         inline_client._circuit_breaker_state = "open"
-        inline_client._circuit_breaker_last_failure = 0  # Recent failure
+        inline_client._circuit_breaker_last_failure = time.time()  # Recent failure
         
         request = Mock()
         
