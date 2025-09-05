@@ -46,14 +46,14 @@ jobs:
         
         # Run smoke tests
         python tests/smoke_tests.py
-        env:
-          LOG_SILENT: "1"
         
         # Test CLI commands still work
         altwallet_agent --help
         altwallet_agent version
         
         echo "✅ Backward compatibility verified"
+      env:
+        LOG_SILENT: "1"
 
     # Guardrail 2: Testing Requirements
     - name: Testing Requirements Check
@@ -81,10 +81,10 @@ jobs:
         
         # Run golden tests to ensure consistency
         python -m pytest tests/test_golden.py -v --tb=short
-        env:
-          UPDATE_GOLDEN: ""
         
         echo "✅ Testing requirements verified"
+      env:
+        UPDATE_GOLDEN: ""
 
     # Guardrail 3: Structured Logging Compliance
     - name: Structured Logging Check
