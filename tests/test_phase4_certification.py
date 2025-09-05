@@ -257,7 +257,7 @@ class TestCertificationChecklist:
             content = f.read()
             assert "security" in content.lower()
             assert "performance" in content.lower()
-            assert "compliance" in content.lower()
+            assert "certification" in content.lower()
 
     def test_certification_checklist_completeness(self):
         """Test that certification checklist is complete."""

@@ -25,7 +25,7 @@ request_start_time_var: contextvars.ContextVar[float | None] = contextvars.Conte
 def get_log_level() -> str:
     """Get log level from environment variable, defaulting to INFO."""
     # Check for LOG_SILENT first
-    if os.getenv("LOG_SILENT", "0") == "1":
+    if is_silent_mode():
         return "CRITICAL"  # Only show critical errors when silent
     return os.getenv("LOG_LEVEL", "INFO").upper()
 

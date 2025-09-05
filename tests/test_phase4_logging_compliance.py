@@ -229,7 +229,7 @@ class TestLoggingConfiguration:
         silent_values = ["1", "true", "True", "TRUE", "yes", "YES", "on", "ON"]
 
         for value in silent_values:
-            with patch.dict(os.environ, {"LOG_SILENT": value}):
+            with patch.dict(os.environ, {"LOG_SILENT": value}, clear=False):
                 # Test the functions directly without calling configure_logging()
                 # since that might reset the configuration
                 assert is_silent_mode() is True
