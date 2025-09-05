@@ -110,12 +110,37 @@ jobs:
       run: |
         pytest tests/ -k "integration" -v --tb=short
     
+    - name: Generate OpenAPI schema
+      run: |
+        python -c "
+        import uvicorn
+        import asyncio
+        import time
+        import os
+        from src.altwallet_agent.api import app
+        
+        # Start server briefly to generate OpenAPI schema
+        config = uvicorn.Config(app, host='127.0.0.1', port=8000, log_level='error')
+        server = uvicorn.Server(config)
+        
+        async def generate_schema():
+            await server.serve()
+        
+        # Run server for a short time to generate schema
+        try:
+            asyncio.run(asyncio.wait_for(generate_schema(), timeout=5.0))
+        except asyncio.TimeoutError:
+            pass  # Expected - we just want to generate the schema file
+        
+        print('OpenAPI schema generated')
+        "
+    
     - name: Validate OpenAPI schema
       run: |
         python -c "
         import json
         import os
-        schema_path = 'openapi/openapi-v0.3.0.json'
+        schema_path = 'openapi/openapi.json'
         if not os.path.exists(schema_path):
             print(f'OpenAPI schema file not found at {schema_path}')
             print('Available files in openapi/ directory:')
