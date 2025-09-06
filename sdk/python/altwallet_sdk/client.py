@@ -4,6 +4,7 @@ import asyncio
 import logging
 import time
 import uuid
+from abc import ABC, abstractmethod
 from typing import Any
 
 import httpx
@@ -27,7 +28,21 @@ from .models import (
 )
 
 
-class AltWalletClient:
+class SDKProvider(ABC):
+    """Abstract base class for SDK providers."""
+
+    @abstractmethod
+    def get_client_type(self) -> str:
+        """Get the type of client this provider creates."""
+        pass
+
+    @abstractmethod
+    def initialize_provider(self) -> None:
+        """Initialize the SDK provider."""
+        pass
+
+
+class AltWalletClient(SDKProvider):
     """Client for interacting with the AltWallet Checkout Agent API."""
 
     def __init__(self, config: SDKConfig | dict[str, Any] | None = None):
@@ -44,6 +59,16 @@ class AltWalletClient:
         self.config = config
         self._client: httpx.AsyncClient | None = None
         self._initialized = False
+
+    def get_client_type(self) -> str:
+        """Get the type of client this provider creates."""
+        return "AltWalletClient"
+
+    def initialize_provider(self) -> None:
+        """Initialize the SDK provider."""
+        self.logger.info(
+            "Initializing SDK provider", client_type=self.get_client_type()
+        )
 
         # Setup logging
         self._setup_logging()

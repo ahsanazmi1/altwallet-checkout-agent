@@ -1,6 +1,7 @@
 """Deployment manager for handling different deployment modes."""
 
 import os
+from abc import ABC, abstractmethod
 from typing import Any
 
 import structlog
@@ -14,7 +15,21 @@ from .config import (
 from .inline.embedded import InlineCheckoutClient, SyncInlineCheckoutClient
 
 
-class DeploymentManager:
+class DeploymentProvider(ABC):
+    """Abstract base class for deployment providers."""
+
+    @abstractmethod
+    def get_deployment_mode(self) -> DeploymentMode:
+        """Get the deployment mode for this provider."""
+        pass
+
+    @abstractmethod
+    def initialize(self) -> None:
+        """Initialize the deployment provider."""
+        pass
+
+
+class DeploymentManager(DeploymentProvider):
     """Manages deployment mode selection and initialization."""
 
     def __init__(self, config: DeploymentConfig | None = None):
@@ -27,6 +42,14 @@ class DeploymentManager:
         self.logger = structlog.get_logger(__name__)
         self._mode = self._determine_deployment_mode()
         self._initialized = False
+
+    def get_deployment_mode(self) -> DeploymentMode:
+        """Get the deployment mode for this provider."""
+        return self._mode
+
+    def initialize(self) -> None:
+        """Initialize the deployment provider."""
+        self.logger.info("Initializing deployment provider", mode=self._mode.value)
 
         self.logger.info(
             "Deployment manager initialized",
