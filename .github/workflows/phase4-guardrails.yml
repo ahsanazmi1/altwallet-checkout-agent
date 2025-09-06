@@ -60,23 +60,20 @@ jobs:
       run: |
         echo "Checking testing requirements..."
         
-        # Check for test stubs in new Phase 4 directories
-        if [ -d "deployment/" ]; then
-          echo "Checking deployment tests..."
-          find deployment/ -name "test_*.py" -o -name "*_test.py" | head -5
-          if [ $? -ne 0 ]; then
-            echo "[FAIL] Missing test files in deployment/ directory"
-            exit 1
-          fi
+        # Check for Phase 4 test files in tests/ directory
+        echo "Checking Phase 4 test files..."
+        if [ -f "tests/test_deployment_profiles.py" ] && [ -f "tests/test_phase4_deployment.py" ]; then
+          echo "[PASS] Found deployment test files"
+        else
+          echo "[FAIL] Missing deployment test files"
+          exit 1
         fi
         
-        if [ -d "sdk/" ]; then
-          echo "Checking SDK tests..."
-          find sdk/ -name "test_*.py" -o -name "*_test.py" | head -5
-          if [ $? -ne 0 ]; then
-            echo "[FAIL] Missing test files in sdk/ directory"
-            exit 1
-          fi
+        if [ -f "tests/test_phase4_sdk.py" ]; then
+          echo "[PASS] Found SDK test files"
+        else
+          echo "[FAIL] Missing SDK test files"
+          exit 1
         fi
         
         # Run golden tests to ensure consistency
