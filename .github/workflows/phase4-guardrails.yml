@@ -39,7 +39,7 @@ jobs:
     # Guardrail 1: Backward Compatibility
     - name: Backward Compatibility Check
       run: |
-        echo "🔍 Checking backward compatibility..."
+        echo "Checking backward compatibility..."
         
         # Run all existing tests to ensure nothing is broken
         python -m pytest tests/ -v --tb=short
@@ -51,21 +51,21 @@ jobs:
         altwallet_agent --help
         altwallet_agent version
         
-        echo "✅ Backward compatibility verified"
+        echo "Backward compatibility verified"
       env:
         LOG_SILENT: "1"
 
     # Guardrail 2: Testing Requirements
     - name: Testing Requirements Check
       run: |
-        echo "🧪 Checking testing requirements..."
+        echo "Checking testing requirements..."
         
         # Check for test stubs in new Phase 4 directories
         if [ -d "deployment/" ]; then
           echo "Checking deployment tests..."
           find deployment/ -name "test_*.py" -o -name "*_test.py" | head -5
           if [ $? -ne 0 ]; then
-            echo "❌ Missing test files in deployment/ directory"
+            echo "[FAIL] Missing test files in deployment/ directory"
             exit 1
           fi
         fi
@@ -74,7 +74,7 @@ jobs:
           echo "Checking SDK tests..."
           find sdk/ -name "test_*.py" -o -name "*_test.py" | head -5
           if [ $? -ne 0 ]; then
-            echo "❌ Missing test files in sdk/ directory"
+            echo "[FAIL] Missing test files in sdk/ directory"
             exit 1
           fi
         fi
@@ -82,14 +82,14 @@ jobs:
         # Run golden tests to ensure consistency
         python -m pytest tests/test_golden.py -v --tb=short
         
-        echo "✅ Testing requirements verified"
+        echo "[PASS] Testing requirements verified"
       env:
         UPDATE_GOLDEN: ""
 
     # Guardrail 3: Structured Logging Compliance
     - name: Structured Logging Check
       run: |
-        echo "📝 Checking structured logging compliance..."
+        echo "[LOG] Checking structured logging compliance..."
         
         # Check for proper logging imports and usage
         python -c "
@@ -103,11 +103,11 @@ jobs:
                 
                 # Check for structlog usage
                 if 'structlog' in content:
-                    print(f'✅ {file_path}: Uses structlog')
+                    print(f'[PASS] {file_path}: Uses structlog')
                 elif 'logging' in content and 'logger' in content:
-                    print(f'⚠️  {file_path}: Uses standard logging (consider structlog)')
+                    print(f'??  {file_path}: Uses standard logging (consider structlog)')
                 else:
-                    print(f'ℹ️  {file_path}: No logging detected')
+                    print(f'[INFO]  {file_path}: No logging detected')
         
         # Check Phase 4 related files
         phase4_files = []
@@ -121,7 +121,7 @@ jobs:
             for file in phase4_files:
                 check_logging_compliance(file)
         else:
-            print('ℹ️  No Phase 4 Python files found yet')
+            print('[INFO]  No Phase 4 Python files found yet')
         "
         
         # Test LOG_SILENT functionality
@@ -130,15 +130,15 @@ jobs:
         os.environ['LOG_SILENT'] = '1'
         from src.altwallet_agent.core import CheckoutAgent
         agent = CheckoutAgent()
-        print('✅ LOG_SILENT=1 support verified')
+        print('[PASS] LOG_SILENT=1 support verified')
         "
         
-        echo "✅ Structured logging compliance verified"
+        echo "[PASS] Structured logging compliance verified"
 
     # Guardrail 4: Modular Architecture Check
     - name: Modular Architecture Check
       run: |
-        echo "🏗️  Checking modular architecture compliance..."
+        echo "??  Checking modular architecture compliance..."
         
         # Check for provider framework patterns
         python -c "
@@ -151,13 +151,13 @@ jobs:
                 
                 # Look for provider-like patterns
                 if re.search(r'class.*Provider.*:', content):
-                    print(f'✅ {file_path}: Contains Provider pattern')
+                    print(f'[PASS] {file_path}: Contains Provider pattern')
                 elif re.search(r'from.*provider', content):
-                    print(f'✅ {file_path}: Imports provider framework')
+                    print(f'[PASS] {file_path}: Imports provider framework')
                 elif re.search(r'ABC|abstractmethod', content):
-                    print(f'✅ {file_path}: Uses abstract base classes')
+                    print(f'[PASS] {file_path}: Uses abstract base classes')
                 else:
-                    print(f'ℹ️  {file_path}: No provider patterns detected')
+                    print(f'[INFO]  {file_path}: No provider patterns detected')
         
         # Check Phase 4 files for provider patterns
         phase4_files = []
@@ -171,15 +171,15 @@ jobs:
             for file in phase4_files:
                 check_provider_patterns(file)
         else:
-            print('ℹ️  No Phase 4 Python files found yet')
+            print('[INFO]  No Phase 4 Python files found yet')
         "
         
-        echo "✅ Modular architecture compliance verified"
+        echo "[PASS] Modular architecture compliance verified"
 
     # Guardrail 5: CI/CD Gates - Deployment Profiles
     - name: Deployment Profiles Check
       run: |
-        echo "🚀 Checking deployment profiles..."
+        echo "[DEPLOY] Checking deployment profiles..."
         
         # Check for required deployment profile files
         required_files=(
@@ -195,23 +195,23 @@ jobs:
           if [ ! -f "$file" ]; then
             missing_files+=("$file")
           else
-            echo "✅ Found: $file"
+            echo "[PASS] Found: $file"
           fi
         done
         
         if [ ${#missing_files[@]} -gt 0 ]; then
-          echo "❌ Missing deployment profile files:"
+          echo "[FAIL] Missing deployment profile files:"
           printf '%s\n' "${missing_files[@]}"
           echo "Please create the missing deployment profiles before merging."
           exit 1
         fi
         
-        echo "✅ All deployment profiles present"
+        echo "[PASS] All deployment profiles present"
 
     # Guardrail 5: CI/CD Gates - SDK Examples
     - name: SDK Examples Check
       run: |
-        echo "📚 Checking SDK examples..."
+        echo "[SDK] Checking SDK examples..."
         
         # Check for required SDK example files
         required_files=(
@@ -228,23 +228,23 @@ jobs:
           if [ ! -f "$file" ]; then
             missing_files+=("$file")
           else
-            echo "✅ Found: $file"
+            echo "[PASS] Found: $file"
           fi
         done
         
         if [ ${#missing_files[@]} -gt 0 ]; then
-          echo "❌ Missing SDK example files:"
+          echo "[FAIL] Missing SDK example files:"
           printf '%s\n' "${missing_files[@]}"
           echo "Please create the missing SDK examples before merging."
           exit 1
         fi
         
-        echo "✅ All SDK examples present"
+        echo "[PASS] All SDK examples present"
 
     # Code Quality Checks
     - name: Code Quality Check
       run: |
-        echo "🔍 Running code quality checks..."
+        echo "[CHECK] Running code quality checks..."
         
         # Lint with Black
         black --check --diff src/ tests/ examples/ deployment/ sdk/ || true
@@ -255,12 +255,12 @@ jobs:
         # Type check with MyPy
         mypy src/ --ignore-missing-imports || true
         
-        echo "✅ Code quality checks completed"
+        echo "[PASS] Code quality checks completed"
 
     # Coverage Check
     - name: Coverage Check
       run: |
-        echo "📊 Checking test coverage..."
+        echo "[COVERAGE] Checking test coverage..."
         
         # Run tests with coverage
         python -m pytest tests/ -v --cov=src/altwallet_agent --cov-report=xml --cov-report=term
@@ -279,26 +279,26 @@ jobs:
         print(f'Coverage: {coverage_percent:.1f}%')
         
         if coverage_percent < 65:
-            print(f'❌ Coverage {coverage_percent:.1f}% is below 65% threshold')
+            print(f'[FAIL] Coverage {coverage_percent:.1f}% is below 65% threshold')
             exit(1)
         else:
-            print(f'✅ Coverage {coverage_percent:.1f}% meets 65% threshold')
+            print(f'[PASS] Coverage {coverage_percent:.1f}% meets 65% threshold')
         "
         
-        echo "✅ Coverage check completed"
+        echo "[PASS] Coverage check completed"
 
     # Final Summary
     - name: Guardrails Summary
       run: |
-        echo "🎉 Phase 4 Guardrails Summary"
+        echo "[SUCCESS] Phase 4 Guardrails Summary"
         echo "================================"
-        echo "✅ Backward Compatibility: Verified"
-        echo "✅ Testing Requirements: Verified"
-        echo "✅ Structured Logging: Verified"
-        echo "✅ Modular Architecture: Verified"
-        echo "✅ Deployment Profiles: Verified"
-        echo "✅ SDK Examples: Verified"
-        echo "✅ Code Quality: Verified"
-        echo "✅ Test Coverage: Verified"
+        echo "[PASS] Backward Compatibility: Verified"
+        echo "[PASS] Testing Requirements: Verified"
+        echo "[PASS] Structured Logging: Verified"
+        echo "[PASS] Modular Architecture: Verified"
+        echo "[PASS] Deployment Profiles: Verified"
+        echo "[PASS] SDK Examples: Verified"
+        echo "[PASS] Code Quality: Verified"
+        echo "[PASS] Test Coverage: Verified"
         echo ""
-        echo "🚀 All Phase 4 guardrails passed! Ready for merge."
+        echo "[DEPLOY] All Phase 4 guardrails passed! Ready for merge."
