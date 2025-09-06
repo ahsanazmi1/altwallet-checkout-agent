@@ -49,7 +49,7 @@ jobs:
         
         # Test CLI commands still work
         altwallet_agent --help
-        altwallet_agent version
+        altwallet_agent --version
         
         echo "Backward compatibility verified"
       env:
