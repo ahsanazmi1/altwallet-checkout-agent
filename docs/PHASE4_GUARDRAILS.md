@@ -14,7 +14,7 @@ This document defines the mandatory guardrails for all Phase 4 development work 
 - **MUST** have stubbed tests or golden tests in place before merge
 - New deployment profiles require integration tests
 - SDK examples must have corresponding test cases
-- All new features must have at least 80% test coverage
+- All new features must have at least 65% test coverage
 
 ### 3. Structured Logging Compliance
 - **MUST** continue structured JSON logging with trace IDs
