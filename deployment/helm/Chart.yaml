@@ -1,0 +1,35 @@
+apiVersion: v2
+name: altwallet-checkout-agent
+description: AltWallet Checkout Agent - Intelligent card recommendations and transaction scoring
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+home: https://github.com/altwallet/checkout-agent
+sources:
+  - https://github.com/altwallet/checkout-agent
+maintainers:
+  - name: AltWallet Team
+    email: team@altwallet.com
+keywords:
+  - altwallet
+  - checkout
+  - payment
+  - credit-cards
+  - recommendations
+  - fintech
+annotations:
+  category: Finance
+  licenses: MIT
+dependencies:
+  - name: redis
+    version: "17.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+  - name: prometheus
+    version: "25.x.x"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: monitoring.prometheus.enabled
+  - name: grafana
+    version: "7.x.x"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: monitoring.grafana.enabled

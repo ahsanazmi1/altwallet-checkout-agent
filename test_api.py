@@ -2,8 +2,8 @@
 """Test script for AltWallet Checkout Agent API."""
 
 import json
+
 import requests
-from typing import Dict, Any
 
 BASE_URL = "http://localhost:8080"
 

@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ main, develop, phase2-intelligence ]
+    branches: [ main, develop, phase2-intelligence, phase4-platformization ]
   pull_request:
-    branches: [ main, develop, phase2-intelligence ]
+    branches: [ main, develop, phase2-intelligence, phase4-platformization ]
 
 jobs:
   test:

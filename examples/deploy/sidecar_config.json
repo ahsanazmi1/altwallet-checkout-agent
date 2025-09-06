@@ -1,0 +1,31 @@
+{
+  "mode": "sidecar",
+  "environment": "production",
+  "log_level": "INFO",
+  "api_host": "0.0.0.0",
+  "api_port": 8000,
+  "max_workers": 4,
+  "request_timeout": 30,
+  "health_check_enabled": true,
+  "health_check_interval": 30,
+  "metrics_enabled": true,
+  "tracing_enabled": true,
+  "cors_origins": ["*"],
+  "api_key_required": false,
+  "sidecar_config": {
+    "container_name": "altwallet-checkout-agent",
+    "image_tag": "latest",
+    "restart_policy": "unless-stopped",
+    "memory_limit": "512Mi",
+    "cpu_limit": "500m",
+    "network_mode": "bridge",
+    "expose_port": 8000,
+    "config_volume": "/app/config",
+    "log_volume": "/app/logs",
+    "env_vars": {
+      "ENVIRONMENT": "production",
+      "LOG_LEVEL": "INFO",
+      "METRICS_ENABLED": "true"
+    }
+  }
+}

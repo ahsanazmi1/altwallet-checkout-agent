@@ -1,0 +1,303 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: altwallet
+  labels:
+    name: altwallet
+    app: checkout-agent
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: altwallet-config
+  namespace: altwallet
+data:
+  DEPLOYMENT_MODE: "sidecar"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  MAX_WORKERS: "4"
+  REQUEST_TIMEOUT: "30"
+  METRICS_ENABLED: "true"
+  TRACING_ENABLED: "true"
+  HEALTH_CHECK_ENABLED: "true"
+  HEALTH_CHECK_INTERVAL: "30"
+  CORS_ORIGINS: '["*"]'
+  API_KEY_REQUIRED: "false"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: altwallet-secrets
+  namespace: altwallet
+type: Opaque
+data:
+  # Base64 encoded secrets (replace with actual values)
+  api-key: ""  # base64 encoded API key
+  database-url: ""  # base64 encoded database URL
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: altwallet-checkout-agent
+  namespace: altwallet
+  labels:
+    app: altwallet-checkout-agent
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: altwallet-checkout-agent
+  template:
+    metadata:
+      labels:
+        app: altwallet-checkout-agent
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: altwallet-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: altwallet-checkout-agent
+        image: altwallet/checkout-agent:latest
+        imagePullPolicy: Always
+        
+        # Resource limits
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        # Port configuration
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        
+        # Environment variables
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        envFrom:
+        - configMapRef:
+            name: altwallet-config
+        - secretRef:
+            name: altwallet-secrets
+        
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        # Startup probe
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 12
+        
+        # Security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        # Volume mounts
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: logs-volume
+          mountPath: /app/logs
+        - name: tmp-volume
+          mountPath: /tmp
+        
+        # Lifecycle hooks
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 15"]
+      
+      # Volumes
+      volumes:
+      - name: config-volume
+        configMap:
+          name: altwallet-config
+      - name: logs-volume
+        emptyDir: {}
+      - name: tmp-volume
+        emptyDir: {}
+      
+      # Node selection
+      nodeSelector:
+        kubernetes.io/os: linux
+      
+      # Tolerations
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+      
+      # Affinity
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - altwallet-checkout-agent
+              topologyKey: kubernetes.io/hostname
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: altwallet-checkout-agent-service
+  namespace: altwallet
+  labels:
+    app: altwallet-checkout-agent
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: altwallet-checkout-agent
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: altwallet-service-account
+  namespace: altwallet
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: altwallet
+  name: altwallet-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: altwallet-role-binding
+  namespace: altwallet
+subjects:
+- kind: ServiceAccount
+  name: altwallet-service-account
+  namespace: altwallet
+roleRef:
+  kind: Role
+  name: altwallet-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: altwallet-checkout-agent-hpa
+  namespace: altwallet
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: altwallet-checkout-agent
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: altwallet-checkout-agent-pdb
+  namespace: altwallet
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: altwallet-checkout-agent

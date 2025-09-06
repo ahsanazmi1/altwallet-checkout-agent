@@ -1,0 +1,213 @@
+# Inline Deployment Configuration
+# This configuration is used when the AltWallet Checkout Agent
+# is embedded directly into merchant applications
+
+deployment:
+  mode: inline
+  environment: production
+  
+  # Integration settings
+  integration:
+    method: direct_import  # Options: direct_import, http_client, sdk
+    merchant_app_name: "merchant-checkout-app"
+    
+    # Performance tuning
+    connection_pool_size: 10
+    keep_alive: true
+    
+    # Caching configuration
+    cache:
+      enabled: true
+      ttl_seconds: 300
+      max_size: 1000
+    
+    # Error handling
+    retry:
+      attempts: 3
+      delay_seconds: 1.0
+      backoff_multiplier: 2.0
+    
+    # Circuit breaker
+    circuit_breaker:
+      enabled: true
+      failure_threshold: 5
+      timeout_seconds: 60
+      half_open_max_calls: 3
+
+# API configuration
+api:
+  host: "127.0.0.1"  # Localhost for inline mode
+  port: 8000
+  timeout_seconds: 30
+  
+  # Security
+  cors:
+    origins: ["*"]
+    methods: ["GET", "POST", "PUT", "DELETE"]
+    headers: ["*"]
+  
+  # Authentication (optional for inline mode)
+  auth:
+    enabled: false
+    api_key_required: false
+
+# Logging configuration
+logging:
+  level: INFO
+  format: json
+  structured: true
+  
+  # Log destinations
+  destinations:
+    - console
+    - file
+  
+  # File logging
+  file:
+    path: "/var/log/altwallet/inline.log"
+    max_size: "10MB"
+    backup_count: 5
+  
+  # Performance logging
+  performance:
+    enabled: true
+    log_slow_requests: true
+    slow_request_threshold_ms: 1000
+
+# Monitoring and metrics
+monitoring:
+  enabled: true
+  
+  # Metrics collection
+  metrics:
+    enabled: true
+    endpoint: "/metrics"
+    port: 9090
+    
+    # Custom metrics
+    custom_metrics:
+      - request_duration_seconds
+      - request_count_total
+      - error_count_total
+      - circuit_breaker_state
+  
+  # Health checks
+  health:
+    enabled: true
+    endpoint: "/health"
+    interval_seconds: 30
+    
+    # Health check dependencies
+    dependencies:
+      - database
+      - external_apis
+  
+  # Tracing
+  tracing:
+    enabled: true
+    service_name: "altwallet-inline"
+    jaeger_endpoint: "http://localhost:14268/api/traces"
+    
+    # Sampling
+    sampling:
+      type: probabilistic
+      param: 0.1
+
+# Resource limits
+resources:
+  # Memory limits
+  memory:
+    limit: "256Mi"
+    request: "128Mi"
+  
+  # CPU limits
+  cpu:
+    limit: "250m"
+    request: "100m"
+  
+  # File descriptors
+  file_descriptors:
+    limit: 1024
+
+# Feature flags
+features:
+  # Enable/disable specific features
+  advanced_scoring: true
+  ml_recommendations: true
+  fraud_detection: true
+  real_time_analytics: true
+  
+  # A/B testing
+  ab_testing:
+    enabled: false
+    experiments: []
+
+# External service configuration
+external_services:
+  # Database connections (if needed)
+  database:
+    enabled: false
+    url: ""
+    pool_size: 5
+    timeout_seconds: 30
+  
+  # Redis cache (if needed)
+  redis:
+    enabled: false
+    url: "redis://localhost:6379"
+    db: 0
+    timeout_seconds: 5
+  
+  # External APIs
+  apis:
+    payment_processor:
+      enabled: false
+      base_url: ""
+      timeout_seconds: 30
+      retry_attempts: 3
+    
+    fraud_service:
+      enabled: false
+      base_url: ""
+      timeout_seconds: 10
+      retry_attempts: 2
+
+# Security configuration
+security:
+  # Data encryption
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+    key_rotation_days: 90
+  
+  # PII handling
+  pii:
+    masking_enabled: true
+    fields_to_mask:
+      - customer_id
+      - email
+      - phone
+      - card_number
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_size: 100
+
+# Development and debugging
+development:
+  # Debug mode
+  debug: false
+  
+  # Profiling
+  profiling:
+    enabled: false
+    endpoint: "/debug/pprof"
+  
+  # Hot reloading (for development)
+  hot_reload: false
+  
+  # Test mode
+  test_mode: false
+  mock_responses: false

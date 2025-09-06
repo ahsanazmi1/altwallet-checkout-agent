@@ -2,16 +2,17 @@
 AltWallet Checkout Agent - Python FastAPI Version
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
-import uvicorn
-from datetime import datetime
-import uuid
 import os
+import uuid
+from datetime import datetime
+from typing import Any
+
+import uvicorn
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
+from pydantic import BaseModel, Field
 
 # Load environment variables
 load_dotenv()
@@ -40,15 +41,15 @@ class TransactionRequest(BaseModel):
         ..., min_length=3, max_length=3, description="Currency code (e.g., USD)"
     )
     merchant_id: str = Field(..., description="Merchant identifier")
-    description: Optional[str] = Field(None, description="Transaction description")
-    customer_email: Optional[str] = Field(None, description="Customer email")
+    description: str | None = Field(None, description="Transaction description")
+    customer_email: str | None = Field(None, description="Customer email")
 
 
 class TransactionResponse(BaseModel):
     transaction_id: str
     success: bool
     message: str
-    data: Optional[Dict[str, Any]] = None
+    data: dict[str, Any] | None = None
     timestamp: datetime
 
 
@@ -59,7 +60,7 @@ class HealthResponse(BaseModel):
 
 
 # Global state (in production, use a proper database)
-transactions: Dict[str, Dict[str, Any]] = {}
+transactions: dict[str, dict[str, Any]] = {}
 agent_status = "ready"
 
 
@@ -135,7 +136,7 @@ class CheckoutAgent:
 
     async def process_payment(
         self, transaction_data: TransactionRequest
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Process payment with AltWallet API"""
         # TODO: Implement actual AltWallet API integration
         logger.info("💰 Processing payment with AltWallet...")
@@ -161,7 +162,7 @@ class CheckoutAgent:
         """Generate unique transaction ID"""
         return f"txn_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:8]}"
 
-    def get_transaction_status(self, transaction_id: str) -> Optional[Dict[str, Any]]:
+    def get_transaction_status(self, transaction_id: str) -> dict[str, Any] | None:
         """Get transaction status"""
         transaction = self.transactions.get(transaction_id)
         if transaction:
@@ -173,7 +174,7 @@ class CheckoutAgent:
             }
         return None
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get agent status"""
         return {
             "status": self.status,
@@ -193,7 +194,7 @@ async def startup_event():
 
 
 # API Routes
-@app.get("/", response_model=Dict[str, Any])
+@app.get("/", response_model=dict[str, Any])
 async def root():
     """Root endpoint"""
     return {

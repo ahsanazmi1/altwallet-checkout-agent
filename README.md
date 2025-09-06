@@ -2,6 +2,38 @@
 
 AltWallet Checkout Agent is a production-minded Python scaffold for intelligent checkout processing and card recommendations. It provides a robust foundation for processing transactions, scoring, and providing intelligent card recommendations with a clean API and CLI interface.
 
+## Phase 4 — Platformization
+
+**Status**: 🚧 In Development
+
+This phase focuses on making the AltWallet Checkout Agent production-ready for acquirer integration with plug-and-play deployment capabilities.
+
+### 📋 Deliverables Checklist
+
+- [ ] **Sidecar + Inline Deployment Profiles**
+  - [ ] Sidecar deployment configuration (Kubernetes, Docker Compose)
+  - [ ] Inline deployment configuration (embedded service)
+  - [ ] Health check endpoints and monitoring
+  - [ ] Resource limits and scaling policies
+
+- [ ] **SDK Scaffolding (Python/Node)**
+  - [ ] Python SDK with client libraries
+  - [ ] Node.js SDK with TypeScript support
+  - [ ] SDK documentation and examples
+  - [ ] Package distribution (PyPI, npm)
+
+- [ ] **Helm/Terraform Packaging**
+  - [ ] Helm charts for Kubernetes deployment
+  - [ ] Terraform modules for cloud infrastructure
+  - [ ] CI/CD pipeline integration
+  - [ ] Environment-specific configurations
+
+- [ ] **Certification Checklist Draft**
+  - [ ] Security compliance requirements
+  - [ ] Performance benchmarks and SLAs
+  - [ ] Integration testing framework
+  - [ ] Documentation and training materials
+
 ## What's New in Phase 2
 
 Phase 2 introduces intelligent decision-making capabilities that build upon the solid foundation established in Phase 1:

@@ -1,6 +1,8 @@
 import json
+
 import typer
 from rich import print as rprint
+
 from merchant_agent.core import Context, score_purchase
 
 app = typer.Typer(add_completion=False, help="Merchant Agent CLI (starter)")

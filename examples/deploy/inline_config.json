@@ -1,0 +1,27 @@
+{
+  "mode": "inline",
+  "environment": "production",
+  "log_level": "INFO",
+  "api_host": "127.0.0.1",
+  "api_port": 8000,
+  "max_workers": 2,
+  "request_timeout": 15,
+  "health_check_enabled": true,
+  "health_check_interval": 60,
+  "metrics_enabled": true,
+  "tracing_enabled": true,
+  "cors_origins": ["*"],
+  "api_key_required": false,
+  "inline_config": {
+    "merchant_app_name": "merchant-checkout-app",
+    "integration_method": "direct_import",
+    "connection_pool_size": 10,
+    "keep_alive": true,
+    "cache_enabled": true,
+    "cache_ttl": 300,
+    "retry_attempts": 3,
+    "retry_delay": 1.0,
+    "circuit_breaker_enabled": true,
+    "circuit_breaker_threshold": 5
+  }
+}
