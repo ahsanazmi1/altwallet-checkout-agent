@@ -34,7 +34,17 @@ from altwallet_agent.logger import (
 )
 from altwallet_agent.models import Context
 from altwallet_agent.scoring import score_transaction
-from altwallet_agent.webhooks import get_webhook_emitter, get_webhook_manager
+try:
+    from altwallet_agent.webhooks import get_webhook_emitter, get_webhook_manager
+    _HAS_WEBHOOKS = True
+except Exception:  # pragma: no cover - allow running without aiohttp
+    _HAS_WEBHOOKS = False
+
+    async def get_webhook_emitter():  # type: ignore[no-redef]
+        raise RuntimeError("Webhooks unavailable: aiohttp not installed")
+
+    async def get_webhook_manager():  # type: ignore[no-redef]
+        raise RuntimeError("Webhooks unavailable: aiohttp not installed")
 
 logger = get_logger(__name__)
 
@@ -243,7 +253,7 @@ def score(
 
         context = Context.from_json_payload(json_data)
         logger.info(
-            "Context parsed successfully", context_keys=list(context.dict().keys())
+            "Context parsed successfully", context_keys=list(context.model_dump().keys())
         )
 
         result = score_transaction(context)

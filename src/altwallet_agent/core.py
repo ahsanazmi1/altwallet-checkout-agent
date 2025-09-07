@@ -6,9 +6,32 @@ import time
 import uuid
 from typing import Any
 
-import structlog
-from rich.console import Console
-from rich.table import Table
+try:
+    import structlog  # type: ignore
+
+    _HAS_STRUCTLOG = True
+except Exception:  # pragma: no cover - allow running without structlog
+    _HAS_STRUCTLOG = False
+try:
+    from rich.console import Console
+    from rich.table import Table
+    _HAS_RICH = True
+except Exception:  # pragma: no cover - allow running without rich
+    _HAS_RICH = False
+
+    class Console:  # type: ignore[no-redef]
+        def print(self, *args, **kwargs):  # noqa: D401 - simple shim
+            print(*args, **kwargs)
+
+    class Table:  # type: ignore[no-redef]
+        def __init__(self, title: str | None = None) -> None:  # noqa: D401
+            self.title = title
+
+        def add_column(self, *args, **kwargs) -> None:  # noqa: D401
+            pass
+
+        def add_row(self, *args, **kwargs) -> None:  # noqa: D401
+            pass
 
 from .models import (
     CheckoutRequest,
@@ -28,24 +51,7 @@ trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "trace_id", default=None
 )
 
-# Configure structlog
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer(),
-    ],
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    wrapper_class=structlog.stdlib.BoundLogger,
-    cache_logger_on_first_use=True,
-)
+from .logger import get_logger
 
 
 class CheckoutAgent:
@@ -58,18 +64,20 @@ class CheckoutAgent:
             config: Optional configuration dictionary
         """
         self.config = config or {}
-        self.logger = structlog.get_logger(__name__)
+        self.logger = get_logger(__name__)
         self.console = Console()
 
-    def _get_logger(self) -> structlog.BoundLogger:
+    def _get_logger(self):
         """Get a logger with current context."""
         request_id = request_id_var.get()
         trace_id = trace_id_var.get()
-
-        return self.logger.bind(  # type: ignore[no-any-return]
-            request_id=request_id,
-            trace_id=trace_id,
-        )
+        if _HAS_STRUCTLOG and hasattr(self.logger, "bind"):
+            return self.logger.bind(  # type: ignore[no-any-return]
+                request_id=request_id,
+                trace_id=trace_id,
+            )
+        # Fallback: return base logger without binding
+        return self.logger
 
     def _get_git_sha(self) -> str:
         """Get the current git SHA."""

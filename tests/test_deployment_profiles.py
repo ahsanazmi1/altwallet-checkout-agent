@@ -586,7 +586,8 @@ class TestSyncInlineCheckoutClient:
         loop = client._get_loop()
 
         assert loop is not None
-        assert client._loop is loop
+        # The new implementation doesn't cache the loop, so _loop remains None
+        assert client._loop is None
 
     def test_sync_client_initialize(self):
         """Test sync client initialization."""

@@ -10,7 +10,12 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
-import yaml
+try:
+    import yaml  # type: ignore
+    _HAS_YAML = True
+except Exception:  # pragma: no cover - allow running without PyYAML
+    yaml = None  # type: ignore
+    _HAS_YAML = False
 
 from .logger import get_logger
 from .models import Context
@@ -46,9 +51,16 @@ class MerchantPenalty:
                 / "merchant_penalties.yaml"
             )
 
+        # If PyYAML is unavailable, use defaults
+        if not _HAS_YAML:
+            logger.warning(
+                "PyYAML not installed, using default merchant penalty configuration"
+            )
+            return self._get_default_config()
+
         try:
             with open(config_path, encoding="utf-8") as f:
-                config = yaml.safe_load(f)
+                config = yaml.safe_load(f)  # type: ignore[union-attr]
             logger.info(f"Loaded merchant penalty config from {config_path}")
             if isinstance(config, dict):
                 return config
@@ -58,7 +70,7 @@ class MerchantPenalty:
                 f"Merchant penalty config not found at {config_path}, using defaults"
             )
             return self._get_default_config()
-        except yaml.YAMLError as e:
+        except Exception as e:
             logger.error(f"Error parsing merchant penalty config: {e}")
             return self._get_default_config()
 

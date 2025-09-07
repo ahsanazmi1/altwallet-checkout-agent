@@ -1,4 +1,9 @@
-"""Structured logging configuration for AltWallet Checkout Agent."""
+"""Structured logging configuration for AltWallet Checkout Agent.
+
+Provides structured JSON logs when ``structlog`` is available. If ``structlog``
+is not installed, falls back to Python's standard ``logging`` so the CLI can
+run without extra dependencies.
+"""
 
 import contextvars
 import logging
@@ -8,10 +13,46 @@ import time
 from collections.abc import MutableMapping
 from typing import Any
 
-import structlog
+try:
+    import structlog  # type: ignore
 
-# Type alias for cleaner function signatures
-BoundLogger = structlog.stdlib.BoundLogger
+    STRUCTLOG_AVAILABLE = True
+    # Type alias for cleaner function signatures
+    BoundLogger = structlog.stdlib.BoundLogger  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover - defensive fallback when structlog missing
+    STRUCTLOG_AVAILABLE = False
+
+    class BoundLogger:  # type: ignore[no-redef]
+        """Minimal logger API compatible with structlog's BoundLogger methods.
+
+        This wrapper ensures calls like ``logger.info(...)`` continue to work
+        even when ``structlog`` isn't installed.
+        """
+
+        def __init__(self, name: str | None = None) -> None:
+            self._logger = logging.getLogger(name or "altwallet_agent")
+
+        def _log(self, level: int, event: str | None = None, **event_dict: Any) -> None:
+            # Emit JSON-ish dictionary when kwargs provided; otherwise just the event
+            if event_dict:
+                # Avoid PII leakage by not attempting to massage fields here
+                self._logger.log(level, str(event_dict))
+            elif event:
+                self._logger.log(level, event)
+            else:
+                self._logger.log(level, "")
+
+        def info(self, event: str | None = None, **event_dict: Any) -> None:
+            self._log(logging.INFO, event, **event_dict)
+
+        def warning(self, event: str | None = None, **event_dict: Any) -> None:
+            self._log(logging.WARNING, event, **event_dict)
+
+        def error(self, event: str | None = None, **event_dict: Any) -> None:
+            self._log(logging.ERROR, event, **event_dict)
+
+        def debug(self, event: str | None = None, **event_dict: Any) -> None:
+            self._log(logging.DEBUG, event, **event_dict)
 
 # Context variables to store request context
 trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
@@ -36,41 +77,41 @@ def is_silent_mode() -> bool:
 
 
 def configure_logging() -> None:
-    """Configure structlog with structured JSON formatting and ISO8601 timestamps."""
+    """Configure logging (structured if structlog available, else standard)."""
 
     # Check for silent mode
     if is_silent_mode():
-        # Configure null logging (no output)
         logging.basicConfig(level=logging.CRITICAL, handlers=[logging.NullHandler()])
         return
 
-    # Configure standard library logging
+    # Base stdlib logging setup
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stderr,
         level=getattr(logging, get_log_level()),
     )
 
+    if not STRUCTLOG_AVAILABLE:
+        # Fallback: keep stdlib logging; nothing else to do
+        return
+
     # Configure structlog
-    structlog.configure(
+    structlog.configure(  # type: ignore[name-defined]
         processors=[
-            # Add timestamp in ISO8601 format
-            structlog.stdlib.filter_by_level,
-            structlog.stdlib.add_logger_name,
-            structlog.stdlib.add_log_level,
-            structlog.stdlib.PositionalArgumentsFormatter(),
-            structlog.processors.TimeStamper(fmt="iso"),
-            # Add structured fields
+            structlog.stdlib.filter_by_level,  # type: ignore[attr-defined]
+            structlog.stdlib.add_logger_name,  # type: ignore[attr-defined]
+            structlog.stdlib.add_log_level,  # type: ignore[attr-defined]
+            structlog.stdlib.PositionalArgumentsFormatter(),  # type: ignore[attr-defined]
+            structlog.processors.TimeStamper(fmt="iso"),  # type: ignore[attr-defined]
             _add_structured_fields,
-            structlog.processors.StackInfoRenderer(),
-            structlog.processors.format_exc_info,
-            structlog.processors.UnicodeDecoder(),
-            # Output as JSON
-            structlog.processors.JSONRenderer(),
+            structlog.processors.StackInfoRenderer(),  # type: ignore[attr-defined]
+            structlog.processors.format_exc_info,  # type: ignore[attr-defined]
+            structlog.processors.UnicodeDecoder(),  # type: ignore[attr-defined]
+            structlog.processors.JSONRenderer(),  # type: ignore[attr-defined]
         ],
         context_class=dict,
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
+        logger_factory=structlog.stdlib.LoggerFactory(),  # type: ignore[attr-defined]
+        wrapper_class=structlog.stdlib.BoundLogger,  # type: ignore[attr-defined]
         cache_logger_on_first_use=True,
     )
 
@@ -83,12 +124,12 @@ def configure_logging() -> None:
         "altwallet_agent.analytics",
     ]
     for logger_name in logger_names:
-        logger = logging.getLogger(logger_name)
-        if not logger.handlers:
+        lg = logging.getLogger(logger_name)
+        if not lg.handlers:
             handler = logging.StreamHandler(sys.stderr)
             handler.setFormatter(logging.Formatter("%(message)s"))
-            logger.addHandler(handler)
-            logger.propagate = False
+            lg.addHandler(handler)
+            lg.propagate = False
 
 
 def _add_structured_fields(
@@ -199,7 +240,9 @@ def get_logger(name: str | None = None) -> BoundLogger:
             if frame is not None:
                 name = frame.f_globals.get("__name__", "altwallet_agent")
 
-    return structlog.get_logger(name)  # type: ignore[no-any-return]
+    if STRUCTLOG_AVAILABLE:
+        return structlog.get_logger(name)  # type: ignore[no-any-return]
+    return BoundLogger(name)
 
 
 # Configure logging on module import

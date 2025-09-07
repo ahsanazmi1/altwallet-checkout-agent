@@ -3,6 +3,7 @@
 import json
 import time
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -86,6 +87,15 @@ class DecisionResponse(BaseModel):
     metadata: dict[str, Any] | None = None
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan handler for FastAPI app."""
+    # Startup
+    await startup_event()
+    yield
+    # Shutdown (if needed in the future)
+
+
 # Create FastAPI app
 app = FastAPI(
     title="AltWallet Checkout Agent API",
@@ -97,6 +107,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -208,7 +219,7 @@ async def score_endpoint(request: ScoreRequest) -> ScoreResponse:
         context = Context.from_json_payload(request.context_data)
         logger.info(
             "Context parsed successfully",
-            context_keys=list(context.dict().keys()),
+            context_keys=list(context.model_dump().keys()),
         )
 
         # Get card database
@@ -423,7 +434,7 @@ async def decision_endpoint(request: DecisionRequest) -> DecisionResponse:
         context = Context.from_json_payload(request.context_data)
         logger.info(
             "Context parsed for decision",
-            context_keys=list(context.dict().keys()),
+            context_keys=list(context.model_dump().keys()),
         )
 
         # Generate decision contract using decision engine
@@ -478,7 +489,6 @@ async def legacy_decision_endpoint(request: DecisionRequest) -> DecisionResponse
     return await decision_endpoint(request)
 
 
-@app.on_event("startup")
 async def startup_event() -> None:
     """Generate OpenAPI schema on startup and write to file."""
     # Ensure the OpenAPI schema is generated
