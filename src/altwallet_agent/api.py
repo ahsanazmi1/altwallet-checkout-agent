@@ -88,7 +88,7 @@ class DecisionResponse(BaseModel):
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     """Lifespan handler for FastAPI app."""
     # Startup
     await startup_event()

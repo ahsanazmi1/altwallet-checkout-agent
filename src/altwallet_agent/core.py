@@ -7,7 +7,6 @@ import uuid
 from typing import Any
 
 try:
-    import structlog  # type: ignore
 
     _HAS_STRUCTLOG = True
 except Exception:  # pragma: no cover - allow running without structlog
@@ -15,24 +14,27 @@ except Exception:  # pragma: no cover - allow running without structlog
 try:
     from rich.console import Console
     from rich.table import Table
+
     _HAS_RICH = True
 except Exception:  # pragma: no cover - allow running without rich
     _HAS_RICH = False
 
     class Console:  # type: ignore[no-redef]
-        def print(self, *args, **kwargs):  # noqa: D401 - simple shim
+        def print(self, *args: Any, **kwargs: Any) -> None:  # noqa: D401 - simple shim
             print(*args, **kwargs)
 
     class Table:  # type: ignore[no-redef]
         def __init__(self, title: str | None = None) -> None:  # noqa: D401
             self.title = title
 
-        def add_column(self, *args, **kwargs) -> None:  # noqa: D401
+        def add_column(self, *args: Any, **kwargs: Any) -> None:  # noqa: D401
             pass
 
-        def add_row(self, *args, **kwargs) -> None:  # noqa: D401
+        def add_row(self, *args: Any, **kwargs: Any) -> None:  # noqa: D401
             pass
 
+
+from .logger import get_logger
 from .models import (
     CheckoutRequest,
     CheckoutResponse,
@@ -51,8 +53,6 @@ trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "trace_id", default=None
 )
 
-from .logger import get_logger
-
 
 class CheckoutAgent:
     """Core checkout agent for processing transactions and providing recommendations."""
@@ -67,12 +67,12 @@ class CheckoutAgent:
         self.logger = get_logger(__name__)
         self.console = Console()
 
-    def _get_logger(self):
+    def _get_logger(self) -> Any:
         """Get a logger with current context."""
         request_id = request_id_var.get()
         trace_id = trace_id_var.get()
         if _HAS_STRUCTLOG and hasattr(self.logger, "bind"):
-            return self.logger.bind(  # type: ignore[no-any-return]
+            return self.logger.bind(
                 request_id=request_id,
                 trace_id=trace_id,
             )

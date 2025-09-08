@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import Any
 
 try:
-    import yaml  # type: ignore
+    import yaml
+
     _HAS_YAML = True
 except Exception:  # pragma: no cover - allow running without PyYAML
     yaml = None  # type: ignore
@@ -57,7 +58,7 @@ class PreferenceWeighting:
 
         try:
             with open(config_path, encoding="utf-8") as f:
-                config = yaml.safe_load(f)  # type: ignore[union-attr]
+                config = yaml.safe_load(f)
             logger.info(f"Loaded preferences config from {config_path}")
             if isinstance(config, dict):
                 return config

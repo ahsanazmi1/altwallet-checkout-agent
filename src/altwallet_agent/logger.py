@@ -14,11 +14,11 @@ from collections.abc import MutableMapping
 from typing import Any
 
 try:
-    import structlog  # type: ignore
+    import structlog
 
     STRUCTLOG_AVAILABLE = True
     # Type alias for cleaner function signatures
-    BoundLogger = structlog.stdlib.BoundLogger  # type: ignore[attr-defined]
+    BoundLogger = structlog.stdlib.BoundLogger
 except Exception:  # pragma: no cover - defensive fallback when structlog missing
     STRUCTLOG_AVAILABLE = False
 
@@ -53,6 +53,7 @@ except Exception:  # pragma: no cover - defensive fallback when structlog missin
 
         def debug(self, event: str | None = None, **event_dict: Any) -> None:
             self._log(logging.DEBUG, event, **event_dict)
+
 
 # Context variables to store request context
 trace_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
@@ -96,22 +97,22 @@ def configure_logging() -> None:
         return
 
     # Configure structlog
-    structlog.configure(  # type: ignore[name-defined]
+    structlog.configure(
         processors=[
-            structlog.stdlib.filter_by_level,  # type: ignore[attr-defined]
-            structlog.stdlib.add_logger_name,  # type: ignore[attr-defined]
-            structlog.stdlib.add_log_level,  # type: ignore[attr-defined]
-            structlog.stdlib.PositionalArgumentsFormatter(),  # type: ignore[attr-defined]
-            structlog.processors.TimeStamper(fmt="iso"),  # type: ignore[attr-defined]
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
             _add_structured_fields,
-            structlog.processors.StackInfoRenderer(),  # type: ignore[attr-defined]
-            structlog.processors.format_exc_info,  # type: ignore[attr-defined]
-            structlog.processors.UnicodeDecoder(),  # type: ignore[attr-defined]
-            structlog.processors.JSONRenderer(),  # type: ignore[attr-defined]
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            structlog.processors.JSONRenderer(),
         ],
         context_class=dict,
-        logger_factory=structlog.stdlib.LoggerFactory(),  # type: ignore[attr-defined]
-        wrapper_class=structlog.stdlib.BoundLogger,  # type: ignore[attr-defined]
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
 
@@ -242,7 +243,7 @@ def get_logger(name: str | None = None) -> BoundLogger:
 
     if STRUCTLOG_AVAILABLE:
         return structlog.get_logger(name)  # type: ignore[no-any-return]
-    return BoundLogger(name)
+    return BoundLogger(name)  # type: ignore[call-arg]
 
 
 # Configure logging on module import
