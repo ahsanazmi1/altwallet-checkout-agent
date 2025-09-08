@@ -194,11 +194,14 @@ def create_audit_block(
     }
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.version_option(version="0.3.0")
-def cli() -> None:
+@click.pass_context
+def cli(ctx: click.Context) -> None:
     """AltWallet Checkout Agent CLI - Decision Simulation and Management"""
-    pass
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+        ctx.exit(2)
 
 
 @cli.command()
