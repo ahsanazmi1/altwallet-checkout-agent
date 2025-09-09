@@ -88,7 +88,7 @@ class TestCLIBasic:
         """Test CLI help command."""
         result = runner.invoke(cli, ["--help"])
         assert result.exit_code == 0
-        assert "AltWallet Checkout Agent CLI" in result.output
+        assert "Orca Checkout Agent CLI" in result.output
 
     def test_cli_version(self, runner):
         """Test CLI version option."""
@@ -100,7 +100,7 @@ class TestCLIBasic:
         """Test CLI with no command."""
         result = runner.invoke(cli, [])
         assert result.exit_code == 2  # Click shows help and exits with code 2
-        assert "AltWallet Checkout Agent CLI" in result.output
+        assert "Orca Checkout Agent CLI" in result.output
 
 
 class TestScoreCommand:

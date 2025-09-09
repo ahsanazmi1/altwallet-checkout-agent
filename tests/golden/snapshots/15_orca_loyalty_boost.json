@@ -1,0 +1,101 @@
+{
+  "transaction_id": "orca_txn_diamond_202",
+  "decision": "APPROVE",
+  "score": 0.95,
+  "status": "completed",
+  "recommendations": [
+    {
+      "card_id": "amex_centurion",
+      "card_name": "American Express Centurion",
+      "rank": 1,
+      "p_approval": 0.98,
+      "expected_rewards": 0.08,
+      "utility": 0.96,
+      "explainability": {
+        "baseline": 0.50,
+        "contributions": [
+          {
+            "feature": "loyalty_tier",
+            "contribution": 0.30,
+            "direction": "positive"
+          },
+          {
+            "feature": "merchant_category",
+            "contribution": 0.12,
+            "direction": "positive"
+          },
+          {
+            "feature": "orca_diamond_boost",
+            "contribution": 0.15,
+            "direction": "positive"
+          }
+        ],
+        "top_drivers": {
+          "positive": [
+            {
+              "feature": "loyalty_tier",
+              "value": "DIAMOND",
+              "impact": 0.30
+            },
+            {
+              "feature": "diamond_boost",
+              "value": "true",
+              "impact": 0.15
+            },
+            {
+              "feature": "merchant_category",
+              "value": "5814",
+              "impact": 0.12
+            }
+          ],
+          "negative": []
+        }
+      },
+      "audit": {
+        "config_versions": {
+          "scoring": "v1.2.0",
+          "preferences": "v1.1.0",
+          "orca_engine": "v1.0.0"
+        },
+        "code_version": "orca_abc123def456",
+        "request_id": "orca_req_diamond_202",
+        "latency_ms": 25
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "loyalty_boost",
+      "value": 0.20,
+      "description": "Diamond tier loyalty multiplier"
+    },
+    {
+      "type": "discount",
+      "value": 0.08,
+      "description": "8% cashback bonus for restaurant category"
+    },
+    {
+      "type": "premium_service",
+      "value": true,
+      "description": "Premium concierge service activation"
+    }
+  ],
+  "routing_hints": {
+    "preferred_network": "amex",
+    "fallback_networks": ["visa", "mc"],
+    "interchange_optimization": true,
+    "surcharge_suppression": false
+  },
+  "metadata": {
+    "processing_time_ms": 25,
+    "intelligence_version": "1.0.0",
+    "algorithm_used": "orca_intelligence_engine",
+    "orca_features": [
+      "interchange_optimization",
+      "loyalty_boost",
+      "diamond_tier_benefits",
+      "premium_service_activation",
+      "risk_assessment"
+    ]
+  }
+}

@@ -9,11 +9,12 @@ info:
     - Card recommendations with explainability
     - Feature attributions for transparency
     - Health monitoring and version information
+    - Orca decision engine with routing hints and actions
     
     The API processes checkout requests by analyzing cart items, merchant information,
     customer data, device context, and geographic location to provide optimal
-    payment card recommendations.
-  version: "1.0.0"
+    payment card recommendations with Orca intelligence.
+  version: "1.1.0"
   contact:
     name: Orca Team
     email: support@orca.com
@@ -43,75 +44,120 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Context'
-            examples:
-              basic_checkout:
-                summary: Basic checkout with cart items
-                value:
-                  cart:
-                    items:
-                      - item: "Wireless Headphones"
-                        unit_price: "199.99"
-                        qty: 1
-                        mcc: "5734"
-                        merchant_category: "Computer Software Stores"
-                    currency: "USD"
-                  merchant:
-                    name: "Best Buy"
-                    mcc: "5734"
-                    network_preferences: ["visa", "mc"]
-                    location:
+              examples:
+                online_grocery_checkout:
+                  summary: Online grocery checkout with Orca optimization
+                  value:
+                    cart:
+                      items:
+                        - item: "Organic Groceries"
+                          unit_price: "89.99"
+                          qty: 1
+                          mcc: "5411"
+                          merchant_category: "Grocery Stores"
+                        - item: "Fresh Produce"
+                          unit_price: "24.50"
+                          qty: 2
+                          mcc: "5411"
+                          merchant_category: "Grocery Stores"
+                      currency: "USD"
+                    merchant:
+                      name: "Whole Foods Market"
+                      mcc: "5411"
+                      network_preferences: ["visa", "mc"]
+                      location:
+                        city: "San Francisco"
+                        country: "US"
+                    customer:
+                      id: "orca_customer_12345"
+                      loyalty_tier: "GOLD"
+                      historical_velocity_24h: 2
+                      chargebacks_12m: 0
+                    device:
+                      ip: "192.168.1.100"
+                      device_id: "orca_device_abc123"
+                      ip_distance_km: 2.1
+                      location:
+                        city: "San Francisco"
+                        country: "US"
+                    geo:
                       city: "San Francisco"
+                      region: "CA"
                       country: "US"
-                  customer:
-                    id: "cust_12345"
-                    loyalty_tier: "GOLD"
-                    historical_velocity_24h: 3
-                    chargebacks_12m: 0
-                  device:
-                    ip: "192.168.1.100"
-                    device_id: "dev_abc123"
-                    ip_distance_km: 5.2
-                    location:
-                      city: "San Francisco"
+                      lat: 37.7749
+                      lon: -122.4194
+                in_person_retail:
+                  summary: In-person retail transaction with loyalty boost
+                  value:
+                    cart:
+                      items:
+                        - item: "Electronics Bundle"
+                          unit_price: "299.99"
+                          qty: 1
+                          mcc: "5732"
+                          merchant_category: "Electronics Stores"
+                      currency: "USD"
+                    merchant:
+                      name: "Best Buy"
+                      mcc: "5732"
+                      network_preferences: ["visa", "mc", "amex"]
+                      location:
+                        city: "Seattle"
+                        country: "US"
+                    customer:
+                      id: "orca_customer_67890"
+                      loyalty_tier: "PLATINUM"
+                      historical_velocity_24h: 1
+                      chargebacks_12m: 0
+                    device:
+                      ip: "192.168.1.200"
+                      device_id: "orca_device_xyz789"
+                      ip_distance_km: 0.5
+                      location:
+                        city: "Seattle"
+                        country: "US"
+                    geo:
+                      city: "Seattle"
+                      region: "WA"
                       country: "US"
-                  geo:
-                    city: "San Francisco"
-                    region: "CA"
-                    country: "US"
-                    lat: 37.7749
-                    lon: -122.4194
-              high_risk_transaction:
-                summary: High-risk transaction example
-                value:
-                  cart:
-                    items:
-                      - item: "Gaming Console"
-                        unit_price: "499.99"
-                        qty: 1
-                        mcc: "5734"
-                    currency: "USD"
-                  merchant:
-                    name: "Online Electronics Store"
-                    mcc: "5734"
-                    network_preferences: ["visa"]
-                  customer:
-                    id: "cust_67890"
-                    loyalty_tier: "NONE"
-                    historical_velocity_24h: 15
-                    chargebacks_12m: 2
-                  device:
-                    ip: "10.0.0.1"
-                    device_id: "dev_xyz789"
-                    ip_distance_km: 1500.0
-                    location:
-                      city: "New York"
-                      country: "US"
-                  geo:
-                    city: "Los Angeles"
-                    region: "CA"
-                    country: "US"
-                    lat: 34.0522
-                    lon: -118.2437
+                      lat: 47.6062
+                      lon: -122.3321
+                high_risk_cross_border:
+                  summary: High-risk cross-border transaction requiring review
+                  value:
+                    cart:
+                      items:
+                        - item: "Luxury Watch"
+                          unit_price: "2499.99"
+                          qty: 1
+                          mcc: "5094"
+                          merchant_category: "Jewelry Stores"
+                      currency: "USD"
+                    merchant:
+                      name: "International Jewelry"
+                      mcc: "5094"
+                      network_preferences: ["visa"]
+                      location:
+                        city: "Toronto"
+                        country: "CA"
+                    customer:
+                      id: "orca_customer_99999"
+                      loyalty_tier: "SILVER"
+                      historical_velocity_24h: 8
+                      chargebacks_12m: 1
+                    device:
+                      ip: "203.0.113.1"
+                      device_id: "orca_device_high_risk"
+                      ip_distance_km: 2500.0
+                      location:
+                        city: "New York"
+                        country: "US"
+                    geo:
+                      city: "Toronto"
+                      region: "ON"
+                      country: "CA"
+                      lat: 43.6532
+                      lon: -79.3832
       responses:
         '200':
           description: Successful scoring response with recommendations
@@ -120,17 +166,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/ScoreResponse'
               examples:
-                successful_scoring:
-                  summary: Successful scoring with multiple recommendations
+                orca_approved_transaction:
+                  summary: Orca-approved transaction with routing hints and actions
                   value:
-                    transaction_id: "txn_abc123def456"
+                    transaction_id: "orca_txn_abc123def456"
+                    decision: "APPROVE"
+                    score: 0.85
+                    status: "completed"
                     recommendations:
                       - card_id: "chase_sapphire_preferred"
                         card_name: "Chase Sapphire Preferred"
                         rank: 1
-                        p_approval: 0.85
+                        p_approval: 0.92
                         expected_rewards: 0.025
-                        utility: 0.78
+                        utility: 0.88
                         explainability:
                           baseline: 0.50
                           contributions:
@@ -140,55 +189,109 @@ paths:
                             - feature: "loyalty_tier"
                               contribution: 0.08
                               direction: "positive"
-                            - feature: "transaction_amount"
-                              contribution: -0.05
-                              direction: "negative"
-                          top_drivers:
-                            positive:
-                              - feature: "merchant_category"
-                                value: "5734"
-                                impact: 0.15
-                            negative:
-                              - feature: "transaction_amount"
-                                value: "199.99"
-                                impact: -0.05
-                        audit:
-                          config_versions:
-                            scoring: "v1.2.0"
-                            preferences: "v1.1.0"
-                          code_version: "abc123def456"
-                          request_id: "req_789ghi012"
-                          latency_ms: 45
-                      - card_id: "amex_gold"
-                        card_name: "American Express Gold"
-                        rank: 2
-                        p_approval: 0.72
-                        expected_rewards: 0.04
-                        utility: 0.65
-                        explainability:
-                          baseline: 0.50
-                          contributions:
-                            - feature: "merchant_category"
-                              contribution: 0.12
+                            - feature: "orca_optimization"
+                              contribution: 0.05
                               direction: "positive"
                           top_drivers:
                             positive:
                               - feature: "merchant_category"
-                                value: "5734"
-                                impact: 0.12
+                                value: "5411"
+                                impact: 0.15
+                              - feature: "loyalty_tier"
+                                value: "GOLD"
+                                impact: 0.08
+                            negative: []
                         audit:
                           config_versions:
                             scoring: "v1.2.0"
                             preferences: "v1.1.0"
-                          code_version: "abc123def456"
-                          request_id: "req_789ghi012"
-                          latency_ms: 45
-                    score: 0.78
-                    status: "completed"
+                            orca_engine: "v1.0.0"
+                          code_version: "orca_abc123def456"
+                          request_id: "orca_req_789ghi012"
+                          latency_ms: 42
+                    actions:
+                      - type: "discount"
+                        value: 0.02
+                        description: "2% cashback bonus for grocery category"
+                      - type: "loyalty_boost"
+                        value: 0.05
+                        description: "Gold tier loyalty multiplier"
+                    routing_hints:
+                      preferred_network: "visa"
+                      fallback_networks: ["mc", "amex"]
+                      interchange_optimization: true
+                      surcharge_suppression: false
                     metadata:
-                      processing_time_ms: 45
+                      processing_time_ms: 42
                       intelligence_version: "1.0.0"
-                      algorithm_used: "phase2_intelligence_engine"
+                      algorithm_used: "orca_intelligence_engine"
+                      orca_features:
+                        - "interchange_optimization"
+                        - "loyalty_boost"
+                        - "risk_assessment"
+                orca_review_transaction:
+                  summary: Orca transaction requiring manual review
+                  value:
+                    transaction_id: "orca_txn_review_789"
+                    decision: "REVIEW"
+                    score: 0.45
+                    status: "completed"
+                    recommendations:
+                      - card_id: "chase_freedom_unlimited"
+                        card_name: "Chase Freedom Unlimited"
+                        rank: 1
+                        p_approval: 0.55
+                        expected_rewards: 0.015
+                        utility: 0.42
+                        explainability:
+                          baseline: 0.50
+                          contributions:
+                            - feature: "cross_border_risk"
+                              contribution: -0.25
+                              direction: "negative"
+                            - feature: "high_amount"
+                              contribution: -0.15
+                              direction: "negative"
+                            - feature: "velocity_flag"
+                              contribution: -0.10
+                              direction: "negative"
+                          top_drivers:
+                            positive: []
+                            negative:
+                              - feature: "cross_border_risk"
+                                value: "true"
+                                impact: -0.25
+                              - feature: "high_amount"
+                                value: "2499.99"
+                                impact: -0.15
+                        audit:
+                          config_versions:
+                            scoring: "v1.2.0"
+                            preferences: "v1.1.0"
+                            orca_engine: "v1.0.0"
+                          code_version: "orca_abc123def456"
+                          request_id: "orca_req_review_789"
+                          latency_ms: 38
+                    actions:
+                      - type: "kyc_required"
+                        value: true
+                        description: "Additional identity verification required"
+                      - type: "risk_review"
+                        value: true
+                        description: "Manual review for high-value cross-border transaction"
+                    routing_hints:
+                      preferred_network: "visa"
+                      fallback_networks: ["mc"]
+                      interchange_optimization: false
+                      surcharge_suppression: true
+                    metadata:
+                      processing_time_ms: 38
+                      intelligence_version: "1.0.0"
+                      algorithm_used: "orca_intelligence_engine"
+                      orca_features:
+                        - "risk_assessment"
+                        - "cross_border_detection"
+                        - "velocity_analysis"
         '400':
           description: Bad request - invalid input data
           content:
@@ -593,6 +696,7 @@ components:
       type: object
       required:
         - transaction_id
+        - decision
         - recommendations
         - score
         - status
@@ -600,7 +704,12 @@ components:
         transaction_id:
           type: string
           description: Unique transaction identifier
-          example: "txn_abc123def456"
+          example: "orca_txn_abc123def456"
+        decision:
+          type: string
+          enum: [APPROVE, REVIEW, DECLINE]
+          description: Orca decision for the transaction
+          example: "APPROVE"
         recommendations:
           type: array
           items:
@@ -611,12 +720,19 @@ components:
           minimum: 0
           maximum: 1
           description: Overall transaction score
-          example: 0.78
+          example: 0.85
         status:
           type: string
           enum: [completed, processing, failed]
           description: Processing status
           example: "completed"
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+          description: Actions to be taken based on the decision
+        routing_hints:
+          $ref: '#/components/schemas/RoutingHints'
         metadata:
           type: object
           description: Additional response metadata
@@ -630,6 +746,12 @@ components:
             algorithm_used:
               type: string
               description: Algorithm used for processing
+            orca_features:
+              type: array
+              items:
+                type: string
+              description: Orca features used in processing
+              example: ["interchange_optimization", "loyalty_boost", "risk_assessment"]
 
     Recommendation:
       type: object
@@ -975,6 +1097,58 @@ components:
           type: string
           description: OpenAPI specification version
           example: "3.0.3"
+
+    Action:
+      type: object
+      required:
+        - type
+        - value
+        - description
+      properties:
+        type:
+          type: string
+          enum: [discount, loyalty_boost, kyc_required, risk_review, surcharge_suppression]
+          description: Type of action to be taken
+          example: "discount"
+        value:
+          oneOf:
+            - type: number
+            - type: boolean
+          description: Value associated with the action
+          example: 0.02
+        description:
+          type: string
+          description: Human-readable description of the action
+          example: "2% cashback bonus for grocery category"
+
+    RoutingHints:
+      type: object
+      required:
+        - preferred_network
+        - fallback_networks
+        - interchange_optimization
+        - surcharge_suppression
+      properties:
+        preferred_network:
+          type: string
+          enum: [visa, mc, mastercard, amex, discover]
+          description: Preferred payment network for routing
+          example: "visa"
+        fallback_networks:
+          type: array
+          items:
+            type: string
+            enum: [visa, mc, mastercard, amex, discover]
+          description: Fallback networks if preferred network fails
+          example: ["mc", "amex"]
+        interchange_optimization:
+          type: boolean
+          description: Whether interchange optimization is enabled
+          example: true
+        surcharge_suppression:
+          type: boolean
+          description: Whether surcharge suppression is enabled
+          example: false
 
     ErrorResponse:
       type: object

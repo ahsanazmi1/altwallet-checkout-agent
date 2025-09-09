@@ -1,0 +1,52 @@
+{
+  "cart": {
+    "items": [
+      {
+        "item": "Restaurant Meal",
+        "unit_price": "125.00",
+        "qty": 1,
+        "mcc": "5814",
+        "merchant_category": "Restaurants"
+      },
+      {
+        "item": "Wine Pairing",
+        "unit_price": "35.00",
+        "qty": 1,
+        "mcc": "5814",
+        "merchant_category": "Restaurants"
+      }
+    ],
+    "currency": "USD"
+  },
+  "merchant": {
+    "name": "Fine Dining Restaurant",
+    "mcc": "5814",
+    "network_preferences": ["amex", "visa", "mc"],
+    "location": {
+      "city": "New York",
+      "country": "US"
+    }
+  },
+  "customer": {
+    "id": "orca_customer_diamond_789",
+    "loyalty_tier": "DIAMOND",
+    "historical_velocity_24h": 1,
+    "chargebacks_12m": 0
+  },
+  "device": {
+    "ip": "192.168.1.300",
+    "device_id": "orca_device_diamond_999",
+    "ip_distance_km": 0.3,
+    "location": {
+      "city": "New York",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "New York",
+    "region": "NY",
+    "country": "US",
+    "lat": 40.7128,
+    "lon": -74.0060
+  }
+}

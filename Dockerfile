@@ -64,10 +64,18 @@ EXPOSE 8080
 
 # Add labels
 LABEL org.opencontainers.image.version="${VERSION}" \
-    org.opencontainers.image.title="Orca Checkout Agent" \
-    org.opencontainers.image.description="Core Engine MVP for checkout processing and scoring" \
+    org.opencontainers.image.title="orca-checkout" \
+    org.opencontainers.image.description="Orca Checkout Agent - Intelligent payment processing and card recommendations" \
     org.opencontainers.image.vendor="Orca" \
-    org.opencontainers.image.source="https://github.com/orca/checkout-agent"
+    org.opencontainers.image.source="https://github.com/orca/checkout-agent" \
+    org.opencontainers.image.url="https://github.com/orca/checkout-agent" \
+    org.opencontainers.image.documentation="https://github.com/orca/checkout-agent/blob/main/README.md" \
+    org.opencontainers.image.licenses="MIT" \
+    org.opencontainers.image.created="${BUILD_DATE}" \
+    org.opencontainers.image.revision="${GIT_COMMIT}" \
+    com.orca.service="checkout-agent" \
+    com.orca.version="${VERSION}" \
+    com.orca.component="api"
 
 # Default command (can be overridden)
 CMD ["uvicorn", "altwallet_agent.api:app", "--host", "0.0.0.0", "--port", "8080"]

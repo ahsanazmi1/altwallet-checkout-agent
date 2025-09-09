@@ -1,4 +1,4 @@
-"""Golden tests for AltWallet Checkout Agent scoring."""
+"""Golden tests for Orca Checkout Agent scoring."""
 
 import json
 import subprocess

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "orca_checkout"
-version = "0.1.0"
+version = "1.1.0-orca.0"
 description = "Orca Checkout Agent - Core Engine MVP"
 readme = "README.md"
 requires-python = ">=3.11"

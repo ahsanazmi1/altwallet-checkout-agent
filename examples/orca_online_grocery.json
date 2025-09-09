@@ -1,0 +1,52 @@
+{
+  "cart": {
+    "items": [
+      {
+        "item": "Organic Groceries",
+        "unit_price": "89.99",
+        "qty": 1,
+        "mcc": "5411",
+        "merchant_category": "Grocery Stores"
+      },
+      {
+        "item": "Fresh Produce",
+        "unit_price": "24.50",
+        "qty": 2,
+        "mcc": "5411",
+        "merchant_category": "Grocery Stores"
+      }
+    ],
+    "currency": "USD"
+  },
+  "merchant": {
+    "name": "Whole Foods Market",
+    "mcc": "5411",
+    "network_preferences": ["visa", "mc"],
+    "location": {
+      "city": "San Francisco",
+      "country": "US"
+    }
+  },
+  "customer": {
+    "id": "orca_customer_12345",
+    "loyalty_tier": "GOLD",
+    "historical_velocity_24h": 2,
+    "chargebacks_12m": 0
+  },
+  "device": {
+    "ip": "192.168.1.100",
+    "device_id": "orca_device_abc123",
+    "ip_distance_km": 2.1,
+    "location": {
+      "city": "San Francisco",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "San Francisco",
+    "region": "CA",
+    "country": "US",
+    "lat": 37.7749,
+    "lon": -122.4194
+  }
+}

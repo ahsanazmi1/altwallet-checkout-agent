@@ -1,0 +1,133 @@
+{
+  "transaction_id": "orca_txn_grocery_123",
+  "decision": "APPROVE",
+  "score": 0.88,
+  "status": "completed",
+  "recommendations": [
+    {
+      "card_id": "chase_sapphire_preferred",
+      "card_name": "Chase Sapphire Preferred",
+      "rank": 1,
+      "p_approval": 0.94,
+      "expected_rewards": 0.025,
+      "utility": 0.91,
+      "explainability": {
+        "baseline": 0.50,
+        "contributions": [
+          {
+            "feature": "merchant_category",
+            "contribution": 0.20,
+            "direction": "positive"
+          },
+          {
+            "feature": "loyalty_tier",
+            "contribution": 0.12,
+            "direction": "positive"
+          },
+          {
+            "feature": "orca_grocery_boost",
+            "contribution": 0.08,
+            "direction": "positive"
+          }
+        ],
+        "top_drivers": {
+          "positive": [
+            {
+              "feature": "merchant_category",
+              "value": "5411",
+              "impact": 0.20
+            },
+            {
+              "feature": "loyalty_tier",
+              "value": "GOLD",
+              "impact": 0.12
+            }
+          ],
+          "negative": []
+        }
+      },
+      "audit": {
+        "config_versions": {
+          "scoring": "v1.2.0",
+          "preferences": "v1.1.0",
+          "orca_engine": "v1.0.0"
+        },
+        "code_version": "orca_abc123def456",
+        "request_id": "orca_req_grocery_123",
+        "latency_ms": 35
+      }
+    },
+    {
+      "card_id": "amex_gold",
+      "card_name": "American Express Gold",
+      "rank": 2,
+      "p_approval": 0.89,
+      "expected_rewards": 0.04,
+      "utility": 0.87,
+      "explainability": {
+        "baseline": 0.50,
+        "contributions": [
+          {
+            "feature": "merchant_category",
+            "contribution": 0.18,
+            "direction": "positive"
+          },
+          {
+            "feature": "loyalty_tier",
+            "contribution": 0.10,
+            "direction": "positive"
+          }
+        ],
+        "top_drivers": {
+          "positive": [
+            {
+              "feature": "merchant_category",
+              "value": "5411",
+              "impact": 0.18
+            }
+          ],
+          "negative": []
+        }
+      },
+      "audit": {
+        "config_versions": {
+          "scoring": "v1.2.0",
+          "preferences": "v1.1.0",
+          "orca_engine": "v1.0.0"
+        },
+        "code_version": "orca_abc123def456",
+        "request_id": "orca_req_grocery_123",
+        "latency_ms": 35
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "discount",
+      "value": 0.03,
+      "description": "3% cashback bonus for grocery category"
+    },
+    {
+      "type": "loyalty_boost",
+      "value": 0.08,
+      "description": "Gold tier loyalty multiplier"
+    }
+  ],
+  "routing_hints": {
+    "preferred_network": "visa",
+    "fallback_networks": ["mc", "amex"],
+    "interchange_optimization": true,
+    "surcharge_suppression": false
+  },
+  "metadata": {
+    "processing_time_ms": 35,
+    "intelligence_version": "1.0.0",
+    "algorithm_used": "orca_intelligence_engine",
+    "orca_features": [
+      "interchange_optimization",
+      "loyalty_boost",
+      "grocery_category_boost",
+      "risk_assessment"
+    ]
+  }
+}

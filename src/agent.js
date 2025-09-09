@@ -29,12 +29,20 @@ class CheckoutAgent {
    * Load configuration settings
    */
   async loadConfiguration() {
-    // TODO: Load configuration from environment or config file
+    // Load configuration with ORCA_ prefix, fallback to legacy variables
     this.config = {
-      apiKey: process.env.ALTWALLET_API_KEY,
-      endpoint: process.env.ORCA_ENDPOINT || 'https://api.orca.com',
-      timeout: parseInt(process.env.REQUEST_TIMEOUT) || 30000
+      apiKey: process.env.ORCA_API_KEY || process.env.ALTWALLET_API_KEY,
+      endpoint: process.env.ORCA_ENDPOINT || process.env.ALTWALLET_ENDPOINT || 'https://api.orca.com',
+      timeout: parseInt(process.env.ORCA_TIMEOUT || process.env.REQUEST_TIMEOUT) || 30000
     };
+    
+    // Issue deprecation warnings for legacy variables
+    if (process.env.ALTWALLET_API_KEY && !process.env.ORCA_API_KEY) {
+      console.warn('⚠️  DEPRECATED: ALTWALLET_API_KEY is deprecated. Please use ORCA_API_KEY instead.');
+    }
+    if (process.env.ALTWALLET_ENDPOINT && !process.env.ORCA_ENDPOINT) {
+      console.warn('⚠️  DEPRECATED: ALTWALLET_ENDPOINT is deprecated. Please use ORCA_ENDPOINT instead.');
+    }
   }
 
   /**

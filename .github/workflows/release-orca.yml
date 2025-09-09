@@ -1,0 +1,264 @@
+name: Release Orca Checkout Agent
+
+on:
+  push:
+    tags:
+      - 'v1.1.0-orca.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.1.0-orca.0)'
+        required: true
+        default: 'v1.1.0-orca.0'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: orca/checkout-agent
+
+jobs:
+  # Build and test the release
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image-tag: ${{ steps.version.outputs.image-tag }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+    
+    - name: Run tests
+      run: |
+        pytest tests/ -v --cov=src/orca_checkout --cov-report=xml --cov-fail-under=85
+    
+    - name: Run quality checks
+      run: |
+        black --check src/ tests/ examples/
+        ruff check src/ tests/ examples/
+        mypy src/ --ignore-missing-imports
+    
+    - name: Extract version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="${{ github.ref_name }}"
+        fi
+        
+        # Remove 'v' prefix if present
+        VERSION=${VERSION#v}
+        
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "image-tag=$VERSION" >> $GITHUB_OUTPUT
+        echo "Release version: $VERSION"
+    
+    - name: Validate Orca branding
+      run: |
+        echo "Validating Orca branding..."
+        
+        # Check for AltWallet references (should be minimal or deprecated)
+        if grep -r "AltWallet" --include="*.py" --include="*.md" --include="*.yaml" --include="*.yml" --include="*.json" src/ docs/ examples/ | grep -v "deprecated\|compatibility\|migration"; then
+          echo "❌ Found non-deprecated AltWallet references"
+          exit 1
+        fi
+        
+        # Check for Orca branding
+        if ! grep -r "Orca" README.md; then
+          echo "❌ README.md should contain Orca branding"
+          exit 1
+        fi
+        
+        # Check package name
+        if ! grep -q "name = \"orca_checkout\"" pyproject.toml; then
+          echo "❌ Package name should be orca_checkout"
+          exit 1
+        fi
+        
+        echo "✅ Orca branding validation passed"
+
+  # Build and push Docker image
+  build-and-push:
+    name: Build and Push Docker Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+        labels: |
+          org.opencontainers.image.title=orca-checkout
+          org.opencontainers.image.description=Orca Checkout Agent - Intelligent payment processing and card recommendations
+          org.opencontainers.image.vendor=Orca
+          org.opencontainers.image.url=https://github.com/orca/checkout-agent
+          org.opencontainers.image.documentation=https://github.com/orca/checkout-agent/blob/main/README.md
+          org.opencontainers.image.licenses=MIT
+          com.orca.service=checkout-agent
+          com.orca.component=api
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          VERSION=${{ needs.build-and-test.outputs.version }}
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          GIT_COMMIT=${{ github.sha }}
+
+  # Create GitHub release
+  create-release:
+    name: Create GitHub Release
+    needs: [build-and-test, build-and-push]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        VERSION="${{ needs.build-and-test.outputs.version }}"
+        
+        # Generate changelog from git commits
+        echo "## What's New in v$VERSION" > CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        echo "### 🐋 Orca Migration" >> CHANGELOG.md
+        echo "- Complete branding migration from AltWallet to Orca" >> CHANGELOG.md
+        echo "- New ORCA_ environment variable prefix with backward compatibility" >> CHANGELOG.md
+        echo "- Enhanced API specification with Orca decision engine" >> CHANGELOG.md
+        echo "- Enterprise-grade quality gates and CI/CD pipeline" >> CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        echo "### 🔧 Technical Improvements" >> CHANGELOG.md
+        echo "- Updated OpenAPI specification to v1.1.0" >> CHANGELOG.md
+        echo "- New response fields: decision, actions, routing_hints" >> CHANGELOG.md
+        echo "- Comprehensive test suite with Orca scenarios" >> CHANGELOG.md
+        echo "- Security scanning and performance testing" >> CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        echo "### 📚 Documentation" >> CHANGELOG.md
+        echo "- Complete migration guide and architecture documentation" >> CHANGELOG.md
+        echo "- Environment variable configuration guide" >> CHANGELOG.md
+        echo "- Real-world API examples and scenarios" >> CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        echo "### 🚀 Deployment" >> CHANGELOG.md
+        echo "- Updated Docker images: \`orca/checkout-agent:$VERSION\`" >> CHANGELOG.md
+        echo "- New Helm charts: \`orca-checkout-agent\`" >> CHANGELOG.md
+        echo "- Backward compatible with existing deployments" >> CHANGELOG.md
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ needs.build-and-test.outputs.version }}
+        release_name: Orca Checkout Agent v${{ needs.build-and-test.outputs.version }}
+        body_path: RELEASE_NOTES_v1.1.0-orca.0.md
+        draft: false
+        prerelease: false
+
+  # Update package registries
+  update-packages:
+    name: Update Package Registries
+    needs: [build-and-test, build-and-push]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Build package
+      run: |
+        python -m build
+    
+    - name: Check package
+      run: |
+        twine check dist/*
+    
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        twine upload dist/*
+
+  # Notify team
+  notify:
+    name: Notify Team
+    needs: [build-and-test, build-and-push, create-release]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify success
+      if: needs.create-release.result == 'success'
+      run: |
+        echo "🎉 Orca Checkout Agent v${{ needs.build-and-test.outputs.version }} released successfully!"
+        echo "🐋 Docker image: orca/checkout-agent:${{ needs.build-and-test.outputs.version }}"
+        echo "📦 PyPI package: orca-checkout==${{ needs.build-and-test.outputs.version }}"
+        echo "📚 Release notes: https://github.com/orca/checkout-agent/releases/tag/v${{ needs.build-and-test.outputs.version }}"
+    
+    - name: Notify failure
+      if: needs.create-release.result == 'failure'
+      run: |
+        echo "❌ Release failed for v${{ needs.build-and-test.outputs.version }}"
+        echo "Please check the logs and retry the release."

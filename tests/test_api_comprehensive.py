@@ -658,8 +658,8 @@ class TestAPIStartup:
         """Test FastAPI app initialization."""
         from altwallet_agent.api import app
 
-        assert app.title == "AltWallet Checkout Agent API"
-        assert app.version == "1.0.0"
+        assert app.title == "Orca Checkout Agent API"
+        assert app.version == "1.1.0"
         assert app.docs_url == "/docs"
         assert app.redoc_url == "/redoc"
         assert app.openapi_url == "/openapi.json"
