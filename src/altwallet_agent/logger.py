@@ -1,4 +1,4 @@
-"""Structured logging configuration for AltWallet Checkout Agent.
+"""Structured logging configuration for Orca Checkout Agent.
 
 Provides structured JSON logs when ``structlog`` is available. If ``structlog``
 is not installed, falls back to Python's standard ``logging`` so the CLI can

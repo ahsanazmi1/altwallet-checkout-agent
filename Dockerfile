@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for AltWallet Checkout Agent
+# Multi-stage Dockerfile for Orca Checkout Agent
 # Stage 1: Build stage with pinned dependencies
 FROM python:3.11-slim as build
 
@@ -64,10 +64,10 @@ EXPOSE 8080
 
 # Add labels
 LABEL org.opencontainers.image.version="${VERSION}" \
-    org.opencontainers.image.title="AltWallet Checkout Agent" \
+    org.opencontainers.image.title="Orca Checkout Agent" \
     org.opencontainers.image.description="Core Engine MVP for checkout processing and scoring" \
-    org.opencontainers.image.vendor="AltWallet" \
-    org.opencontainers.image.source="https://github.com/altwallet/checkout-agent"
+    org.opencontainers.image.vendor="Orca" \
+    org.opencontainers.image.source="https://github.com/orca/checkout-agent"
 
 # Default command (can be overridden)
 CMD ["uvicorn", "altwallet_agent.api:app", "--host", "0.0.0.0", "--port", "8080"]

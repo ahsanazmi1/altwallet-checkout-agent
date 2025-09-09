@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AltWallet Checkout Agent CLI
+Orca Checkout Agent CLI
 
 Provides command-line interface for simulating decisions, managing webhooks,
 and checking system health.
@@ -198,7 +198,7 @@ def create_audit_block(
 @click.version_option(version="0.3.0")
 @click.pass_context
 def cli(ctx: click.Context) -> None:
-    """AltWallet Checkout Agent CLI - Decision Simulation and Management"""
+    """Orca Checkout Agent CLI - Decision Simulation and Management"""
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
         ctx.exit(2)

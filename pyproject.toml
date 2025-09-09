@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "altwallet_agent"
+name = "orca_checkout"
 version = "0.1.0"
-description = "AltWallet Checkout Agent - Core Engine MVP"
+description = "Orca Checkout Agent - Core Engine MVP"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [
-    {name = "AltWallet Team", email = "support@altwallet.com"},
+    {name = "Orca Team", email = "support@orca.com"},
 ]
 keywords = ["checkout", "agent", "payment", "recommendations", "cli"]
 classifiers = [
@@ -53,9 +53,9 @@ dev = [
 altwallet_agent = "altwallet_agent.cli:cli"
 
 [project.urls]
-Homepage = "https://github.com/altwallet/checkout-agent"
-Repository = "https://github.com/altwallet/checkout-agent"
-Issues = "https://github.com/altwallet/checkout-agent/issues"
+Homepage = "https://github.com/orca/checkout-agent"
+Repository = "https://github.com/orca/checkout-agent"
+Issues = "https://github.com/orca/checkout-agent/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/altwallet_agent"]

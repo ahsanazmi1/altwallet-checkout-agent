@@ -32,7 +32,7 @@ class CheckoutAgent {
     // TODO: Load configuration from environment or config file
     this.config = {
       apiKey: process.env.ALTWALLET_API_KEY,
-      endpoint: process.env.ALTWALLET_ENDPOINT || 'https://api.altwallet.com',
+      endpoint: process.env.ORCA_ENDPOINT || 'https://api.orca.com',
       timeout: parseInt(process.env.REQUEST_TIMEOUT) || 30000
     };
   }

@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  altwallet-agent-api:
+  orca-agent-api:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         VERSION: ${VERSION:-0.1.0}
-    image: altwallet/checkout-agent:${VERSION:-0.1.0}
-    container_name: altwallet-agent-api
+    image: orca/checkout-agent:${VERSION:-0.1.0}
+    container_name: orca-agent-api
     ports:
       - "8080:8080"
     environment:
@@ -24,6 +24,6 @@ services:
       start_period: 40s
     labels:
       - "org.opencontainers.image.version=${VERSION:-0.1.0}"
-      - "org.opencontainers.image.title=AltWallet Checkout Agent"
+      - "org.opencontainers.image.title=Orca Checkout Agent"
       - "org.opencontainers.image.description=Core Engine MVP for checkout processing and scoring"
-      - "org.opencontainers.image.vendor=AltWallet"
+      - "org.opencontainers.image.vendor=Orca"

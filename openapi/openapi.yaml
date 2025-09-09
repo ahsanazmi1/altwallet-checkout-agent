@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: AltWallet Checkout Agent API
+  title: Orca Checkout Agent API
   description: |
     Core Engine MVP for checkout processing and scoring with intelligent decision-making capabilities.
     
@@ -15,8 +15,8 @@ info:
     payment card recommendations.
   version: "1.0.0"
   contact:
-    name: AltWallet Team
-    email: support@altwallet.com
+    name: Orca Team
+    email: support@orca.com
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -24,7 +24,7 @@ info:
 servers:
   - url: http://localhost:8080
     description: Development server
-  - url: https://api.altwallet.com/v1
+  - url: https://api.orca.com/v1
     description: Production server
 
 paths:

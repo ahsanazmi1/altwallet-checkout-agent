@@ -1,12 +1,12 @@
-# AltWallet Checkout Agent
+# Orca Checkout Agent
 
-AltWallet Checkout Agent is a production-minded Python scaffold for intelligent checkout processing and card recommendations. It provides a robust foundation for processing transactions, scoring, and providing intelligent card recommendations with a clean API and CLI interface.
+Orca Checkout Agent is a production-minded Python scaffold for intelligent checkout processing and card recommendations. It provides a robust foundation for processing transactions, scoring, and providing intelligent card recommendations with a clean API and CLI interface.
 
 ## Phase 4 — Platformization ✅
 
 **Status**: ✅ **COMPLETED** (v0.4.0)
 
-Phase 4 has successfully transformed the AltWallet Checkout Agent into a production-ready platform with comprehensive SDK support, deployment flexibility, and enterprise-grade certification capabilities.
+Phase 4 has successfully transformed the Orca Checkout Agent into a production-ready platform with comprehensive SDK support, deployment flexibility, and enterprise-grade certification capabilities.
 
 ### 🚀 **Completed Deliverables**
 
@@ -237,10 +237,10 @@ The system provides comprehensive explainability through:
 
 #### **Python SDK**
 ```python
-from altwallet_sdk import AltWalletClient
+from orca_sdk import OrcaClient
 
 # Initialize client
-client = AltWalletClient(api_key="your-api-key")
+client = OrcaClient(api_key="your-api-key")
 
 # Process checkout
 response = await client.process_checkout(
@@ -256,12 +256,12 @@ print(f"Top recommendation: {recommendations[0].card_name}")
 
 #### **Node.js SDK**
 ```javascript
-import { AltWalletClient } from '@altwallet/sdk';
+import { OrcaClient } from '@orca/sdk';
 
 // Initialize client
-const client = new AltWalletClient({
+const client = new OrcaClient({
   apiKey: 'your-api-key',
-  baseUrl: 'https://api.altwallet.com'
+  baseUrl: 'https://api.orca.com'
 });
 
 // Process checkout
@@ -281,11 +281,11 @@ console.log(`Top recommendation: ${recommendations[0].cardName}`);
 #### **Kubernetes (Helm)**
 ```bash
 # Add Helm repository
-helm repo add altwallet https://charts.altwallet.com
+helm repo add orca https://charts.orca.com
 helm repo update
 
 # Deploy to Kubernetes
-helm install checkout-agent altwallet/altwallet-checkout-agent \
+helm install checkout-agent orca/orca-checkout-agent \
   --set image.tag=v0.4.0 \
   --set deployment.mode=sidecar \
   --set resources.requests.memory=512Mi
@@ -294,7 +294,7 @@ helm install checkout-agent altwallet/altwallet-checkout-agent \
 #### **Terraform (AWS)**
 ```hcl
 module "checkout_agent" {
-  source = "altwallet/checkout-agent/aws"
+  source = "orca/checkout-agent/aws"
   
   environment = "production"
   deployment_mode = "sidecar"
@@ -312,7 +312,7 @@ module "checkout_agent" {
 version: '3.8'
 services:
   checkout-agent:
-    image: altwallet/checkout-agent:v0.4.0
+    image: orca/checkout-agent:v0.4.0
     ports:
       - "8000:8000"
     environment:
@@ -332,20 +332,20 @@ services:
 pip install -e .
 
 # Basic checkout processing
-altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+orca_checkout checkout --merchant-id "amazon" --amount 150.00
 
 # Score a transaction from file
-altwallet_agent score --input examples/context_basic.json
+orca_checkout score --input examples/context_basic.json
 
 # Show help
-altwallet_agent --help
+orca_checkout --help
 ```
 
 ### API Quickstart
 
 ```bash
 # Start the API server
-uvicorn src.altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn src.orca_checkout.api:app --host 0.0.0.0 --port 8000 --reload
 
 # Health check
 curl http://localhost:8000/health
@@ -658,20 +658,20 @@ The complete OpenAPI 3.0.3 specification is available at:
 
 ### CLI Commands
 
-The AltWallet Checkout Agent provides a rich CLI interface:
+The Orca Checkout Agent provides a rich CLI interface:
 
 ```bash
 # Show help
-altwallet_agent --help
+orca_checkout --help
 
 # Process a checkout request
-altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+orca_checkout checkout --merchant-id "amazon" --amount 150.00
 
 # Score a transaction from file
-altwallet_agent score --file tests/data/sample_transaction.json
+orca_checkout score --file tests/data/sample_transaction.json
 
 # Show version information
-altwallet_agent --version
+orca_checkout --version
 ```
 
 ### API Endpoints
@@ -680,7 +680,7 @@ The FastAPI application provides RESTful endpoints:
 
 ```bash
 # Start the API server
-uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn orca_checkout.api:app --host 0.0.0.0 --port 8000 --reload
 
 # Health check
 curl http://localhost:8000/health
@@ -704,8 +704,8 @@ curl http://localhost:8000/openapi.json
 ### Project Structure
 
 ```
-altwallet-checkout-agent/
-├── src/altwallet_agent/          # Main package
+orca-checkout-agent/
+├── src/orca_checkout/            # Main package
 │   ├── __init__.py              # Package exports
 │   ├── api.py                   # FastAPI application
 │   ├── cli.py                   # CLI interface with Typer
@@ -720,7 +720,7 @@ altwallet-checkout-agent/
 │   └── models.py               # Pydantic data models
 ├── sdk/                         # Phase 4 SDK ecosystem
 │   ├── python/                 # Python SDK
-│   │   ├── altwallet_sdk/      # SDK package
+│   │   ├── orca_sdk/           # SDK package
 │   │   ├── examples/           # Usage examples
 │   │   └── setup.py            # Package setup
 │   └── nodejs/                 # Node.js SDK
@@ -807,7 +807,7 @@ make build-docker
 docker-compose up -d
 
 # Or run directly
-docker run -p 8080:8080 altwallet/checkout-agent:0.1.0
+docker run -p 8080:8080 orca/checkout-agent:0.1.0
 ```
 
 ### Docker Usage
@@ -815,16 +815,16 @@ docker run -p 8080:8080 altwallet/checkout-agent:0.1.0
 **Build and run the API server:**
 ```bash
 # Build image
-docker build -t altwallet/checkout-agent:latest .
+docker build -t orca/checkout-agent:latest .
 
 # Run API server
-docker run -p 8000:8000 altwallet/checkout-agent:latest
+docker run -p 8000:8000 orca/checkout-agent:latest
 
 # Run with environment variables
 docker run -p 8000:8000 \
   -e ENVIRONMENT=production \
   -e LOG_LEVEL=INFO \
-  altwallet/checkout-agent:latest
+  orca/checkout-agent:latest
 ```
 
 **Run CLI commands with Docker:**
@@ -832,12 +832,12 @@ docker run -p 8000:8000 \
 # Score a transaction
 docker run --rm \
   -v "$(pwd)/examples:/data:ro" \
-  altwallet/checkout-agent:latest \
+  orca/checkout-agent:latest \
   altwallet_agent score --input /data/context_basic.json
 
 # Process checkout
 docker run --rm \
-  altwallet/checkout-agent:latest \
+  orca/checkout-agent:latest \
   altwallet_agent checkout --merchant-id "amazon" --amount 150.00
 ```
 
@@ -862,7 +862,7 @@ docker-compose down
 # Or manually
 docker run --rm \
   -v "$(pwd)/data:/data:ro" \
-  altwallet/checkout-agent:0.1.0 \
+  orca/checkout-agent:0.1.0 \
   python -m altwallet_agent score --input /data/context.json
 ```
 

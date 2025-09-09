@@ -1,8 +1,8 @@
-"""AltWallet Checkout Agent - Core Engine MVP."""
+"""Orca Checkout Agent - Core Engine MVP."""
 
 __version__ = "0.1.0"
-__author__ = "AltWallet Team"
-__email__ = "support@altwallet.com"
+__author__ = "Orca Team"
+__email__ = "support@orca.com"
 
 from .core import CheckoutAgent
 from .models import CheckoutRequest, CheckoutResponse, ScoreRequest, ScoreResponse

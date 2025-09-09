@@ -1,4 +1,4 @@
-"""FastAPI application for AltWallet Checkout Agent."""
+"""FastAPI application for Orca Checkout Agent."""
 
 import json
 import time
@@ -98,7 +98,7 @@ async def lifespan(app: FastAPI) -> Any:
 
 # Create FastAPI app
 app = FastAPI(
-    title="AltWallet Checkout Agent API",
+    title="Orca Checkout Agent API",
     description=(
         "Core Engine MVP for checkout processing and scoring with "
         "intelligent decision-making capabilities."

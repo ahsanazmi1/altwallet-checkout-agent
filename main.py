@@ -70,7 +70,7 @@ class CheckoutAgent:
         self.status = "idle"
         self.config = {
             "api_key": os.getenv("ALTWALLET_API_KEY"),
-            "endpoint": os.getenv("ALTWALLET_ENDPOINT", "https://api.altwallet.com"),
+            "endpoint": os.getenv("ORCA_ENDPOINT", "https://api.orca.com"),
             "timeout": int(os.getenv("REQUEST_TIMEOUT", "30000")),
         }
 
