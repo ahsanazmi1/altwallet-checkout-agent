@@ -356,7 +356,11 @@ class TestDecisionEngine:
         geo = Geo(city="Test City", country="Test Country")
 
         return Context(
-            cart=cart, merchant=merchant, customer=customer, device=device, geo=geo
+            cart=cart,
+            merchant=merchant,
+            customer=customer,
+            device=device,
+            geo=geo,
         )
 
 
@@ -438,7 +442,11 @@ class TestIntegration:
         geo = Geo(city="Test City", country="Test Country")
 
         return Context(
-            cart=cart, merchant=merchant, customer=customer, device=device, geo=geo
+            cart=cart,
+            merchant=merchant,
+            customer=customer,
+            device=device,
+            geo=geo,
         )
 
 

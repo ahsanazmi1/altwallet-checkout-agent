@@ -197,14 +197,16 @@ class TestScoringFunctions:
         # Test location mismatch
         assert (
             is_location_mismatch(
-                {"city": "NYC", "country": "US"}, {"city": "LA", "country": "US"}
+                {"city": "NYC", "country": "US"},
+                {"city": "LA", "country": "US"},
             )
             is True
         )
 
         assert (
             is_location_mismatch(
-                {"city": "NYC", "country": "US"}, {"city": "NYC", "country": "US"}
+                {"city": "NYC", "country": "US"},
+                {"city": "NYC", "country": "US"},
             )
             is False
         )
@@ -267,7 +269,11 @@ class TestScoringFunctions:
         geo = Geo(city=geo_location["city"], country=geo_location["country"])
 
         return Context(
-            cart=cart, merchant=merchant, customer=customer, device=device, geo=geo
+            cart=cart,
+            merchant=merchant,
+            customer=customer,
+            device=device,
+            geo=geo,
         )
 
 
@@ -294,7 +300,11 @@ class TestScoreResult:
         """Test that scores are properly bounded."""
         # Test minimum bounds
         result = ScoreResult.create(
-            risk_score=0, loyalty_boost=0, final_score=0, routing_hint="any", signals={}
+            risk_score=0,
+            loyalty_boost=0,
+            final_score=0,
+            routing_hint="any",
+            signals={},
         )
         assert result.final_score >= 0
 

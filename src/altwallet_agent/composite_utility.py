@@ -158,7 +158,7 @@ class CompositeUtility:
         logger.info(
             "Cards ranked by utility",
             top_card=ranked_cards[0]["card_name"] if ranked_cards else "None",
-            top_utility=ranked_cards[0]["utility_score"] if ranked_cards else 0.0,
+            top_utility=(ranked_cards[0]["utility_score"] if ranked_cards else 0.0),
             total_cards=len(ranked_cards),
         )
 
@@ -333,7 +333,10 @@ class CompositeUtility:
                 "avg": sum(utilities) / len(utilities),
             },
             "component_ranges": {
-                "p_approval": {"min": min(p_approvals), "max": max(p_approvals)},
+                "p_approval": {
+                    "min": min(p_approvals),
+                    "max": max(p_approvals),
+                },
                 "expected_rewards": {
                     "min": min(expected_rewards),
                     "max": max(expected_rewards),

@@ -40,7 +40,12 @@ def create_mock_score_result():
 def sample_context_file():
     """Create a temporary file with sample context data."""
     context_data = {
-        "merchant": {"id": "amazon", "name": "Amazon", "mcc": "5411", "region": "US"},
+        "merchant": {
+            "id": "amazon",
+            "name": "Amazon",
+            "mcc": "5411",
+            "region": "US",
+        },
         "customer": {
             "id": "cust_123",
             "loyalty_tier": "GOLD",
@@ -110,7 +115,12 @@ class TestScoreCommand:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_with_input_file(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command with input file."""
         mock_score.return_value = create_mock_score_result()
@@ -124,14 +134,24 @@ class TestScoreCommand:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_with_trace_id(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command with custom trace ID."""
         mock_score.return_value = create_mock_score_result()
 
         result = runner.invoke(
             score,
-            ["--input", str(sample_context_file), "--trace-id", "custom-trace-123"],
+            [
+                "--input",
+                str(sample_context_file),
+                "--trace-id",
+                "custom-trace-123",
+            ],
         )
         assert result.exit_code == 0
         mock_set_trace.assert_called_with("custom-trace-123")
@@ -140,7 +160,12 @@ class TestScoreCommand:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_pretty_output(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command with pretty output."""
         mock_score.return_value = create_mock_score_result()
@@ -154,7 +179,12 @@ class TestScoreCommand:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_json_output(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command with JSON output."""
         mock_score.return_value = create_mock_score_result()
@@ -168,7 +198,12 @@ class TestScoreCommand:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_verbose(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command with verbose logging."""
         mock_score.return_value = create_mock_score_result()
@@ -357,7 +392,12 @@ class TestScoreFileCommand:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_file_success(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score-file command with valid file."""
         mock_score.return_value = create_mock_score_result()
@@ -440,7 +480,12 @@ class TestCLIErrorHandling:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_processing_error(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command with processing error."""
         mock_score.side_effect = Exception("Processing error")
@@ -471,7 +516,12 @@ class TestCLIIntegration:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_full_score_workflow(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test complete score workflow."""
         mock_score.return_value = create_mock_score_result()
@@ -531,7 +581,12 @@ class TestCLIPerformance:
     @patch("altwallet_agent.cli.set_trace_id")
     @patch("altwallet_agent.cli.set_request_start_time")
     def test_score_performance(
-        self, mock_set_time, mock_set_trace, mock_score, runner, sample_context_file
+        self,
+        mock_set_time,
+        mock_set_trace,
+        mock_score,
+        runner,
+        sample_context_file,
     ):
         """Test score command performance."""
         import time

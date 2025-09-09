@@ -89,13 +89,15 @@ class ExplainabilityInfo(BaseModel):
 
     baseline: float = Field(..., description="Baseline score contribution")
     contributions: list[dict[str, Any]] = Field(
-        default_factory=list, description="Per-feature contributions to the score"
+        default_factory=list,
+        description="Per-feature contributions to the score",
     )
     calibration: dict[str, Any] = Field(
         default_factory=dict, description="Calibration method and parameters"
     )
     top_drivers: dict[str, list[dict[str, Any]]] = Field(
-        default_factory=dict, description="Top positive and negative feature drivers"
+        default_factory=dict,
+        description="Top positive and negative feature drivers",
     )
 
 
@@ -139,7 +141,10 @@ class ScoreRequest(BaseModel):
         json_schema_extra={
             "examples": [
                 {
-                    "transaction_data": {"amount": "100.00", "merchant": "test"},
+                    "transaction_data": {
+                        "amount": "100.00",
+                        "merchant": "test",
+                    },
                     "user_context": {"user_id": "user_123"},
                 }
             ]

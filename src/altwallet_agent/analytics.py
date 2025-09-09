@@ -322,7 +322,8 @@ class AnalyticsLogger:
 
         # Log the full event data
         self.logger.info(
-            "Analytics event", analytics_event=json.dumps(event_data, default=str)
+            "Analytics event",
+            analytics_event=json.dumps(event_data, default=str),
         )
 
         return str(event_data["event_id"])
@@ -359,7 +360,8 @@ class AnalyticsLogger:
         )
 
         self.logger.info(
-            "Analytics event", analytics_event=json.dumps(event_data, default=str)
+            "Analytics event",
+            analytics_event=json.dumps(event_data, default=str),
         )
 
         return str(event_data["event_id"])
@@ -394,7 +396,8 @@ class AnalyticsLogger:
         )
 
         self.logger.error(
-            "Analytics event", analytics_event=json.dumps(event_data, default=str)
+            "Analytics event",
+            analytics_event=json.dumps(event_data, default=str),
         )
 
         return str(event_data["event_id"])
@@ -427,7 +430,8 @@ class AnalyticsLogger:
         )
 
         self.logger.info(
-            "Analytics event", analytics_event=json.dumps(event_data, default=str)
+            "Analytics event",
+            analytics_event=json.dumps(event_data, default=str),
         )
 
         return str(event_data["event_id"])

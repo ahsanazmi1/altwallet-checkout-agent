@@ -407,7 +407,10 @@ class TestCardDatabaseSearch:
         db = CardDatabase()
 
         results = db.search_cards(
-            min_reward_rate=None, max_annual_fee=None, issuers=None, categories=None
+            min_reward_rate=None,
+            max_annual_fee=None,
+            issuers=None,
+            categories=None,
         )
         assert isinstance(results, list)
         assert len(results) > 0
@@ -636,5 +639,10 @@ class TestCardDatabaseIntegration:
             assert card["issuer"] in ["Chase", "American Express", "Citi"]
 
             card_categories = set(card.get("category_bonuses", {}).keys())
-            search_categories = {"travel", "dining", "grocery_stores", "gas_stations"}
+            search_categories = {
+                "travel",
+                "dining",
+                "grocery_stores",
+                "gas_stations",
+            }
             assert card_categories.intersection(search_categories)

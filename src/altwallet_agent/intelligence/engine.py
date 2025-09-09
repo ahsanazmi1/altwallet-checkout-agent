@@ -148,7 +148,9 @@ class IntelligenceEngine:
         # For now, return a deterministic risk score based on request parameters
         risk_factors = {
             "amount_factor": min(float(request.amount) / 1000.0, 1.0),
-            "merchant_factor": 0.1 if "amazon" in request.merchant_id.lower() else 0.3,
+            "merchant_factor": (
+                0.1 if "amazon" in request.merchant_id.lower() else 0.3
+            ),
             "currency_factor": 0.2 if request.currency != "USD" else 0.1,
         }
 
@@ -188,7 +190,7 @@ class IntelligenceEngine:
         # For now, return a deterministic score based on request parameters
         scoring_factors = {
             "amount_bonus": min(float(request.amount) / 500.0, 0.3),
-            "merchant_bonus": 0.2 if "amazon" in request.merchant_id.lower() else 0.1,
+            "merchant_bonus": (0.2 if "amazon" in request.merchant_id.lower() else 0.1),
             "currency_bonus": 0.1 if request.currency == "USD" else 0.05,
             "base_score": 0.4,
         }

@@ -267,7 +267,10 @@ async def score_endpoint(request: ScoreRequest) -> ScoreResponse:
                     },
                 },
                 "audit": {
-                    "config_versions": {"scoring": "v1.2.0", "preferences": "v1.1.0"},
+                    "config_versions": {
+                        "scoring": "v1.2.0",
+                        "preferences": "v1.1.0",
+                    },
                     "code_version": "abc123def456",
                     "request_id": str(uuid.uuid4()),
                     "latency_ms": int((time.time() - start_time) * 1000),
@@ -484,7 +487,9 @@ async def legacy_score_endpoint(request: ScoreRequest) -> ScoreResponse:
 
 
 @app.post("/decision", response_model=DecisionResponse)
-async def legacy_decision_endpoint(request: DecisionRequest) -> DecisionResponse:
+async def legacy_decision_endpoint(
+    request: DecisionRequest,
+) -> DecisionResponse:
     """Legacy decision endpoint."""
     return await decision_endpoint(request)
 

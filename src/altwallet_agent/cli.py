@@ -36,7 +36,10 @@ from altwallet_agent.models import Context
 from altwallet_agent.scoring import score_transaction
 
 try:
-    from altwallet_agent.webhooks import get_webhook_emitter, get_webhook_manager
+    from altwallet_agent.webhooks import (
+        get_webhook_emitter,
+        get_webhook_manager,
+    )
 
     _HAS_WEBHOOKS = True
 except Exception:  # pragma: no cover - allow running without aiohttp
@@ -117,19 +120,35 @@ def get_top_drivers(
         signals = attributions["signals"]
         if signals.get("location_mismatch"):
             drivers.append(
-                {"feature": "location_mismatch", "value": -30, "impact": "negative"}
+                {
+                    "feature": "location_mismatch",
+                    "value": -30,
+                    "impact": "negative",
+                }
             )
         if signals.get("velocity_flag"):
             drivers.append(
-                {"feature": "high_velocity_24h", "value": -20, "impact": "negative"}
+                {
+                    "feature": "high_velocity_24h",
+                    "value": -20,
+                    "impact": "negative",
+                }
             )
         if signals.get("chargebacks_present"):
             drivers.append(
-                {"feature": "chargebacks_12m", "value": -25, "impact": "negative"}
+                {
+                    "feature": "chargebacks_12m",
+                    "value": -25,
+                    "impact": "negative",
+                }
             )
         if signals.get("high_ticket"):
             drivers.append(
-                {"feature": "high_ticket_amount", "value": -10, "impact": "negative"}
+                {
+                    "feature": "high_ticket_amount",
+                    "value": -10,
+                    "impact": "negative",
+                }
             )
 
     # Add loyalty boost as positive driver

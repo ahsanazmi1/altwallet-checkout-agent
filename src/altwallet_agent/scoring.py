@@ -29,7 +29,8 @@ class ScoreResult(BaseModel):
     final_score: int = Field(..., description="Final score (0-120)")
     routing_hint: str = Field(..., description="Payment network preference")
     signals: dict[str, Any] = Field(
-        default_factory=dict, description="Detailed scoring signals and components"
+        default_factory=dict,
+        description="Detailed scoring signals and components",
     )
 
     @classmethod

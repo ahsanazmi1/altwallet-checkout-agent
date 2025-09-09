@@ -291,7 +291,9 @@ class TestWebhookEventEmitter:
             mock_send.return_value = []
 
             await emitter.emit_loyalty_event(
-                customer_id="cust_123", event_type="points_earned", points_change=100
+                customer_id="cust_123",
+                event_type="points_earned",
+                points_change=100,
             )
 
             mock_send.assert_called_once()

@@ -26,7 +26,9 @@ class TestCheckoutGoldenTests:
     def test_small_transaction_response(self, agent, golden_data_dir):
         """Test response for small transaction amount."""
         request = CheckoutRequest(
-            merchant_id="small_merchant", amount=Decimal("10.00"), currency="USD"
+            merchant_id="small_merchant",
+            amount=Decimal("10.00"),
+            currency="USD",
         )
 
         response = agent.process_checkout(request)
@@ -59,7 +61,9 @@ class TestCheckoutGoldenTests:
     def test_large_transaction_response(self, agent, golden_data_dir):
         """Test response for large transaction amount."""
         request = CheckoutRequest(
-            merchant_id="large_merchant", amount=Decimal("1000.00"), currency="USD"
+            merchant_id="large_merchant",
+            amount=Decimal("1000.00"),
+            currency="USD",
         )
 
         response = agent.process_checkout(request)
@@ -92,7 +96,9 @@ class TestCheckoutGoldenTests:
     def test_consistent_recommendations_structure(self, agent):
         """Test that recommendations have consistent structure."""
         request = CheckoutRequest(
-            merchant_id="test_merchant", amount=Decimal("100.00"), currency="USD"
+            merchant_id="test_merchant",
+            amount=Decimal("100.00"),
+            currency="USD",
         )
 
         response = agent.process_checkout(request)

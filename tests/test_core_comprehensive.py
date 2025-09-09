@@ -251,7 +251,9 @@ class TestCheckoutAgentRequestConversion:
     def test_request_to_context_missing_metadata(self, checkout_agent):
         """Test request to context conversion with missing metadata."""
         request = CheckoutRequest(
-            merchant_id="test_merchant", amount=Decimal("50.00"), currency="USD"
+            merchant_id="test_merchant",
+            amount=Decimal("50.00"),
+            currency="USD",
         )
 
         context = checkout_agent._request_to_context(request)
@@ -358,7 +360,9 @@ class TestCheckoutAgentProcessing:
     ):
         """Test enhanced checkout processing with exception."""
         with patch.object(
-            checkout_agent, "_get_approval_scorer", side_effect=Exception("Test error")
+            checkout_agent,
+            "_get_approval_scorer",
+            side_effect=Exception("Test error"),
         ):
             response = checkout_agent.process_checkout_enhanced(sample_checkout_request)
 
@@ -424,7 +428,11 @@ class TestCheckoutAgentDisplay:
         response = CheckoutResponse(
             transaction_id="test_txn",
             recommendations=[
-                {"name": "Test Card", "cashback_rate": 0.02, "reason": "Test reason"}
+                {
+                    "name": "Test Card",
+                    "cashback_rate": 0.02,
+                    "reason": "Test reason",
+                }
             ],
             score=0.85,
             status="completed",
@@ -638,7 +646,11 @@ class TestCheckoutAgentIntegration:
             mock_basic.return_value = CheckoutResponse(
                 transaction_id="test_txn",
                 recommendations=[
-                    {"name": "Test Card", "cashback_rate": 0.02, "reason": "Best value"}
+                    {
+                        "name": "Test Card",
+                        "cashback_rate": 0.02,
+                        "reason": "Best value",
+                    }
                 ],
                 score=0.85,
                 status="completed",

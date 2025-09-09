@@ -5,7 +5,9 @@ from unittest.mock import Mock, patch
 import pytest
 
 from altwallet_agent.data.card_database import CardDatabase
-from altwallet_agent.intelligence.processing.merchant_analyzer import MerchantAnalyzer
+from altwallet_agent.intelligence.processing.merchant_analyzer import (
+    MerchantAnalyzer,
+)
 
 
 class TestMerchantAnalyzerInitialization:
@@ -181,7 +183,12 @@ class TestMerchantCategoryDetection:
         """Test detection of unknown merchants."""
         analyzer = MerchantAnalyzer()
 
-        test_cases = ["unknown_merchant", "random_store", "xyz_corp", "test_merchant"]
+        test_cases = [
+            "unknown_merchant",
+            "random_store",
+            "xyz_corp",
+            "test_merchant",
+        ]
 
         for merchant_id in test_cases:
             category = analyzer._detect_merchant_category(merchant_id)

@@ -148,7 +148,10 @@ class TestConfigurationLoading:
             "environment": "production",
             "log_level": "DEBUG",
             "api_port": 9000,
-            "inline_config": {"merchant_app_name": "test-app", "cache_enabled": False},
+            "inline_config": {
+                "merchant_app_name": "test-app",
+                "cache_enabled": False,
+            },
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -191,7 +194,11 @@ class TestConfigurationLoading:
 
     def test_load_deployment_config_file_override_env(self):
         """Test that file configuration overrides environment variables."""
-        config_data = {"mode": "sidecar", "environment": "production", "api_port": 8000}
+        config_data = {
+            "mode": "sidecar",
+            "environment": "production",
+            "api_port": 8000,
+        }
 
         env_vars = {
             "DEPLOYMENT_MODE": "inline",
@@ -344,7 +351,8 @@ class TestDeploymentManager:
         manager = DeploymentManager()
 
         with pytest.raises(
-            ValueError, match="Inline client can only be created in inline mode"
+            ValueError,
+            match="Inline client can only be created in inline mode",
         ):
             manager.create_inline_client()
 
@@ -361,7 +369,8 @@ class TestDeploymentManager:
         manager = DeploymentManager()
 
         with pytest.raises(
-            ValueError, match="Sync inline client can only be created in inline mode"
+            ValueError,
+            match="Sync inline client can only be created in inline mode",
         ):
             manager.create_sync_inline_client()
 

@@ -404,7 +404,10 @@ class MerchantAnalyzer:
         return min(confidence, 1.0)
 
     def get_optimal_cards_for_merchant(
-        self, merchant_id: str, amount: float, max_annual_fee: int | None = None
+        self,
+        merchant_id: str,
+        amount: float,
+        max_annual_fee: int | None = None,
     ) -> list[str]:
         """Get optimal cards for a specific merchant and transaction.
 

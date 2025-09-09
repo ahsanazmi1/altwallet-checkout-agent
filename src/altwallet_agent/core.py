@@ -308,7 +308,11 @@ class CheckoutAgent:
                     "explainability": {
                         "baseline": 0.5,
                         "contributions": [
-                            {"feature": "amount", "value": 0.1, "impact": "positive"},
+                            {
+                                "feature": "amount",
+                                "value": 0.1,
+                                "impact": "positive",
+                            },
                             {
                                 "feature": "merchant_category",
                                 "value": -0.05,
@@ -318,7 +322,11 @@ class CheckoutAgent:
                         "calibration": "logistic",
                         "top_drivers": {
                             "positive": [
-                                {"feature": "amount", "value": 0.1, "magnitude": 0.1}
+                                {
+                                    "feature": "amount",
+                                    "value": 0.1,
+                                    "magnitude": 0.1,
+                                }
                             ],
                             "negative": [
                                 {
