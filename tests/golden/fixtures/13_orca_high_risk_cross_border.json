@@ -1,0 +1,45 @@
+{
+  "cart": {
+    "items": [
+      {
+        "item": "Luxury Watch",
+        "unit_price": "2499.99",
+        "qty": 1,
+        "mcc": "5094",
+        "merchant_category": "Jewelry Stores"
+      }
+    ],
+    "currency": "USD"
+  },
+  "merchant": {
+    "name": "International Jewelry",
+    "mcc": "5094",
+    "network_preferences": ["visa"],
+    "location": {
+      "city": "Toronto",
+      "country": "CA"
+    }
+  },
+  "customer": {
+    "id": "orca_customer_99999",
+    "loyalty_tier": "SILVER",
+    "historical_velocity_24h": 8,
+    "chargebacks_12m": 1
+  },
+  "device": {
+    "ip": "203.0.113.1",
+    "device_id": "orca_device_high_risk",
+    "ip_distance_km": 2500.0,
+    "location": {
+      "city": "New York",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "Toronto",
+    "region": "ON",
+    "country": "CA",
+    "lat": 43.6532,
+    "lon": -79.3832
+  }
+}

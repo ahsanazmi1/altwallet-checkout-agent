@@ -320,7 +320,10 @@ class TestAPIEndpoints:
                     "card1": {
                         "card_id": "card1",
                         "card_name": "Test Card",
-                        "components": {"p_approval": 0.85, "expected_rewards": 0.02},
+                        "components": {
+                            "p_approval": 0.85,
+                            "expected_rewards": 0.02,
+                        },
                         "utility_score": 0.75,
                     }
                 }
@@ -331,7 +334,10 @@ class TestAPIEndpoints:
                     {
                         "card_id": "card1",
                         "card_name": "Test Card",
-                        "components": {"p_approval": 0.85, "expected_rewards": 0.02},
+                        "components": {
+                            "p_approval": 0.85,
+                            "expected_rewards": 0.02,
+                        },
                         "utility_score": 0.75,
                     }
                 ]
@@ -494,7 +500,10 @@ class TestAPIEndpoints:
                     "card1": {
                         "card_id": "card1",
                         "card_name": "Test Card",
-                        "components": {"p_approval": 0.85, "expected_rewards": 0.02},
+                        "components": {
+                            "p_approval": 0.85,
+                            "expected_rewards": 0.02,
+                        },
                         "utility_score": 0.75,
                     }
                 }
@@ -505,7 +514,10 @@ class TestAPIEndpoints:
                     {
                         "card_id": "card1",
                         "card_name": "Test Card",
-                        "components": {"p_approval": 0.85, "expected_rewards": 0.02},
+                        "components": {
+                            "p_approval": 0.85,
+                            "expected_rewards": 0.02,
+                        },
                         "utility_score": 0.75,
                     }
                 ]
@@ -658,8 +670,8 @@ class TestAPIStartup:
         """Test FastAPI app initialization."""
         from altwallet_agent.api import app
 
-        assert app.title == "AltWallet Checkout Agent API"
-        assert app.version == "1.0.0"
+        assert app.title == "Orca Checkout Agent API"
+        assert app.version == "1.1.0"
         assert app.docs_url == "/docs"
         assert app.redoc_url == "/redoc"
         assert app.openapi_url == "/openapi.json"
@@ -820,7 +832,8 @@ class TestAPIIntegration:
                             mock_context.return_value = mock_context_obj
 
                             explain_response = client.post(
-                                "/v1/explain", json={"context_data": context_data}
+                                "/v1/explain",
+                                json={"context_data": context_data},
                             )
                             assert explain_response.status_code == 200
 

@@ -88,7 +88,11 @@ class TestPreferenceWeights:
         for tier in tiers:
             context = self._create_test_context(LoyaltyTier(tier))
             # Create a sample card for testing
-            card = {"name": "Test Card", "issuer": "chase", "rewards_type": "points"}
+            card = {
+                "name": "Test Card",
+                "issuer": "chase",
+                "rewards_type": "points",
+            }
             weight = self.weighting.preference_weight(card, context)
             weights.append(weight)
 
@@ -104,7 +108,11 @@ class TestPreferenceWeights:
         context_chase = self._create_test_context(
             LoyaltyTier.GOLD, issuer_affinity="chase"
         )
-        card_chase = {"name": "Chase Card", "issuer": "chase", "rewards_type": "points"}
+        card_chase = {
+            "name": "Chase Card",
+            "issuer": "chase",
+            "rewards_type": "points",
+        }
         weight_chase = self.weighting.preference_weight(card_chase, context_chase)
 
         # Test with Amex affinity
@@ -127,7 +135,11 @@ class TestPreferenceWeights:
     def test_preference_weight_bounds(self):
         """Test that preference weights stay within reasonable bounds."""
         context = self._create_test_context(LoyaltyTier.GOLD)
-        card = {"name": "Test Card", "issuer": "chase", "rewards_type": "points"}
+        card = {
+            "name": "Test Card",
+            "issuer": "chase",
+            "rewards_type": "points",
+        }
         weight = self.weighting.preference_weight(card, context)
 
         # Weights should be between 0.5 and 1.5

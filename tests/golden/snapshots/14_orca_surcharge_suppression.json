@@ -1,0 +1,90 @@
+{
+  "transaction_id": "orca_txn_gas_101",
+  "decision": "APPROVE",
+  "score": 0.75,
+  "status": "completed",
+  "recommendations": [
+    {
+      "card_id": "chase_freedom_flex",
+      "card_name": "Chase Freedom Flex",
+      "rank": 1,
+      "p_approval": 0.82,
+      "expected_rewards": 0.05,
+      "utility": 0.78,
+      "explainability": {
+        "baseline": 0.50,
+        "contributions": [
+          {
+            "feature": "merchant_category",
+            "contribution": 0.15,
+            "direction": "positive"
+          },
+          {
+            "feature": "orca_surcharge_suppression",
+            "contribution": 0.10,
+            "direction": "positive"
+          },
+          {
+            "feature": "loyalty_tier",
+            "contribution": 0.05,
+            "direction": "positive"
+          }
+        ],
+        "top_drivers": {
+          "positive": [
+            {
+              "feature": "merchant_category",
+              "value": "5541",
+              "impact": 0.15
+            },
+            {
+              "feature": "surcharge_suppression",
+              "value": "true",
+              "impact": 0.10
+            }
+          ],
+          "negative": []
+        }
+      },
+      "audit": {
+        "config_versions": {
+          "scoring": "v1.2.0",
+          "preferences": "v1.1.0",
+          "orca_engine": "v1.0.0"
+        },
+        "code_version": "orca_abc123def456",
+        "request_id": "orca_req_gas_101",
+        "latency_ms": 32
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "surcharge_suppression",
+      "value": true,
+      "description": "Suppress surcharges for gas station transactions"
+    },
+    {
+      "type": "discount",
+      "value": 0.05,
+      "description": "5% cashback bonus for gas category"
+    }
+  ],
+  "routing_hints": {
+    "preferred_network": "visa",
+    "fallback_networks": ["mc"],
+    "interchange_optimization": true,
+    "surcharge_suppression": true
+  },
+  "metadata": {
+    "processing_time_ms": 32,
+    "intelligence_version": "1.0.0",
+    "algorithm_used": "orca_intelligence_engine",
+    "orca_features": [
+      "interchange_optimization",
+      "surcharge_suppression",
+      "gas_category_boost",
+      "risk_assessment"
+    ]
+  }
+}

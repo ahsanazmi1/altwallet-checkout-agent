@@ -1,0 +1,90 @@
+{
+  "transaction_id": "orca_txn_retail_456",
+  "decision": "APPROVE",
+  "score": 0.92,
+  "status": "completed",
+  "recommendations": [
+    {
+      "card_id": "amex_platinum",
+      "card_name": "American Express Platinum",
+      "rank": 1,
+      "p_approval": 0.96,
+      "expected_rewards": 0.05,
+      "utility": 0.94,
+      "explainability": {
+        "baseline": 0.50,
+        "contributions": [
+          {
+            "feature": "loyalty_tier",
+            "contribution": 0.25,
+            "direction": "positive"
+          },
+          {
+            "feature": "merchant_category",
+            "contribution": 0.15,
+            "direction": "positive"
+          },
+          {
+            "feature": "orca_platinum_boost",
+            "contribution": 0.10,
+            "direction": "positive"
+          }
+        ],
+        "top_drivers": {
+          "positive": [
+            {
+              "feature": "loyalty_tier",
+              "value": "PLATINUM",
+              "impact": 0.25
+            },
+            {
+              "feature": "merchant_category",
+              "value": "5732",
+              "impact": 0.15
+            }
+          ],
+          "negative": []
+        }
+      },
+      "audit": {
+        "config_versions": {
+          "scoring": "v1.2.0",
+          "preferences": "v1.1.0",
+          "orca_engine": "v1.0.0"
+        },
+        "code_version": "orca_abc123def456",
+        "request_id": "orca_req_retail_456",
+        "latency_ms": 28
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "loyalty_boost",
+      "value": 0.15,
+      "description": "Platinum tier loyalty multiplier"
+    },
+    {
+      "type": "discount",
+      "value": 0.05,
+      "description": "5% cashback bonus for electronics category"
+    }
+  ],
+  "routing_hints": {
+    "preferred_network": "amex",
+    "fallback_networks": ["visa", "mc"],
+    "interchange_optimization": true,
+    "surcharge_suppression": false
+  },
+  "metadata": {
+    "processing_time_ms": 28,
+    "intelligence_version": "1.0.0",
+    "algorithm_used": "orca_intelligence_engine",
+    "orca_features": [
+      "interchange_optimization",
+      "loyalty_boost",
+      "platinum_tier_benefits",
+      "risk_assessment"
+    ]
+  }
+}

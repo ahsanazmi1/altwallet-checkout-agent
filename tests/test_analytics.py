@@ -409,7 +409,9 @@ class TestAnalyticsLogger:
 
         logger = AnalyticsLogger()
         routing_hint = RoutingHint(
-            preferred_network="visa", penalty_or_incentive="none", confidence=0.9
+            preferred_network="visa",
+            penalty_or_incentive="none",
+            confidence=0.9,
         )
 
         event_id = logger.log_routing_analysis(

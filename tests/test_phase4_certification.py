@@ -111,7 +111,11 @@ class TestDocumentationCompleteness:
     def test_deployment_documentation_completeness(self):
         """Test that deployment documentation is complete."""
         # Check for deployment guides
-        deployment_docs = ["docs/DEPLOYMENT.md", "docs/KUBERNETES.md", "docs/DOCKER.md"]
+        deployment_docs = [
+            "docs/DEPLOYMENT.md",
+            "docs/KUBERNETES.md",
+            "docs/DOCKER.md",
+        ]
 
         for doc_path in deployment_docs:
             if Path(doc_path).exists():

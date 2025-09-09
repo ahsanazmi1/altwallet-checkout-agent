@@ -44,7 +44,10 @@ class CardDatabase:
                     "dining": 0.025,
                     "online_grocery": 0.025,
                 },
-                "travel_benefits": ["Trip cancellation insurance", "Auto rental CDW"],
+                "travel_benefits": [
+                    "Trip cancellation insurance",
+                    "Auto rental CDW",
+                ],
                 "foreign_transaction_fee": 0.0,
                 "credit_score_required": "Good",
                 "intro_apr": 0.0,

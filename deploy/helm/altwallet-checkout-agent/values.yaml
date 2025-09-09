@@ -1,4 +1,4 @@
-# Default values for altwallet-checkout-agent
+# Default values for orca-checkout-agent
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -11,7 +11,7 @@ global:
 # Image configuration
 image:
   registry: docker.io
-  repository: altwallet/checkout-agent
+  repository: orca/checkout-agent
   tag: "1.0.0"
   pullPolicy: IfNotPresent
   pullSecrets: []
@@ -57,7 +57,7 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: altwallet-checkout-agent.local
+    - host: orca-checkout-agent.local
       paths:
         - path: /
           pathType: Prefix
@@ -143,21 +143,21 @@ env:
   - name: DATABASE_URL
     valueFrom:
       secretKeyRef:
-        name: altwallet-checkout-agent-secrets
+        name: orca-checkout-agent-secrets
         key: database-url
   
   # Redis configuration
   - name: REDIS_URL
     valueFrom:
       secretKeyRef:
-        name: altwallet-checkout-agent-secrets
+        name: orca-checkout-agent-secrets
         key: redis-url
   
   # API configuration
   - name: API_KEY
     valueFrom:
       secretKeyRef:
-        name: altwallet-checkout-agent-secrets
+        name: orca-checkout-agent-secrets
         key: api-key
   
   # Monitoring configuration
@@ -316,7 +316,7 @@ vpa:
   updatePolicy: "Auto"
   resourcePolicy:
     containerPolicies:
-    - containerName: altwallet-checkout-agent
+    - containerName: orca-checkout-agent
       maxAllowed:
         cpu: 2
         memory: 4Gi

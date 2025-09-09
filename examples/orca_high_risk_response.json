@@ -1,0 +1,106 @@
+{
+  "transaction_id": "orca_txn_high_risk_789",
+  "decision": "REVIEW",
+  "score": 0.42,
+  "status": "completed",
+  "recommendations": [
+    {
+      "card_id": "chase_freedom_unlimited",
+      "card_name": "Chase Freedom Unlimited",
+      "rank": 1,
+      "p_approval": 0.58,
+      "expected_rewards": 0.015,
+      "utility": 0.45,
+      "explainability": {
+        "baseline": 0.50,
+        "contributions": [
+          {
+            "feature": "cross_border_risk",
+            "contribution": -0.30,
+            "direction": "negative"
+          },
+          {
+            "feature": "high_amount",
+            "contribution": -0.20,
+            "direction": "negative"
+          },
+          {
+            "feature": "velocity_flag",
+            "contribution": -0.15,
+            "direction": "negative"
+          },
+          {
+            "feature": "chargeback_history",
+            "contribution": -0.10,
+            "direction": "negative"
+          }
+        ],
+        "top_drivers": {
+          "positive": [],
+          "negative": [
+            {
+              "feature": "cross_border_risk",
+              "value": "true",
+              "impact": -0.30
+            },
+            {
+              "feature": "high_amount",
+              "value": "2499.99",
+              "impact": -0.20
+            },
+            {
+              "feature": "velocity_flag",
+              "value": "true",
+              "impact": -0.15
+            }
+          ]
+        }
+      },
+      "audit": {
+        "config_versions": {
+          "scoring": "v1.2.0",
+          "preferences": "v1.1.0",
+          "orca_engine": "v1.0.0"
+        },
+        "code_version": "orca_abc123def456",
+        "request_id": "orca_req_high_risk_789",
+        "latency_ms": 28
+      }
+    }
+  ],
+  "actions": [
+    {
+      "type": "kyc_required",
+      "value": true,
+      "description": "Additional identity verification required for high-value cross-border transaction"
+    },
+    {
+      "type": "risk_review",
+      "value": true,
+      "description": "Manual review required due to multiple risk factors"
+    },
+    {
+      "type": "surcharge_suppression",
+      "value": true,
+      "description": "Suppress surcharges to improve approval odds"
+    }
+  ],
+  "routing_hints": {
+    "preferred_network": "visa",
+    "fallback_networks": ["mc"],
+    "interchange_optimization": false,
+    "surcharge_suppression": true
+  },
+  "metadata": {
+    "processing_time_ms": 28,
+    "intelligence_version": "1.0.0",
+    "algorithm_used": "orca_intelligence_engine",
+    "orca_features": [
+      "risk_assessment",
+      "cross_border_detection",
+      "velocity_analysis",
+      "chargeback_monitoring",
+      "surcharge_suppression"
+    ]
+  }
+}

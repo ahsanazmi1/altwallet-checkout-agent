@@ -1,0 +1,45 @@
+{
+  "cart": {
+    "items": [
+      {
+        "item": "Gas Station Purchase",
+        "unit_price": "45.00",
+        "qty": 1,
+        "mcc": "5541",
+        "merchant_category": "Gas Stations"
+      }
+    ],
+    "currency": "USD"
+  },
+  "merchant": {
+    "name": "Shell Gas Station",
+    "mcc": "5541",
+    "network_preferences": ["visa", "mc"],
+    "location": {
+      "city": "Los Angeles",
+      "country": "US"
+    }
+  },
+  "customer": {
+    "id": "orca_customer_gas_123",
+    "loyalty_tier": "SILVER",
+    "historical_velocity_24h": 3,
+    "chargebacks_12m": 0
+  },
+  "device": {
+    "ip": "192.168.1.150",
+    "device_id": "orca_device_gas_456",
+    "ip_distance_km": 1.2,
+    "location": {
+      "city": "Los Angeles",
+      "country": "US"
+    }
+  },
+  "geo": {
+    "city": "Los Angeles",
+    "region": "CA",
+    "country": "US",
+    "lat": 34.0522,
+    "lon": -118.2437
+  }
+}

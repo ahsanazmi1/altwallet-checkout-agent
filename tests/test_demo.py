@@ -32,7 +32,9 @@ class TestCardRecommender:
         """Test that travel purchases recommend Chase Sapphire Preferred."""
         recommender = CardRecommender()
         purchase = Purchase(
-            amount=Decimal("3000.00"), category="travel", merchant="Delta Airlines"
+            amount=Decimal("3000.00"),
+            category="travel",
+            merchant="Delta Airlines",
         )
 
         best_card = recommender.get_best_card(purchase)
@@ -108,7 +110,9 @@ class TestPurchase:
     def test_purchase_creation(self):
         """Test creating a purchase object."""
         purchase = Purchase(
-            amount=Decimal("75.50"), category="restaurants", merchant="Chipotle"
+            amount=Decimal("75.50"),
+            category="restaurants",
+            merchant="Chipotle",
         )
 
         assert purchase.amount == Decimal("75.50")
@@ -138,7 +142,9 @@ class TestCard:
     def test_card_default_values(self):
         """Test card creation with default values."""
         card = Card(
-            name="Basic Card", cashback_rate=Decimal("0.01"), annual_fee=Decimal("0")
+            name="Basic Card",
+            cashback_rate=Decimal("0.01"),
+            annual_fee=Decimal("0"),
         )
 
         assert card.category_bonus is None

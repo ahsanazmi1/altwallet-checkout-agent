@@ -52,12 +52,23 @@ calculation:
                 return_value={
                     "user_preferences": {
                         "cashback_vs_points_weight": 0.7,
-                        "issuer_affinity": {"chase": 0.1, "american_express": 0.2},
+                        "issuer_affinity": {
+                            "chase": 0.1,
+                            "american_express": 0.2,
+                        },
                         "annual_fee_tolerance": 0.6,
                         "foreign_fee_sensitivity": 0.8,
                     },
-                    "loyalty_tiers": {"NONE": 1.0, "SILVER": 1.05, "GOLD": 1.10},
-                    "category_boosts": {"4511": 1.15, "5812": 1.10, "default": 1.0},
+                    "loyalty_tiers": {
+                        "NONE": 1.0,
+                        "SILVER": 1.05,
+                        "GOLD": 1.10,
+                    },
+                    "category_boosts": {
+                        "4511": 1.15,
+                        "5812": 1.10,
+                        "default": 1.0,
+                    },
                     "calculation": {
                         "min_weight": 0.5,
                         "max_weight": 1.5,
@@ -134,7 +145,10 @@ class TestPreferenceWeightingCalculation:
                 currency="USD",
             ),
             merchant=Merchant(
-                id="test_merchant", name="Test Merchant", mcc="4511", region="US"
+                id="test_merchant",
+                name="Test Merchant",
+                mcc="4511",
+                region="US",
             ),
             customer=Customer(
                 id="test_customer",
@@ -143,10 +157,16 @@ class TestPreferenceWeightingCalculation:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
             geo=Geo(
-                city="New York", region="NY", country="US", lat=40.7128, lon=-74.0060
+                city="New York",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
             ),
         )
 
@@ -394,9 +414,17 @@ class TestPreferenceWeightingCalculation:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         weight = weighting._calculate_category_weight(sample_card, context)
@@ -542,9 +570,17 @@ class TestPreferenceWeightingPromotionHelpers:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         affected_categories = ["4511", "5812"]
@@ -577,9 +613,17 @@ class TestPreferenceWeightingPromotionHelpers:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         affected_categories = ["4511", "5812"]
@@ -599,9 +643,17 @@ class TestPreferenceWeightingPromotionHelpers:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         affected_categories = ["4511", "5812"]
@@ -625,9 +677,17 @@ class TestPreferenceWeightingEdgeCases:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         # Card with minimal fields
@@ -651,9 +711,17 @@ class TestPreferenceWeightingEdgeCases:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         card = {"name": "Test Card", "issuer": "chase"}
@@ -676,9 +744,17 @@ class TestPreferenceWeightingEdgeCases:
                 chargebacks_12m=0,
             ),
             device=Device(
-                ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
+                ip="192.168.1.1",
+                user_agent="Mozilla/5.0",
+                network_preferences=[],
             ),
-            geo=Geo(city="NYC", region="NY", country="US", lat=40.7128, lon=-74.0060),
+            geo=Geo(
+                city="NYC",
+                region="NY",
+                country="US",
+                lat=40.7128,
+                lon=-74.0060,
+            ),
         )
 
         # Card that should maximize weight

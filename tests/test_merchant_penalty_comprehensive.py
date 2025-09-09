@@ -73,12 +73,21 @@ def sample_context():
         ),
         merchant=Merchant(id="amazon", name="Amazon", mcc="5411", region="US"),
         customer=Customer(
-            id="cust_123", loyalty_tier="GOLD", risk_score=0.2, chargebacks_12m=0
+            id="cust_123",
+            loyalty_tier="GOLD",
+            risk_score=0.2,
+            chargebacks_12m=0,
         ),
         device=Device(
             ip="192.168.1.1", user_agent="Mozilla/5.0", network_preferences=[]
         ),
-        geo=Geo(city="Seattle", region="WA", country="US", lat=47.6062, lon=-122.3321),
+        geo=Geo(
+            city="Seattle",
+            region="WA",
+            country="US",
+            lat=47.6062,
+            lon=-122.3321,
+        ),
     )
 
 

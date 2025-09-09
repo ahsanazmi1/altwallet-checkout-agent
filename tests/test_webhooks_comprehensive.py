@@ -44,21 +44,27 @@ class TestWebhookConfigValidation:
         """Test webhook config with negative timeout."""
         with pytest.raises(ValueError, match="Timeout must be positive"):
             WebhookConfig(
-                url="https://example.com/webhook", secret="test_secret", timeout=-1
+                url="https://example.com/webhook",
+                secret="test_secret",
+                timeout=-1,
             )
 
     def test_webhook_config_zero_timeout(self):
         """Test webhook config with zero timeout."""
         with pytest.raises(ValueError, match="Timeout must be positive"):
             WebhookConfig(
-                url="https://example.com/webhook", secret="test_secret", timeout=0
+                url="https://example.com/webhook",
+                secret="test_secret",
+                timeout=0,
             )
 
     def test_webhook_config_negative_max_retries(self):
         """Test webhook config with negative max retries."""
         with pytest.raises(ValueError, match="Max retries cannot be negative"):
             WebhookConfig(
-                url="https://example.com/webhook", secret="test_secret", max_retries=-1
+                url="https://example.com/webhook",
+                secret="test_secret",
+                max_retries=-1,
             )
 
     def test_webhook_config_negative_retry_delay_base(self):
@@ -185,7 +191,9 @@ class TestWebhookManagerSendEvent:
     async def test_send_event_webhook_disabled(self, webhook_manager):
         """Test send event to disabled webhook."""
         config = WebhookConfig(
-            url="https://example.com/webhook", secret="test_secret", enabled=False
+            url="https://example.com/webhook",
+            secret="test_secret",
+            enabled=False,
         )
 
         await webhook_manager.add_webhook("test_webhook", config)
@@ -350,7 +358,9 @@ class TestWebhookManagerRetryLogic:
     async def test_retry_scheduling(self, webhook_manager):
         """Test retry scheduling."""
         config = WebhookConfig(
-            url="https://example.com/webhook", secret="test_secret", max_retries=2
+            url="https://example.com/webhook",
+            secret="test_secret",
+            max_retries=2,
         )
 
         await webhook_manager.add_webhook("test_webhook", config)
@@ -385,7 +395,9 @@ class TestWebhookManagerRetryLogic:
     async def test_retry_webhook_success(self, webhook_manager):
         """Test retry webhook with success."""
         config = WebhookConfig(
-            url="https://example.com/webhook", secret="test_secret", max_retries=2
+            url="https://example.com/webhook",
+            secret="test_secret",
+            max_retries=2,
         )
 
         await webhook_manager.add_webhook("test_webhook", config)
@@ -417,7 +429,9 @@ class TestWebhookManagerRetryLogic:
     async def test_retry_webhook_max_retries_exceeded(self, webhook_manager):
         """Test retry webhook when max retries exceeded."""
         config = WebhookConfig(
-            url="https://example.com/webhook", secret="test_secret", max_retries=2
+            url="https://example.com/webhook",
+            secret="test_secret",
+            max_retries=2,
         )
 
         await webhook_manager.add_webhook("test_webhook", config)

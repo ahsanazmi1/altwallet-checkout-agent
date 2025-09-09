@@ -1,12 +1,82 @@
-# AltWallet Checkout Agent
+# 🐋 Orca Checkout Agent
 
-AltWallet Checkout Agent is a production-minded Python scaffold for intelligent checkout processing and card recommendations. It provides a robust foundation for processing transactions, scoring, and providing intelligent card recommendations with a clean API and CLI interface.
+**Intelligent Payment Processing & Card Recommendations**
+
+Orca Checkout Agent is the next-generation payment processing platform that combines intelligent decision-making with real-time card recommendations. Built for scale, security, and performance, Orca delivers optimal payment experiences across online and in-person transactions.
+
+[![CI Status](https://github.com/orca/checkout-agent/workflows/Orca%20CI/badge.svg)](https://github.com/orca/checkout-agent/actions)
+[![Quality Gates](https://github.com/orca/checkout-agent/workflows/Orca%20Quality%20Gates/badge.svg)](https://github.com/orca/checkout-agent/actions)
+[![Coverage](https://codecov.io/gh/orca/checkout-agent/branch/main/graph/badge.svg)](https://codecov.io/gh/orca/checkout-agent)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-orca%2Fcheckout--agent-blue.svg)](https://hub.docker.com/r/orca/checkout-agent)
+
+## 🎯 Why Orca?
+
+**Orca** represents the evolution of intelligent payment processing, combining the power of machine learning with real-time decision-making to deliver optimal payment experiences.
+
+### 🚀 **Key Benefits**
+
+- **🧠 Intelligent Decision Engine**: Real-time APPROVE/REVIEW/DECLINE decisions with explainable AI
+- **💳 Smart Card Recommendations**: Optimized card selection based on rewards, fees, and risk
+- **🔄 Interchange Optimization**: Automatic routing to minimize processing costs
+- **🎁 Loyalty Integration**: Dynamic loyalty boosts and tier-based benefits
+- **⚡ Sub-50ms Latency**: High-performance processing for real-time applications
+- **🛡️ Enterprise Security**: Bank-grade security with comprehensive audit trails
+- **📊 Real-time Analytics**: Live insights into approval rates and performance metrics
+
+### 🌊 **Orca Ecosystem**
+
+- **🐋 Orca Checkout Agent** (this repo): Intelligent decisioning and card recommendations
+- **🧵 Weave Core**: Payment processing and settlement infrastructure
+- **🎁 Redemption Agent**: Loyalty program and reward management
+- **🔗 Interop Layer**: Seamless agent-to-agent communication
+
+## 🚀 Quick Start
+
+### 30-Second Demo
+
+```bash
+# Install Orca Checkout Agent
+pip install orca-checkout
+
+# Process a transaction
+orca_checkout checkout --merchant-id "whole-foods" --amount 89.99
+
+# Example Response
+{
+  "transaction_id": "orca_txn_123",
+  "decision": "APPROVE",
+  "score": 0.88,
+  "recommendations": [
+    {
+      "card_id": "chase_sapphire_preferred",
+      "card_name": "Chase Sapphire Preferred",
+      "rank": 1,
+      "p_approval": 0.94,
+      "expected_rewards": 0.025,
+      "utility": 0.91
+    }
+  ],
+  "actions": [
+    {
+      "type": "discount",
+      "value": 0.03,
+      "description": "3% cashback bonus for grocery category"
+    }
+  ],
+  "routing_hints": {
+    "preferred_network": "visa",
+    "interchange_optimization": true
+  }
+}
+```
 
 ## Phase 4 — Platformization ✅
 
 **Status**: ✅ **COMPLETED** (v0.4.0)
 
-Phase 4 has successfully transformed the AltWallet Checkout Agent into a production-ready platform with comprehensive SDK support, deployment flexibility, and enterprise-grade certification capabilities.
+Phase 4 has successfully transformed the Orca Checkout Agent into a production-ready platform with comprehensive SDK support, deployment flexibility, and enterprise-grade certification capabilities.
 
 ### 🚀 **Completed Deliverables**
 
@@ -237,43 +307,74 @@ The system provides comprehensive explainability through:
 
 #### **Python SDK**
 ```python
-from altwallet_sdk import AltWalletClient
+from orca_sdk import OrcaClient
 
 # Initialize client
-client = AltWalletClient(api_key="your-api-key")
+client = OrcaClient(api_key="your-orca-api-key")
 
-# Process checkout
+# Process checkout with Orca intelligence
 response = await client.process_checkout(
-    merchant_id="amazon",
-    amount=150.00,
-    currency="USD"
+    merchant_id="whole-foods",
+    amount=89.99,
+    cart_items=[
+        {"item": "Organic Groceries", "unit_price": "89.99", "qty": 1, "mcc": "5411"}
+    ],
+    customer_loyalty_tier="GOLD"
 )
 
-# Get recommendations
+# Get Orca decision and recommendations
+print(f"Decision: {response.decision}")  # APPROVE/REVIEW/DECLINE
+print(f"Score: {response.score}")        # 0.88
+
+# Get top recommendation
 recommendations = response.recommendations
 print(f"Top recommendation: {recommendations[0].card_name}")
+
+# Get Orca actions
+for action in response.actions:
+    print(f"Action: {action.type} - {action.description}")
+
+# Get routing hints
+print(f"Preferred network: {response.routing_hints.preferred_network}")
+print(f"Interchange optimization: {response.routing_hints.interchange_optimization}")
 ```
 
 #### **Node.js SDK**
 ```javascript
-import { AltWalletClient } from '@altwallet/sdk';
+import { OrcaClient } from '@orca/sdk';
 
 // Initialize client
-const client = new AltWalletClient({
-  apiKey: 'your-api-key',
-  baseUrl: 'https://api.altwallet.com'
+const client = new OrcaClient({
+  apiKey: 'your-orca-api-key',
+  baseUrl: 'https://api.orca.com'
 });
 
-// Process checkout
+// Process checkout with Orca intelligence
 const response = await client.processCheckout({
-  merchantId: 'amazon',
-  amount: 150.00,
-  currency: 'USD'
+  merchantId: 'whole-foods',
+  amount: 89.99,
+  cartItems: [
+    { item: 'Organic Groceries', unitPrice: '89.99', qty: 1, mcc: '5411' }
+  ],
+  customerLoyaltyTier: 'GOLD'
 });
 
-// Get recommendations
+// Get Orca decision and recommendations
+console.log(`Decision: ${response.decision}`);  // APPROVE/REVIEW/DECLINE
+console.log(`Score: ${response.score}`);        // 0.88
+
+// Get top recommendation
 const recommendations = response.recommendations;
 console.log(`Top recommendation: ${recommendations[0].cardName}`);
+
+// Get Orca actions
+response.actions.forEach(action => {
+  console.log(`Action: ${action.type} - ${action.description}`);
+});
+
+// Get routing hints
+console.log(`Preferred network: ${response.routingHints.preferredNetwork}`);
+console.log(`Interchange optimization: ${response.routingHints.interchangeOptimization}`);
 ```
 
 ### 🏗️ **Deployment Quickstart**
@@ -281,11 +382,11 @@ console.log(`Top recommendation: ${recommendations[0].cardName}`);
 #### **Kubernetes (Helm)**
 ```bash
 # Add Helm repository
-helm repo add altwallet https://charts.altwallet.com
+helm repo add orca https://charts.orca.com
 helm repo update
 
 # Deploy to Kubernetes
-helm install checkout-agent altwallet/altwallet-checkout-agent \
+helm install checkout-agent orca/orca-checkout-agent \
   --set image.tag=v0.4.0 \
   --set deployment.mode=sidecar \
   --set resources.requests.memory=512Mi
@@ -294,7 +395,7 @@ helm install checkout-agent altwallet/altwallet-checkout-agent \
 #### **Terraform (AWS)**
 ```hcl
 module "checkout_agent" {
-  source = "altwallet/checkout-agent/aws"
+  source = "orca/checkout-agent/aws"
   
   environment = "production"
   deployment_mode = "sidecar"
@@ -312,7 +413,7 @@ module "checkout_agent" {
 version: '3.8'
 services:
   checkout-agent:
-    image: altwallet/checkout-agent:v0.4.0
+    image: orca/checkout-agent:v0.4.0
     ports:
       - "8000:8000"
     environment:
@@ -332,20 +433,20 @@ services:
 pip install -e .
 
 # Basic checkout processing
-altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+orca_checkout checkout --merchant-id "amazon" --amount 150.00
 
 # Score a transaction from file
-altwallet_agent score --input examples/context_basic.json
+orca_checkout score --input examples/context_basic.json
 
 # Show help
-altwallet_agent --help
+orca_checkout --help
 ```
 
 ### API Quickstart
 
 ```bash
 # Start the API server
-uvicorn src.altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn src.orca_checkout.api:app --host 0.0.0.0 --port 8000 --reload
 
 # Health check
 curl http://localhost:8000/health
@@ -658,20 +759,20 @@ The complete OpenAPI 3.0.3 specification is available at:
 
 ### CLI Commands
 
-The AltWallet Checkout Agent provides a rich CLI interface:
+The Orca Checkout Agent provides a rich CLI interface:
 
 ```bash
 # Show help
-altwallet_agent --help
+orca_checkout --help
 
 # Process a checkout request
-altwallet_agent checkout --merchant-id "amazon" --amount 150.00
+orca_checkout checkout --merchant-id "amazon" --amount 150.00
 
 # Score a transaction from file
-altwallet_agent score --file tests/data/sample_transaction.json
+orca_checkout score --file tests/data/sample_transaction.json
 
 # Show version information
-altwallet_agent --version
+orca_checkout --version
 ```
 
 ### API Endpoints
@@ -680,7 +781,7 @@ The FastAPI application provides RESTful endpoints:
 
 ```bash
 # Start the API server
-uvicorn altwallet_agent.api:app --host 0.0.0.0 --port 8000 --reload
+uvicorn orca_checkout.api:app --host 0.0.0.0 --port 8000 --reload
 
 # Health check
 curl http://localhost:8000/health
@@ -704,8 +805,8 @@ curl http://localhost:8000/openapi.json
 ### Project Structure
 
 ```
-altwallet-checkout-agent/
-├── src/altwallet_agent/          # Main package
+orca-checkout-agent/
+├── src/orca_checkout/            # Main Orca package
 │   ├── __init__.py              # Package exports
 │   ├── api.py                   # FastAPI application
 │   ├── cli.py                   # CLI interface with Typer
@@ -720,7 +821,7 @@ altwallet-checkout-agent/
 │   └── models.py               # Pydantic data models
 ├── sdk/                         # Phase 4 SDK ecosystem
 │   ├── python/                 # Python SDK
-│   │   ├── altwallet_sdk/      # SDK package
+│   │   ├── orca_sdk/           # SDK package
 │   │   ├── examples/           # Usage examples
 │   │   └── setup.py            # Package setup
 │   └── nodejs/                 # Node.js SDK
@@ -807,7 +908,7 @@ make build-docker
 docker-compose up -d
 
 # Or run directly
-docker run -p 8080:8080 altwallet/checkout-agent:0.1.0
+docker run -p 8080:8080 orca/checkout-agent:0.1.0
 ```
 
 ### Docker Usage
@@ -815,16 +916,16 @@ docker run -p 8080:8080 altwallet/checkout-agent:0.1.0
 **Build and run the API server:**
 ```bash
 # Build image
-docker build -t altwallet/checkout-agent:latest .
+docker build -t orca/checkout-agent:latest .
 
 # Run API server
-docker run -p 8000:8000 altwallet/checkout-agent:latest
+docker run -p 8000:8000 orca/checkout-agent:latest
 
 # Run with environment variables
 docker run -p 8000:8000 \
   -e ENVIRONMENT=production \
   -e LOG_LEVEL=INFO \
-  altwallet/checkout-agent:latest
+  orca/checkout-agent:latest
 ```
 
 **Run CLI commands with Docker:**
@@ -832,12 +933,12 @@ docker run -p 8000:8000 \
 # Score a transaction
 docker run --rm \
   -v "$(pwd)/examples:/data:ro" \
-  altwallet/checkout-agent:latest \
+  orca/checkout-agent:latest \
   altwallet_agent score --input /data/context_basic.json
 
 # Process checkout
 docker run --rm \
-  altwallet/checkout-agent:latest \
+  orca/checkout-agent:latest \
   altwallet_agent checkout --merchant-id "amazon" --amount 150.00
 ```
 
@@ -862,7 +963,7 @@ docker-compose down
 # Or manually
 docker run --rm \
   -v "$(pwd)/data:/data:ro" \
-  altwallet/checkout-agent:0.1.0 \
+  orca/checkout-agent:0.1.0 \
   python -m altwallet_agent score --input /data/context.json
 ```
 
@@ -933,6 +1034,55 @@ The application uses structured logging with JSON format and includes:
 5. Ensure all tests pass
 6. Submit a pull request
 
-## License
+## 🗺️ Roadmap
+
+### 🎯 **Current Release: v1.1.0-orca.0**
+- ✅ Complete Orca branding migration
+- ✅ Enhanced API with decision engine
+- ✅ Enterprise-grade quality gates
+- ✅ Comprehensive documentation
+
+### 🚀 **Upcoming Releases**
+
+#### **v1.2.0 (Q1 2025)**
+- 🔄 Remove compatibility shims
+- 🎯 Complete package rename to `orca_checkout`
+- 🧠 Enhanced machine learning features
+- ⚡ Performance optimizations
+
+#### **v2.0.0 (Q2 2025)**
+- 🌊 Complete Orca ecosystem integration
+- 🤖 Advanced AI decision engine
+- 🌍 Global edge deployment
+- 🔒 Enhanced security features
+
+### 📋 **Feature Requests**
+- [GitHub Issues](https://github.com/orca/checkout-agent/issues) - Report bugs and request features
+- [Discussions](https://github.com/orca/checkout-agent/discussions) - Community discussions
+- [Roadmap](https://github.com/orca/checkout-agent/projects) - Public roadmap tracking
+
+## 🤝 Contributing
+
+We welcome contributions to the Orca ecosystem! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### 🎯 **Areas for Contribution**
+- 🧠 Machine learning model improvements
+- 🚀 Performance optimizations
+- 📚 Documentation enhancements
+- 🧪 Test coverage improvements
+- 🌍 Internationalization support
+
+## 📄 License
 
 MIT License - see LICENSE file for details.
+
+## 🆘 Support
+
+- **📧 Email**: support@orca.com
+- **💬 GitHub Discussions**: [Community Support](https://github.com/orca/checkout-agent/discussions)
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/orca/checkout-agent/issues)
+- **📚 Documentation**: [Orca Docs](https://docs.orca.com)
+
+---
+
+**Made with ❤️ by the Orca Team** 🐋

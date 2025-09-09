@@ -140,10 +140,14 @@ class TestCompositeUtility:
 
         # Mock preference and penalty calculations
         with patch.object(
-            self.utility.preference_weighting, "preference_weight", return_value=1.1
+            self.utility.preference_weighting,
+            "preference_weight",
+            return_value=1.1,
         ):
             with patch.object(
-                self.utility.merchant_penalty, "merchant_penalty", return_value=0.95
+                self.utility.merchant_penalty,
+                "merchant_penalty",
+                return_value=0.95,
             ):
                 context = self.create_sample_context()
                 card = self.sample_cards[0]

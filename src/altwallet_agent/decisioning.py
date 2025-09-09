@@ -78,7 +78,8 @@ class RoutingHint(BaseModel):
         description="Type of penalty or incentive applied",
     )
     approval_odds: float | None = Field(
-        default=None, description="Phase 2 scoring: approval probability (0.0 to 1.0)"
+        default=None,
+        description="Phase 2 scoring: approval probability (0.0 to 1.0)",
     )
     network_preferences: list[str] = Field(
         default_factory=list,
@@ -88,7 +89,8 @@ class RoutingHint(BaseModel):
         default=None, description="MCC-based routing hint if applicable"
     )
     confidence: float = Field(
-        default=0.8, description="Confidence in routing recommendation (0.0 to 1.0)"
+        default=0.8,
+        description="Confidence in routing recommendation (0.0 to 1.0)",
     )
 
     @computed_field
@@ -376,7 +378,10 @@ class DecisionEngine:
         return MCC_TO_NETWORK_MAPPING.get(mcc)
 
     def _calculate_routing_confidence(
-        self, context: Context, score_result: ScoreResult, preferred_network: str
+        self,
+        context: Context,
+        score_result: ScoreResult,
+        preferred_network: str,
     ) -> float:
         """
         Calculate confidence in routing recommendation.

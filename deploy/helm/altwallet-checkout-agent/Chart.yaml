@@ -1,17 +1,17 @@
 apiVersion: v2
-name: altwallet-checkout-agent
-description: AltWallet Checkout Agent - Intelligent card recommendations and transaction scoring
+name: orca-checkout-agent
+description: Orca Checkout Agent - Intelligent card recommendations and transaction scoring
 type: application
 version: 1.0.0
 appVersion: "1.0.0"
-home: https://github.com/altwallet/checkout-agent
+home: https://github.com/orca/checkout-agent
 sources:
-  - https://github.com/altwallet/checkout-agent
+  - https://github.com/orca/checkout-agent
 maintainers:
-  - name: AltWallet Team
-    email: team@altwallet.com
+  - name: Orca Team
+    email: team@orca.com
 keywords:
-  - altwallet
+  - orca
   - checkout
   - payment
   - credit-cards

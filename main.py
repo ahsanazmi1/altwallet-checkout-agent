@@ -68,10 +68,12 @@ class CheckoutAgent:
     def __init__(self):
         self.transactions = {}
         self.status = "idle"
+        from altwallet_agent.config import get_config
+        config = get_config()
         self.config = {
-            "api_key": os.getenv("ALTWALLET_API_KEY"),
-            "endpoint": os.getenv("ALTWALLET_ENDPOINT", "https://api.altwallet.com"),
-            "timeout": int(os.getenv("REQUEST_TIMEOUT", "30000")),
+            "api_key": config.api_key,
+            "endpoint": config.api_endpoint,
+            "timeout": config.timeout,
         }
 
     async def initialize(self):

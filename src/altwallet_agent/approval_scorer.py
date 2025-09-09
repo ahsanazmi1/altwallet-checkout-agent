@@ -71,7 +71,8 @@ class ApprovalResult(BaseModel):
         None, description="Feature attributions"
     )
     additive_attributions: AdditiveAttributions | None = Field(
-        None, description="Additive feature attributions on pre-calibration scale"
+        None,
+        description="Additive feature attributions on pre-calibration scale",
     )
 
 

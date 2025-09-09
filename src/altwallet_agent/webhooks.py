@@ -339,7 +339,10 @@ class WebhookManager:
 
         # Create payload
         payload = WebhookPayload.create(
-            event_type=event_type, data=data, event_id=event_id, metadata=metadata
+            event_type=event_type,
+            data=data,
+            event_id=event_id,
+            metadata=metadata,
         )
 
         # Find webhooks for this event type

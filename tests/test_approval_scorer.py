@@ -77,7 +77,10 @@ class TestApprovalScorer:
                 "issuer_family_weights": {"visa": 0.1},
                 "cross_border_weight": -2.0,
                 "location_mismatch_weights": {"0-10": 0.0},
-                "velocity_weights": {"24h": {"0-10": 0.0}, "7d": {"0-50": 0.0}},
+                "velocity_weights": {
+                    "24h": {"0-10": 0.0},
+                    "7d": {"0-50": 0.0},
+                },
                 "chargeback_weights": {"0": 0.0},
                 "merchant_risk_weights": {"low": 0.5},
                 "loyalty_weights": {"GOLD": 1.0},
@@ -218,7 +221,10 @@ class TestApprovalScorer:
                 "issuer_family_weights": {"unknown": 0.0},
                 "cross_border_weight": 0.0,
                 "location_mismatch_weights": {"0-10": 0.0},
-                "velocity_weights": {"24h": {"0-10": 0.0}, "7d": {"0-50": 0.0}},
+                "velocity_weights": {
+                    "24h": {"0-10": 0.0},
+                    "7d": {"0-50": 0.0},
+                },
                 "chargeback_weights": {"0": 0.0},
                 "merchant_risk_weights": {"unknown": 0.0},
                 "loyalty_weights": {"NONE": 0.0},

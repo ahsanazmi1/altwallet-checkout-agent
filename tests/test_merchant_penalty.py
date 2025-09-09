@@ -299,7 +299,10 @@ calculation:
             merchant=Merchant(
                 name="test_merchant",
                 mcc="4511",
-                network_preferences=["no_visa", "no_mastercard"],  # Extreme preferences
+                network_preferences=[
+                    "no_visa",
+                    "no_mastercard",
+                ],  # Extreme preferences
                 location={"city": "New York", "country": "US"},
             ),
             cart=self.sample_context.cart,
