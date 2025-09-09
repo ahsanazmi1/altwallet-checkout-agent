@@ -1,17 +1,17 @@
-name: CI
+name: Orca CI
 
 on:
   push:
-    branches: [ main, phase1-core-engine, phase2-intelligence, develop ]
+    branches: [ main, orca-phase-align, develop ]
   pull_request:
-    branches: [ main, phase1-core-engine, phase2-intelligence, develop ]
+    branches: [ main, orca-phase-align, develop ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11.9", "3.12.9"]
+        python-version: ["3.12", "3.13"]
 
     steps:
     - uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
     
     - name: Run tests with pytest
       run: |
-        pytest tests/ -v --cov=src/altwallet_agent --cov-report=xml
+        pytest tests/ -v --cov=src/orca_checkout --cov-report=xml --cov-fail-under=85
 
     - name: Run smoke tests
       run: |
@@ -117,7 +117,7 @@ jobs:
         import asyncio
         import time
         import os
-        from src.altwallet_agent.api import app
+        from src.orca_checkout.api import app
         
         # Start server briefly to generate OpenAPI schema
         config = uvicorn.Config(app, host='127.0.0.1', port=8000, log_level='error')

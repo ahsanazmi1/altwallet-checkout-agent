@@ -1,0 +1,5 @@
+[33m4ec526c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32morca-phase-align[m[33m)[m Orca Alignment: branding + non-breaking renames
+[33mb284ccf[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m fix: ensure CLI exits with code 2 when no command provided
+[33m663a2dd[m fix: resolve all CI linting issues
+[33m4e8fcef[m fix: resolve FastAPI and Pydantic deprecation warnings
+[33m4d88e36[m docs: update README for Phase 4 completion

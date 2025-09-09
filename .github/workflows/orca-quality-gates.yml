@@ -1,0 +1,422 @@
+name: Orca Quality Gates
+
+on:
+  push:
+    branches: [ main, orca-phase-align, develop ]
+  pull_request:
+    branches: [ main, orca-phase-align, develop ]
+  schedule:
+    # Run quality checks daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "18"
+
+jobs:
+  # Code Quality Checks
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for better analysis
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+    
+    # Code formatting
+    - name: Check code formatting with Black
+      run: |
+        black --check --diff src/ tests/ examples/
+    
+    # Import sorting
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only --diff src/ tests/ examples/
+    
+    # Linting
+    - name: Lint with Ruff
+      run: |
+        ruff check src/ tests/ examples/ --output-format=github
+    
+    # Type checking
+    - name: Type check with MyPy
+      run: |
+        mypy src/ --ignore-missing-imports --show-error-codes
+    
+    # Security checks
+    - name: Security check with bandit
+      run: |
+        pip install bandit
+        bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ -ll
+    
+    # Dependency vulnerability check
+    - name: Check for security vulnerabilities
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+        safety check
+
+  # Test Suite
+  test-suite:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+    
+    # Unit tests
+    - name: Run unit tests
+      run: |
+        pytest tests/ -v \
+          --cov=src/orca_checkout \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-report=term-missing \
+          --cov-fail-under=85 \
+          --junitxml=test-results.xml
+    
+    # Smoke tests
+    - name: Run smoke tests
+      run: |
+        python tests/smoke_tests.py
+      env:
+        LOG_SILENT: "1"
+    
+    # Integration tests
+    - name: Run integration tests
+      run: |
+        pytest tests/ -k "integration" -v --tb=short
+    
+    # Golden regression tests
+    - name: Run golden regression tests
+      run: |
+        pytest tests/test_golden.py -v --tb=short
+    
+    # Upload coverage reports
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: orca-checkout-agent
+        fail_ci_if_error: true
+    
+    # Upload test results
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}
+        path: |
+          test-results.xml
+          htmlcov/
+          coverage.xml
+
+  # API Validation
+  api-validation:
+    name: API Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+    
+    # Generate OpenAPI schema
+    - name: Generate OpenAPI schema
+      run: |
+        python -c "
+        import uvicorn
+        import asyncio
+        import time
+        import os
+        from src.orca_checkout.api import app
+        
+        # Start server briefly to generate OpenAPI schema
+        config = uvicorn.Config(app, host='127.0.0.1', port=8000, log_level='error')
+        server = uvicorn.Server(config)
+        
+        async def generate_schema():
+            await server.serve()
+        
+        # Run server for a short time to generate schema
+        try:
+            asyncio.run(asyncio.wait_for(generate_schema(), timeout=5.0))
+        except asyncio.TimeoutError:
+            pass  # Expected - we just want to generate the schema file
+        
+        print('OpenAPI schema generated')
+        "
+    
+    # Validate OpenAPI schema
+    - name: Validate OpenAPI schema
+      run: |
+        python -c "
+        import json
+        import os
+        schema_path = 'openapi/openapi.json'
+        if not os.path.exists(schema_path):
+            print(f'OpenAPI schema file not found at {schema_path}')
+            print('Available files in openapi/ directory:')
+            if os.path.exists('openapi/'):
+                for f in os.listdir('openapi/'):
+                    print(f'  {f}')
+            exit(1)
+        
+        with open(schema_path, 'r') as f:
+            schema = json.load(f)
+        
+        print(f'OpenAPI schema version: {schema[\"info\"][\"version\"]}')
+        print(f'API title: {schema[\"info\"][\"title\"]}')
+        print(f'Available paths: {list(schema[\"paths\"].keys())}')
+        
+        # Validate Orca branding
+        assert 'Orca' in schema['info']['title'], 'API title should contain Orca branding'
+        assert schema['info']['version'] == '1.0.0', 'API version should be 1.0.0'
+        assert '/v1/score' in schema['paths'], 'Score endpoint should be available'
+        assert '/v1/explain' in schema['paths'], 'Explain endpoint should be available'
+        assert '/v1/healthz' in schema['paths'], 'Health endpoint should be available'
+        
+        print('OpenAPI schema validation passed')
+        "
+    
+    # Validate analytics schema
+    - name: Validate analytics schema
+      run: |
+        python -c "
+        import json
+        with open('analytics/schema.json', 'r') as f:
+            schema = json.load(f)
+        assert schema['version'] == '0.3.0'
+        assert 'analytics_events' in schema['properties']
+        print('Analytics schema validation passed')
+        "
+
+  # Orca Branding Validation
+  branding-validation:
+    name: Orca Branding Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Check for AltWallet references (should be minimal or deprecated)
+    - name: Check for AltWallet references
+      run: |
+        echo "Checking for AltWallet references..."
+        if grep -r "AltWallet" --include="*.py" --include="*.md" --include="*.yaml" --include="*.yml" --include="*.json" src/ docs/ examples/ | grep -v "deprecated\|compatibility\|migration"; then
+          echo "❌ Found non-deprecated AltWallet references - please migrate to Orca branding"
+          exit 1
+        else
+          echo "✅ No non-deprecated AltWallet references found"
+        fi
+    
+    # Check for Orca branding
+    - name: Check for Orca branding
+      run: |
+        echo "Checking for Orca branding..."
+        if ! grep -r "Orca" README.md; then
+          echo "❌ README.md should contain Orca branding"
+          exit 1
+        else
+          echo "✅ Orca branding found in README.md"
+        fi
+    
+    # Check package names
+    - name: Check package names
+      run: |
+        echo "Checking package names..."
+        if grep -q "name = \"orca_checkout\"" pyproject.toml; then
+          echo "✅ Package name correctly set to orca_checkout"
+        else
+          echo "❌ Package name should be orca_checkout"
+          exit 1
+        fi
+    
+    # Check Docker labels
+    - name: Check Docker labels
+      run: |
+        echo "Checking Docker labels..."
+        if grep -q "org.opencontainers.image.title=\"Orca Checkout Agent\"" Dockerfile; then
+          echo "✅ Docker title correctly set to Orca Checkout Agent"
+        else
+          echo "❌ Docker title should be Orca Checkout Agent"
+          exit 1
+        fi
+
+  # Performance Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        pip install -e .
+    
+    # Load testing
+    - name: Run load tests
+      run: |
+        pip install locust
+        # Start the API server in background
+        python -m uvicorn src.orca_checkout.api:app --host 0.0.0.0 --port 8000 &
+        sleep 10
+        
+        # Run basic load test
+        locust -f tests/load_test.py --headless -u 10 -r 2 -t 30s --host http://localhost:8000 || true
+
+  # Documentation Validation
+  docs-validation:
+    name: Documentation Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    # Check markdown formatting
+    - name: Check markdown formatting
+      run: |
+        npm install -g markdownlint-cli
+        markdownlint docs/ README.md --fix || true
+        markdownlint docs/ README.md
+    
+    # Check for broken links
+    - name: Check for broken links
+      run: |
+        npm install -g markdown-link-check
+        find docs/ -name "*.md" -exec markdown-link-check {} \; || true
+
+  # Security Scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Quality Gate Summary
+  quality-gate-summary:
+    name: Quality Gate Summary
+    runs-on: ubuntu-latest
+    needs: [code-quality, test-suite, api-validation, branding-validation, performance-tests, docs-validation, security-scan]
+    if: always()
+    
+    steps:
+    - name: Quality Gate Summary
+      run: |
+        echo "## 🐋 Orca Quality Gates Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Code Quality | ${{ needs.code-quality.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Suite | ${{ needs.test-suite.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| API Validation | ${{ needs.api-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Branding Validation | ${{ needs.branding-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance Tests | ${{ needs.performance-tests.result == 'success' && '✅ Passed' || '❌ Failed' || '⏭️ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Documentation | ${{ needs.docs-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Overall status
+        if [[ "${{ needs.code-quality.result }}" == "success" && "${{ needs.test-suite.result }}" == "success" && "${{ needs.api-validation.result }}" == "success" && "${{ needs.branding-validation.result }}" == "success" ]]; then
+          echo "### 🎉 All Quality Gates Passed!" >> $GITHUB_STEP_SUMMARY
+          echo "The Orca Checkout Agent is ready for deployment." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ⚠️ Quality Gates Failed" >> $GITHUB_STEP_SUMMARY
+          echo "Please address the failing checks before merging." >> $GITHUB_STEP_SUMMARY
+        fi
